@@ -26,6 +26,9 @@ def start_menu(self, context):
     layout.separator()
     layout.operator("ac.add_start")
     layout.operator("ac.add_hotlap_start")
+    layout.operator('ac.add_time_gate')
+    layout.operator("ac.add_ab_start_gate")
+    layout.operator("ac.add_ab_finish_gate")
 
 def pit_menu(self, context):
     layout: UILayout = self.layout
@@ -42,4 +45,3 @@ def surface_menu(self, context):
     layout.separator()
     layout.menu("WM_MT_AssignSurface")
     layout.operator("ac.assign_wall")
-

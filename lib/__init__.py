@@ -8,11 +8,15 @@ from .menus.ops.surface import (
     AC_AssignWall
 )
 from .menus.ops.project import (
-    AC_AddHotlapStart,
-    AC_AddPitbox,
     AC_SaveSettings,
     AC_LoadSettings,
-    AC_AddStart
+    AC_AddPitbox,
+    AC_AddStart,
+    AC_AddHotlapStart,
+    AC_AddTimeGate,
+    AC_AddABStartGate,
+    AC_AddABFinishGate
+
 )
 from .menus.ops.track import (
     AC_AddTag,
@@ -36,7 +40,8 @@ from .settings import AC_Settings
 __classes__ = (
     AC_InitSurfaces, AC_AddSurface, AC_RemoveSurface, AC_ToggleSurface, AC_AssignSurface, AC_AssignWall,
     AC_AddTag, AC_RemoveTag, AC_AddGeoTag, AC_RemoveGeoTag, AC_ToggleTag, AC_ToggleGeoTag,
-    AC_SaveSettings, AC_LoadSettings, AC_AddStart, AC_AddHotlapStart, AC_AddPitbox,
+    AC_SaveSettings, AC_LoadSettings,
+    AC_AddStart, AC_AddHotlapStart, AC_AddPitbox, AC_AddTimeGate, AC_AddABStartGate, AC_AddABFinishGate,
     AC_Surface, AC_Track, AC_Settings,
     AC_UL_Tags,
     VIEW3D_PT_AC_Sidebar_Project, VIEW3D_PT_AC_Sidebar_Track, VIEW3D_PT_AC_Sidebar_Surfaces,
