@@ -1,0 +1,12 @@
+{
+  "name": "My Cool Track",
+  "description": "A really cool race track",
+  "tags": [""],
+  "geotags": ["lat", "lon"],
+  "country": "USA",
+  "city": "Los Angeles",
+  "length": 1000,
+  "width": 10,
+  "pitboxes": 1,
+  "run": "clockwise"
+}
