@@ -25,7 +25,7 @@
   - [x] Tags
   - [x] Metadata
   - [x] save/load
-- [x] Surfaces
+- [x] Surfaces + Nodes
   - [x] Assign Surface, Wall, Physics
   - [x] Create Race Nodes
     - [x] Start
