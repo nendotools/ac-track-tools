@@ -17,8 +17,10 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
         col = layout.column(align=True)
         col.prop(settings, "working_dir", text="Working Directory")
         if settings.working_dir:
-            col.operator("ac.save_settings", text="Save Settings")
-            col.operator("ac.load_settings", text="Load Settings")
+            row = col.row()
+            row.operator("ac.save_settings", text="Save Settings")
+            row.separator()
+            row.operator("ac.load_settings", text="Load Settings")
         else:
             col.label(text="Please set a working directory")
 
@@ -35,9 +37,8 @@ class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
         col = layout.column(align=True)
         col.prop(track, "name", text="Name")
         col.prop(track, "description", text="Description")
-        # add tags
         split = col.split(factor=0.5)
-        # location data
+        # location display
         col = split.column(align=True)
         col.prop(track, "country", text="Country")
         col.prop(track, "city", text="City")
@@ -46,7 +47,7 @@ class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
         col.prop(track, "width", text="Width")
         col.prop(track, "run", text="Run")
 
-        # show existing tags
+        # tag display
         col = layout.column(align=True)
         row = col.row()
         row.label(text="Tags")
@@ -57,6 +58,7 @@ class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
             inner.operator("ac.add_tag", text="New Tag", icon='ADD')
             row.template_list("AC_UL_Tags", "", track, "tags", track, "tags_index", rows=3)
 
+        # geotag display
         col = layout.column(align=True)
         row = col.row()
         row.label(text="GeoTags")

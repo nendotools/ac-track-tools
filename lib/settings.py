@@ -104,6 +104,43 @@ class AC_Settings(PropertyGroup):
     def load_track(self, track: dict):
         self.track.from_dict(track)
 
+    def get_starts(self, context) -> list[Object]:
+        return [obj for obj in context.scene.objects if obj.name.startswith("AC_START")]
+
+    def get_pitboxes(self, context) -> list[Object]:
+        return [obj for obj in context.scene.objects if obj.name.startswith("AC_PITBOX")]
+
+    def get_hotlap_starts(self, context) -> list[Object]:
+        return [obj for obj in context.scene.objects if obj.name.startswith("AC_HOTLAP_START")]
+
+    def get_time_gates(self, context) -> list[Object]:
+        return [obj for obj in context.scene.objects if obj.name.startswith("AC_TIME")]
+
+    def get_ab_start_gates(self, context) -> list[Object]:
+        return [obj for obj in context.scene.objects if obj.name.startswith("AC_AB_START")]
+
+    def get_ab_finish_gates(self, context) -> list[Object]:
+        return [obj for obj in context.scene.objects if obj.name.startswith("AC_AB_FINISH")]
+
+    def consolidate_logic_gates(self, context):
+        starts = self.get_starts(context)
+        hotlap_starts = self.get_hotlap_starts(context)
+        time_gates = self.get_time_gates(context)
+        pitboxes = self.get_pitboxes(context)
+
+        for i, gate in enumerate(starts):
+            gate.name = f"AC_START_{i}"
+        for i, gate in enumerate(hotlap_starts):
+            gate.name = f"AC_HOTLAP_START_{i}"
+        l_times = [gate for gate in time_gates if gate.name.endswith("_L")]
+        r_times = [gate for gate in time_gates if gate.name.endswith("_R")]
+        for i, gate in enumerate(l_times):
+            gate.name = f"AC_TIME_{i}_L"
+        for i, gate in enumerate(r_times):
+            gate.name = f"AC_TIME_{i}_R"
+        for i, box in enumerate(pitboxes):
+            box.name = f"AC_PIT_{i}"
+
 
 def get_settings() -> AC_Settings:
     return bpy.context.scene.AC_Settings # type: ignore

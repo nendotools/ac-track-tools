@@ -148,3 +148,14 @@ class AC_AddABFinishGate(Operator):
         bpy.context.view_layer.objects.active = direction_indicator
         bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
         return {'FINISHED'}
+
+class AC_AddAudioEmitter(Operator):
+    """Add a new audio emitter"""
+    bl_idname = "ac.add_audio_emitter"
+    bl_label = "Add Audio Emitter"
+    bl_options = {'REGISTER'}
+    def execute(self, context):
+        bpy.ops.object.empty_add(type='SPHERE', scale=(2, 2, 2))
+        audio_emitter = bpy.context.object
+        audio_emitter.name = f"AC_AUDIO_1"
+        return {'FINISHED'}

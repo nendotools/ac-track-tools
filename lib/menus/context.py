@@ -22,13 +22,18 @@ class WM_MT_AssignSurface(Menu):
             layout.label(text="No surfaces available")
 
 def start_menu(self, context):
+    settings = context.scene.AC_Settings
     layout: UILayout = self.layout
     layout.separator()
-    layout.operator("ac.add_start")
-    layout.operator("ac.add_hotlap_start")
-    layout.operator('ac.add_time_gate')
-    layout.operator("ac.add_ab_start_gate")
-    layout.operator("ac.add_ab_finish_gate")
+    if settings.track.run in ['AB','BA']:
+        if not settings.get_ab_start_gates(context):
+            layout.operator("ac.add_ab_start_gate")
+        if not settings.get_ab_finish_gates(context):
+            layout.operator("ac.add_ab_finish_gate")
+    else: # default should be standard circuit setup
+        layout.operator("ac.add_start")
+        layout.operator("ac.add_hotlap_start")
+        layout.operator('ac.add_time_gate')
 
 def pit_menu(self, context):
     layout: UILayout = self.layout
@@ -45,3 +50,9 @@ def surface_menu(self, context):
     layout.separator()
     layout.menu("WM_MT_AssignSurface")
     layout.operator("ac.assign_wall")
+
+def utility_menu(self, context):
+    layout: UILayout = self.layout
+    layout.separator()
+    layout.operator("ac.assign_phys_prop")
+    layout.operator("ac.add_audio_emitter")

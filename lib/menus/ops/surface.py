@@ -104,6 +104,18 @@ class AC_AssignWall(Operator):
             obj.name = f"1WALL_{cleaned_name}"
         return {'FINISHED'}
 
+class AC_AssignPhysProp(Operator):
+    bl_label = "Assign Physical Properties"
+    bl_idname = "ac.assign_phys_prop"
+    bl_options = {'REGISTER', 'UNDO'}
+    def execute(self, context):
+        settings: AC_Settings = context.scene.AC_Settings
+        objects = [obj for obj in context.selected_objects if obj.type == 'MESH']
+        for obj in objects:
+            cleaned_name = remove_existing_prefix(obj.name)
+            obj.name = f"AC_POBJECT_{cleaned_name}"
+        return {'FINISHED'}
+
 def remove_existing_prefix(name: str) -> str:
     match = re.match(SURFACE_REGEX, name)
     # check ignores empty groups and returns the last group
