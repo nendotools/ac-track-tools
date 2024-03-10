@@ -72,13 +72,16 @@ class AC_Track(PropertyGroup):
         description="Width of the track",
         default="0m",
     )
+    # I've found that some tracks use custom values for run, but it's not worth it to account for all possibilities
+    # as they all tend to be some derivative of a-b (drag, sprint, hill-climb, etc) or clockwise (circuit, rally, etc).
+    # Those specifics are better off declared in tags for searchability.
     run: EnumProperty(
         name="Run",
         items=[
-            ("AB", "A-B", "A to B"),
-            ("BA", "B-A", "B to A"),
-            ("CW", "Clockwise", "Clockwise"),
-            ("CCW", "Counter Clockwise", "Counter Clockwise")
+            ("A2B", "A-B", "A to B"),
+            ("B2A", "B-A", "B to A"),
+            ("CW", "clockwise", "Clockwise"),
+            ("CCW", "counter-clockwise", "Counter Clockwise")
         ],
         description="Run direction",
         default="CW"
@@ -136,5 +139,5 @@ class AC_Track(PropertyGroup):
         self.city = data["city"]
         self.length = data["length"]
         self.width = data["width"]
-        self.run = data["run"] if data["run"] in ["AB","BA","CW","CCW"] else "CW"
+        self.run = data["run"] if data["run"] in ["a-b", "b-a", "clockwise", "counter clockwise"] else "clockwise"
         self.pitboxes = int(data["pitboxes"])

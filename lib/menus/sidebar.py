@@ -45,7 +45,7 @@ class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
         col = split.column(align=True)
         col.prop(track, "length", text="Length")
         col.prop(track, "width", text="Width")
-        col.prop(track, "run", text="Run")
+        col.prop(track, "run", text="Run Type")
 
         # tag display
         col = layout.column(align=True)
