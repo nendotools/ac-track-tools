@@ -1,20 +1,25 @@
+from bpy import path
 import os, json, configparser
 from ..lib.settings import get_settings
 
 ##
 ##  Directory Management
 ##
-def ensure_path_exists(path: str):
+def ensure_path_exists(loc: str):
     # if path ends in a file, remove the file
-    if '.' in path.split('/')[-1]:
-        dir_path = '/'.join(path.split('/')[:-1])
+    if '.' in loc.split('/')[-1]:
+        dir_path = '/'.join(loc.split('/')[:-1])
         os.makedirs(dir_path, exist_ok=True)
     else:
-        os.makedirs(path, exist_ok=True)
-    return os.path.normpath(path)
+        os.makedirs(loc, exist_ok=True)
+    return os.path.normpath(loc)
 
 def get_active_directory():
-    return ensure_path_exists(get_settings().working_dir)
+    # get full path of the working directory
+    loc = os.path.abspath(get_settings().working_dir)
+    if loc in ['/','//','\\']:
+        return path.abspath('//')
+    return ensure_path_exists(loc)
 
 def get_ai_directory():
     return ensure_path_exists(get_active_directory() + '/ai/')

@@ -65,6 +65,7 @@ class AC_Settings(PropertyGroup):
         return groups if key is None else groups[key]
 
     def update_directory(self, path: str):
+        print("updating directory:", path)
         if path == "":
             return
         self.initialized = True

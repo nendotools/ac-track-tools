@@ -62,19 +62,15 @@ class AC_Track(PropertyGroup):
         description="City of the track",
         default=""
     )
-    length: FloatProperty(
+    length: StringProperty(
         name="Length",
         description="Length of the track",
-        default=0,
-        min=0,
-        precision=2
+        default="0m"
     )
-    width: FloatProperty(
+    width: StringProperty(
         name="Width",
         description="Width of the track",
-        default=0,
-        min=0,
-        precision=2
+        default="0m",
     )
     run: EnumProperty(
         name="Run",
@@ -138,7 +134,7 @@ class AC_Track(PropertyGroup):
             item.value = value
         self.country = data["country"]
         self.city = data["city"]
-        self.length = float(data["length"])
-        self.width = float(data["width"])
-        self.run = data["run"]
+        self.length = data["length"]
+        self.width = data["width"]
+        self.run = data["run"] if data["run"] in ["AB","BA","CW","CCW"] else "CW"
         self.pitboxes = int(data["pitboxes"])
