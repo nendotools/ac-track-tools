@@ -9,13 +9,13 @@ class AC_Surface(PropertyGroup):
     )
     name: StringProperty(
         name="Name",
-        description="Name of the surface",
-        default="Surface"
+        description="Standard name of the surface",
+        default="Track Surface"
     )
     key: StringProperty(
         name="Key",
-        description="prefix used to assign the surface to an object",
-        default="ROAD"
+        description="Unique prefix used to assign the surface to an object",
+        default="SURFACE"
     )
     friction: FloatProperty(
         name="Friction",
@@ -35,19 +35,19 @@ class AC_Surface(PropertyGroup):
     )
     wav: StringProperty(
         name="Wav",
-        description="Wav file for the surface",
+        description="Wav file to play while driving on the surface",
         default=""
     )
     wav_pitch: FloatProperty(
         name="Wav Pitch",
-        description="Pitch of the wav file",
+        description="Pitch shift of the wav file",
         default=1,
         min=0.5,
         max=2
     )
     ff_effect: StringProperty(
         name="FF Effect",
-        description="Force Feedback Effect",
+        description="Force Feedback Effect [optional]",
         default=""
     )
     dirt_additive: FloatProperty(
@@ -60,17 +60,17 @@ class AC_Surface(PropertyGroup):
     )
     is_pit_lane: BoolProperty(
         name="Is Pit Lane",
-        description="Is this a pit lane surface",
+        description="Apply Pit Lane rules to surface?",
         default=False
     )
     is_valid_track: BoolProperty(
         name="Is Valid Track",
-        description="Is this a valid track surface",
+        description="Is this surface part of the track?",
         default=True
     )
     black_flag_time: IntProperty(
         name="Black Flag Time",
-        description="Time before black flag is issued",
+        description="Seconds on surface before black flag is issued",
         default=0,
         min=0,
         max=60,

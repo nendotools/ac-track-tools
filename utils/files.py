@@ -30,6 +30,28 @@ def get_data_directory():
 def get_ui_directory():
     return ensure_path_exists(get_active_directory() + '/ui/')
 
+def get_content_directory():
+    return ensure_path_exists(get_active_directory() + '/content/')
+
+def get_sfx_directory():
+    return ensure_path_exists(get_content_directory() + '/sfx/')
+
+##
+## Import File
+##
+
+def verify_local_file(file_path: str, folder: str):
+    if not file_path or not os.path.exists(file_path):
+        return None
+    if file_path.startswith(get_active_directory()):
+        return file_path
+    if not os.path.exists(file_path):
+        return None
+    target_file = ensure_path_exists(get_active_directory() + '/' + folder + '/' + file_path.split('/')[-1])
+    if not os.path.exists(target_file):
+        os.system('cp "' + file_path + '" "' + target_file + '"')
+    return target_file
+
 ##
 ##  JSON Files
 ##

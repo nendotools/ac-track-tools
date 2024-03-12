@@ -22,7 +22,9 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
             row.separator()
             row.operator("ac.load_settings", text="Load Settings")
         else:
-            col.label(text="Please set a working directory")
+            row = col.row()
+            row.alignment = 'CENTER'
+            row.label(text="Please set a working directory")
 
 
 class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
@@ -50,23 +52,25 @@ class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
         # tag display
         col = layout.column(align=True)
         row = col.row()
+        row.prop(track, "show_tags", text="", icon='TRIA_DOWN' if track.show_tags else 'TRIA_RIGHT', emboss=False)
         row.label(text="Tags")
-        row.prop(track, "show_tags", text="", icon='TRIA_DOWN' if track.show_tags else 'TRIA_LEFT', emboss=False)
         if track.show_tags:
             row = col.box().row()
             inner = row.column(align=True)
             inner.operator("ac.add_tag", text="New Tag", icon='ADD')
+            inner.label(text="Searchable tags for track")
             row.template_list("AC_UL_Tags", "", track, "tags", track, "tags_index", rows=3)
 
         # geotag display
         col = layout.column(align=True)
         row = col.row()
+        row.prop(track, "show_geotags", text="", icon='TRIA_DOWN' if track.show_geotags else 'TRIA_RIGHT', emboss=False)
         row.label(text="GeoTags")
-        row.prop(track, "show_geotags", text="", icon='TRIA_DOWN' if track.show_geotags else 'TRIA_LEFT', emboss=False)
         if track.show_geotags:
             row = col.box().row()
             inner = row.column(align=True)
             inner.operator("ac.add_geo_tag", text="New Tag", icon='ADD')
+            inner.label(text="Optional Latitude, Longitude, Altitude of track")
             row.template_list("AC_UL_Tags", "", track, "geotags", track, "geotags_index", rows=3)
 
 
@@ -100,8 +104,8 @@ class VIEW3D_PT_AC_Sidebar_Surfaces(VIEW3D_PT_AC_Sidebar, Panel):
         for surface in settings.surfaces:
             box = layout.box()
             row = box.row()
-            row.label(text=f"{surface.name} [{len(assigned[surface.key])}]")
             toggle = row.operator("ac.toggle_surface", text="", icon='TRIA_DOWN' if surface.name in active else 'TRIA_RIGHT')
+            row.label(text=f"{surface.name} [{len(assigned[surface.key])}]")
             toggle.target = surface.name
             if surface.name in active:
                 col = box.column(align=True)

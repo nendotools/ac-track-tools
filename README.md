@@ -43,10 +43,13 @@
 - [ ] Overlays: Time-Attack
 - [ ] Sections: Track Regions
 - [ ] Groove
-  - [ ] Investigate Implementation
+  - Investigate Implementation
 - [ ] AI
-  - [ ] Investigate Implementation
+  - Investigate Implementation
 - [ ] Sounds
+- [ ] Multi-Modal Configuration
+  - Investigate Implementation
+  - useful to reuse track without reconfiguring everything
 - [ ] Export
   - [x] Track
   - [x] Surface
