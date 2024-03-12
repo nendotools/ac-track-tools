@@ -1,4 +1,5 @@
 from bpy.types import Panel, UIList
+from ..configs.audio_source import AC_AudioSource
 
 
 class VIEW3D_PT_AC_Sidebar:
@@ -141,3 +142,51 @@ class VIEW3D_PT_AC_Sidebar_Surfaces(VIEW3D_PT_AC_Sidebar, Panel):
         col.separator(factor=1.5)
         row = layout.row()
         row.operator("ac.add_surface", text="New Surface", icon='ADD')
+
+class VIEW3D_PT_AC_Sidebar_Audio(VIEW3D_PT_AC_Sidebar, Panel):
+    bl_label = "Audio"
+    bl_idname = "VIEW3D_PT_AC_Sidebar_Audio"
+    bl_context = "objectmode"
+    def draw(self, context):
+        layout = self.layout
+        settings = context.scene.AC_Settings # type: ignore
+        audio_sources = settings.audio_sources
+        col = layout.column(align=True)
+        audio: AC_AudioSource
+        for audio in audio_sources:
+            box = col.box()
+            row = box.row()
+            toggle = row.operator("ac.toggle_audio", text="", icon='TRIA_DOWN' if audio.expand else 'TRIA_RIGHT')
+            row.label(text=f"{audio.name}")
+            toggle.target = audio.name
+            if audio.expand:
+                box.row().prop(audio, "audio_type", text="Audio Type")
+                box.row().prop(audio, "node", text="Emitter Node")
+                col = box.column(align=True)
+                if audio.audio_type == "SFX":
+                    col.row().prop(audio, "filename", text="Filename")
+                    col.row().prop(audio, "volume", text="Volume")
+                    col.row().prop(audio, "volume_scale", text="Volume Scale")
+                else:
+                    col.row().prop(audio, "preset", text="Preset")
+                    col.row().prop(audio, "enabled", text="Enabled")
+                    col.separator()
+                    col = box.column(align=True)
+                    col.label(text="Reverb settings")
+                    col.separator()
+                    col.row().prop(audio, "min_distance", slider=True)
+                    col.row().prop(audio, "max_distance", slider=True)
+                    col.row().prop(audio, "decay_time", slider=True)
+                    col.row().prop(audio, "late_delay", slider=True)
+                    col.row().prop(audio, "hf_reference", slider=True)
+                    col.row().prop(audio, "hf_decay_ratio", slider=True)
+                    col.row().prop(audio, "diffusion", slider=True)
+                    col.row().prop(audio, "density", slider=True)
+                    col.row().prop(audio, "low_shelf_frequency", slider=True)
+                    col.row().prop(audio, "low_shelf_gain", slider=True)
+                    col.row().prop(audio, "high_cut", slider=True)
+                    col.row().prop(audio, "early_late_mix", slider=True)
+                    col.row().prop(audio, "wet_level", slider=True)
+        col = layout.column(align=True)
+        col.separator(factor=1.5)
+        col.operator("ac.add_audio_source", text="New Audio Source", icon='ADD')

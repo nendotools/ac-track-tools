@@ -3,8 +3,9 @@ import bpy
 from bpy.types import PropertyGroup, Object
 from bpy.props import CollectionProperty, PointerProperty, StringProperty
 
-from .configs.surface import AC_Surface
 from .configs.track import AC_Track
+from .configs.surface import AC_Surface
+from .configs.audio_source import AC_AudioSource
 
 class AC_Settings(PropertyGroup):
     working_dir: StringProperty(
@@ -22,6 +23,10 @@ class AC_Settings(PropertyGroup):
     surfaces: CollectionProperty(
         type=AC_Surface,
         name="Track Surfaces",
+    )
+    audio_sources: CollectionProperty(
+        type=AC_AudioSource,
+        name="Audio Sources",
     )
     error: dict = {}
     active_surfaces: list[str] = []

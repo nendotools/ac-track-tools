@@ -1,5 +1,6 @@
-import bpy
-from bpy.types import PropertyGroup, Volume
+from datetime import datetime
+from bpy.types import Context
+from bpy.types import PropertyGroup
 from bpy.props import (
     StringProperty,
     IntProperty,
@@ -7,8 +8,6 @@ from bpy.props import (
     BoolProperty,
     EnumProperty
 )
-
-from utils.files import verify_local_file
 
 ##
 ## Audio Sources can support playing sounds when driving in range of the source node
@@ -18,21 +17,38 @@ class AC_AudioSource(PropertyGroup):
     ##
     ## Global Properties
     ##
-    audo_type: EnumProperty(
+    index: IntProperty(
+        name="Index",
+        description="Index of the audio source",
+        default=0
+    )
+    name: StringProperty(
+        name="Name",
+        description="Name of the audio source",
+        default="New Audio Source"
+    )
+    audio_type: EnumProperty(
         name="Audio Type",
         description="Type of audio source",
         items=[
             ('SFX', "Sound Effect", "Sound effect to play"),
             ('REVERB', "Reverb", "Reverb effect settings")
         ],
-        default='SFX'
+        default='REVERB',
+        update= lambda s,c: s.refit_name(c)
     )
-    # Node can be named anything for reverbs, but sound effects must use the
-    # correct audio source naming convention: "AC_AUDIO_$"
+    # Node can be any AC_ node in the scene for reverb effects.
+    # For sounds, the node should follow the convention of 'AC_AUDIO_${name}'.
+    # ${name} can be any number (default) or standard string name without spaces.
     node: StringProperty(
         name="Node",
         description="Node to attach the audio source to",
         default=""
+    )
+    expand: BoolProperty(
+        name="Expand",
+        description="Expand the audio source properties",
+        default=False
     )
 
     ##
@@ -43,7 +59,6 @@ class AC_AudioSource(PropertyGroup):
         description="Filename of the audio source",
         subtype='FILE_PATH',
         default="",
-        update= lambda s,c: s.ensure_local_file(c)
     )
     volume: FloatProperty(
         name="Volume",
@@ -69,33 +84,56 @@ class AC_AudioSource(PropertyGroup):
         description="Is the audio source enabled",
         default=True
     )
+    # TODO: This should be a reference field, now. It cannot be updated on attribute change without triggering light recursion.
+    #       It should always be saved to the INI as CUSTOM.
     preset: EnumProperty(
         name="Preset",
         description="Reverb preset to use",
-        items=[
+        items= [
             ('NONE', "None", "No reverb effect"),
-            ('SMALL', "Small Room", "Small room reverb"),
-            ('MEDIUM', "Medium Room", "Medium room reverb"),
-            ('LARGE', "Large Room", "Large room reverb"),
-            ('HALL', "Hall", "Hall reverb"),
-            ('PLATE', "Plate", "Plate reverb"),
-            ('CUSTOM', "Custom", "Custom reverb settings")
+            ('GENERIC', "Generic", "Generic reverb effect"),
+            ('PADDEDCELL', "Padded Cell", "Padded Cell reverb effect"),
+            ('ROOM', "Room", "Room reverb effect"),
+            ('BATHROOM', "Bathroom", "Bathroom reverb effect"),
+            ('LIVINGROOM', "Living Room", "Living Room reverb effect"),
+            ('STONEROOM', "Stone Room", "Stone Room reverb effect"),
+            ('AUDITORIUM', "Auditorium", "Auditorium reverb effect"),
+            ('CONCERTHALL', "Concert Hall", "Concert Hall reverb effect"),
+            ('CAVE', "Cave", "Cave reverb effect"),
+            ('ARENA', "Arena", "Arena reverb effect"),
+            ('HANGAR', "Hangar", "Hangar reverb effect"),
+            ('CARPETEDHALLWAY', "Carpeted Hallway", "Carpeted Hallway reverb effect"),
+            ('HALLWAY', "Hallway", "Hallway reverb effect"),
+            ('STONECORRIDOR', "Stone Corridor", "Stone Corridor reverb effect"),
+            ('ALLEY', "Alley", "Alley reverb effect"),
+            ('FOREST', "Forest", "Forest reverb effect"),
+            ('CITY', "City", "City reverb effect"),
+            ('MOUNTAINS', "Mountains", "Mountains reverb effect"),
+            ('QUARRY', "Quarry", "Quarry reverb effect"),
+            ('PLAIN', "Plain", "Plain reverb effect"),
+            ('PARKINGLOT', "Parking Lot", "Parking Lot reverb effect"),
+            ('SEWERPIPE', "Sewer Pipe", "Sewer Pipe reverb effect"),
+            ('UNDERWATER', "Underwater", "Underwater reverb effect"),
+            ('CUSTOM', "Custom", "Custom reverb effect")
         ],
-        default='NONE'
+        default='NONE',
+        update= lambda s,c: s.from_preset(c)
     )
     min_distance: IntProperty(
         name="Min Distance",
         description="Minimum distance for the reverb effect",
         default=10,
         min=1,
-        max=500
+        max=500,
+        update= lambda s,c: s.modified(c)
     )
     max_distance: IntProperty(
         name="Max Distance",
         description="Maximum distance for the reverb effect",
         default=100,
         min=1,
-        max=500
+        max=500,
+        update= lambda s, c: s.modified(c)
     )
     decay_time: IntProperty(
         name="Decay Time",
@@ -103,6 +141,7 @@ class AC_AudioSource(PropertyGroup):
         default=1000,
         min=0,
         max=20000,
+        update= lambda s, c: s.modified(c)
     )
     early_delay: IntProperty(
         name="Early Delay",
@@ -110,6 +149,7 @@ class AC_AudioSource(PropertyGroup):
         default=50,
         min=0,
         max=500,
+        update= lambda s, c: s.modified(c)
     )
     late_delay: IntProperty(
         name="Late Delay",
@@ -117,6 +157,7 @@ class AC_AudioSource(PropertyGroup):
         default=250,
         min=0,
         max=500,
+        update= lambda s, c: s.modified(c)
     )
     hf_reference: IntProperty(
         name="HF Reference",
@@ -124,6 +165,7 @@ class AC_AudioSource(PropertyGroup):
         default=4500,
         min=20,
         max=20000,
+        update= lambda s, c: s.modified(c)
     )
     hf_decay_ratio: IntProperty(
         name="HF Decay Ratio",
@@ -131,6 +173,7 @@ class AC_AudioSource(PropertyGroup):
         default=75,
         min=0,
         max=100,
+        update= lambda s, c: s.modified(c)
     )
     diffusion: IntProperty(
         name="Diffusion",
@@ -138,6 +181,7 @@ class AC_AudioSource(PropertyGroup):
         default=100,
         min=0,
         max=100,
+        update= lambda s, c: s.modified(c)
     )
     density: IntProperty(
         name="Density",
@@ -145,6 +189,7 @@ class AC_AudioSource(PropertyGroup):
         default=100,
         min=0,
         max=100,
+        update= lambda s, c: s.modified(c)
     )
     low_shelf_frequency: IntProperty(
         name="Low Shelf Frequency",
@@ -152,13 +197,15 @@ class AC_AudioSource(PropertyGroup):
         default=250,
         min=20,
         max=1000,
+        update= lambda s, c: s.modified(c)
     )
-    lw_shelf_gain: IntProperty(
+    low_shelf_gain: IntProperty(
         name="Low Shelf Gain",
         description="Low shelf gain for the reverb effect",
         default=0,
         min=-36,
         max=12,
+        update= lambda s, c: s.modified(c)
     )
     high_cut: IntProperty(
         name="High Cut",
@@ -166,6 +213,7 @@ class AC_AudioSource(PropertyGroup):
         default=4000,
         min=20,
         max=20000,
+        update= lambda s, c: s.modified(c)
     )
     early_late_mix: IntProperty(
         name="Early Late Mix",
@@ -173,6 +221,7 @@ class AC_AudioSource(PropertyGroup):
         default=50,
         min=0,
         max=100,
+        update= lambda s, c: s.modified(c)
     )
     wet_level: FloatProperty(
         name="Wet Level",
@@ -180,18 +229,34 @@ class AC_AudioSource(PropertyGroup):
         default=-6,
         min=-80.0,
         max=20.0,
+        update= lambda s, c: s.modified(c)
     )
 
-    def ensure_local_file(self, context):
-        if self.filename:
-            self.filename = verify_local_file(self.filename, '/content/sfx/')
-        return None
+    def modified(self, _:Context):
+        # self.preset = 'CUSTOM'
+        pass
 
-    def from_preset(self, preset: str):
+    def refit_name(self, context: Context):
+        settings = context.scene.AC_Settings
+        sfx = []
+        reverb = []
+        for audio in settings.audio_sources:
+            if audio.audio_type == 'SFX':
+                audio.name = f"AC_AUDIO_{len(sfx)}"
+                sfx.append(audio.name)
+            else:
+                audio.name = f"REVERB_{len(reverb)}"
+                reverb.append(audio.name)
+
+    def from_preset(self, _:Context):
+        self.restoring = True
+        preset = self.preset
+        if(preset == 'CUSTOM'):
+            return
         if preset in REVERB_PRESETS:
-            self.preset = preset
             for i, key in enumerate(REVERB_PRESETS['MAPPING']):
                 setattr(self, key.lower().replace(' ', '_'), REVERB_PRESETS[preset][i])
+        self.restoring = False
 
 REVERB_PRESETS = {
     'DEFINITION': ('Decay Time', 'Early Delay', 'Late Delay', 'HF Reference', 'HF Decay Ratio', 'Diffusion', 'Density', 'Low Shelf Frequency', 'Low Shelf Gain', 'High Cut', 'Early Late Mix', 'Wet Level'),

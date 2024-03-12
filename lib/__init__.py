@@ -1,13 +1,4 @@
 import bpy
-from .menus.ops.surface import (
-    AC_InitSurfaces,
-    AC_AddSurface,
-    AC_RemoveSurface,
-    AC_ToggleSurface,
-    AC_AssignSurface,
-    AC_AssignWall,
-    AC_AssignPhysProp
-)
 from .menus.ops.project import (
     AC_AddAudioEmitter,
     AC_SaveSettings,
@@ -28,25 +19,41 @@ from .menus.ops.track import (
     AC_RemoveGeoTag,
     AC_ToggleGeoTag
 )
+from .menus.ops.surface import (
+    AC_InitSurfaces,
+    AC_AddSurface,
+    AC_RemoveSurface,
+    AC_ToggleSurface,
+    AC_AssignSurface,
+    AC_AssignWall,
+    AC_AssignPhysProp
+)
+from .menus.ops.audio import (
+    AC_AddAudioSource,
+    AC_ToggleAudio
+)
 from .menus.sidebar import (
+    AC_UL_Tags,
     VIEW3D_PT_AC_Sidebar_Project,
     VIEW3D_PT_AC_Sidebar_Track,
-    AC_UL_Tags,
-    VIEW3D_PT_AC_Sidebar_Surfaces
+    VIEW3D_PT_AC_Sidebar_Surfaces,
+    VIEW3D_PT_AC_Sidebar_Audio
 )
 from .menus.context import WM_MT_AssignSurface, pit_menu, start_menu, surface_menu, utility_menu
-from .configs.surface import AC_Surface
-from .configs.track import AC_Track
 from .settings import AC_Settings
+from .configs.track import AC_Track
+from .configs.surface import AC_Surface
+from .configs.audio_source import AC_AudioSource
 
 __classes__ = (
     AC_InitSurfaces, AC_AddSurface, AC_RemoveSurface, AC_ToggleSurface, AC_AssignSurface, AC_AssignWall, AC_AssignPhysProp,
     AC_AddTag, AC_RemoveTag, AC_AddGeoTag, AC_RemoveGeoTag, AC_ToggleTag, AC_ToggleGeoTag,
     AC_SaveSettings, AC_LoadSettings,
+    AC_AddAudioSource, AC_ToggleAudio,
     AC_AddStart, AC_AddHotlapStart, AC_AddPitbox, AC_AddTimeGate, AC_AddABStartGate, AC_AddABFinishGate, AC_AddAudioEmitter, 
-    AC_Surface, AC_Track, AC_Settings,
+    AC_Track, AC_Surface, AC_AudioSource, AC_Settings,
     AC_UL_Tags,
-    VIEW3D_PT_AC_Sidebar_Project, VIEW3D_PT_AC_Sidebar_Track, VIEW3D_PT_AC_Sidebar_Surfaces,
+    VIEW3D_PT_AC_Sidebar_Project, VIEW3D_PT_AC_Sidebar_Track, VIEW3D_PT_AC_Sidebar_Surfaces, VIEW3D_PT_AC_Sidebar_Audio,
     WM_MT_AssignSurface,
 )
 
