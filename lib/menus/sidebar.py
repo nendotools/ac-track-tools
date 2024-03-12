@@ -143,6 +143,7 @@ class VIEW3D_PT_AC_Sidebar_Surfaces(VIEW3D_PT_AC_Sidebar, Panel):
         row = layout.row()
         row.operator("ac.add_surface", text="New Surface", icon='ADD')
 
+## TODO: Add Audio Source as fixed type (don't allow changing from SFX to REVERB)
 class VIEW3D_PT_AC_Sidebar_Audio(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Audio"
     bl_idname = "VIEW3D_PT_AC_Sidebar_Audio"
@@ -162,6 +163,7 @@ class VIEW3D_PT_AC_Sidebar_Audio(VIEW3D_PT_AC_Sidebar, Panel):
             if audio.expand:
                 box.row().prop(audio, "audio_type", text="Audio Type")
                 box.row().prop(audio, "node", text="Emitter Node")
+                box.row().prop(audio, "node_pointer", text="", icon='NODE')
                 col = box.column(align=True)
                 if audio.audio_type == "SFX":
                     col.row().prop(audio, "filename", text="Filename")

@@ -1,11 +1,24 @@
-from bpy.types import Context
+import re
+from bpy.types import Context, Object
 from bpy.types import PropertyGroup
 from bpy.props import (
+    PointerProperty,
     StringProperty,
     IntProperty,
     FloatProperty,
     BoolProperty,
     EnumProperty
+)
+
+from ...utils.constants import (
+    AC_TIME_L_REGEX,
+    AC_TIME_R_REGEX,
+    FINISH_AB_L_REGEX,
+    FINISH_AB_R_REGEX,
+    PIT_BOX_REGEX,
+    START_AB_L_REGEX,
+    START_AB_R_REGEX,
+    START_CIRCUIT_REGEX
 )
 
 ##
@@ -43,6 +56,12 @@ class AC_AudioSource(PropertyGroup):
         name="Node",
         description="Node to attach the audio source to",
         default=""
+    )
+    node_pointer: PointerProperty(
+        name="Node Pointer",
+        description="Pointer to the node to attach the audio source to",
+        type=Object,
+        update= lambda s,c: s.assert_name(c)
     )
     expand: BoolProperty(
         name="Expand",
@@ -234,6 +253,31 @@ class AC_AudioSource(PropertyGroup):
     def modified(self, _:Context):
         # self.preset = 'CUSTOM'
         pass
+
+    def assert_name(self, context: Context):
+        name_rules = [
+            lambda n: n.startswith('AC_AUDIO_'),
+            lambda n: re.match(r'AC_AUDIO_\d+', n),
+            lambda n: re.match(START_CIRCUIT_REGEX, n),
+            lambda n: re.match(START_AB_L_REGEX, n),
+            lambda n: re.match(START_AB_R_REGEX, n),
+            lambda n: re.match(FINISH_AB_L_REGEX, n),
+            lambda n: re.match(FINISH_AB_R_REGEX, n),
+            lambda n: re.match(AC_TIME_L_REGEX, n),
+            lambda n: re.match(AC_TIME_R_REGEX, n),
+            lambda n: re.match(PIT_BOX_REGEX, n),
+        ]
+        if not self.node_pointer:
+            self.node = ""
+            return
+
+        if not any([rule(self.node_pointer.name) for rule in name_rules]):
+            self.node = ""
+            self.node_pointer = None
+            return
+
+        if self.node_pointer:
+            self.node = self.node_pointer.name
 
     def refit_name(self, context: Context):
         settings = context.scene.AC_Settings
