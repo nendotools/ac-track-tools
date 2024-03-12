@@ -1,4 +1,3 @@
-from datetime import datetime
 from bpy.types import Context
 from bpy.types import PropertyGroup
 from bpy.props import (
@@ -88,7 +87,7 @@ class AC_AudioSource(PropertyGroup):
     #       It should always be saved to the INI as CUSTOM.
     preset: EnumProperty(
         name="Preset",
-        description="Reverb preset to use",
+        description="Reverb preset to use as base",
         items= [
             ('NONE', "None", "No reverb effect"),
             ('GENERIC', "Generic", "Generic reverb effect"),
@@ -114,15 +113,15 @@ class AC_AudioSource(PropertyGroup):
             ('PARKINGLOT', "Parking Lot", "Parking Lot reverb effect"),
             ('SEWERPIPE', "Sewer Pipe", "Sewer Pipe reverb effect"),
             ('UNDERWATER', "Underwater", "Underwater reverb effect"),
-            ('CUSTOM', "Custom", "Custom reverb effect")
+            ('CUSTOM', "Choose a Preset", "Choose a preset to init settings")
         ],
-        default='NONE',
+        default='CUSTOM',
         update= lambda s,c: s.from_preset(c)
     )
     min_distance: IntProperty(
         name="Min Distance",
         description="Minimum distance for the reverb effect",
-        default=10,
+        default=150,
         min=1,
         max=500,
         update= lambda s,c: s.modified(c)
@@ -130,33 +129,33 @@ class AC_AudioSource(PropertyGroup):
     max_distance: IntProperty(
         name="Max Distance",
         description="Maximum distance for the reverb effect",
-        default=100,
+        default=250,
         min=1,
         max=500,
         update= lambda s, c: s.modified(c)
     )
     decay_time: IntProperty(
         name="Decay Time",
-        description="Decay time in milliseconds for the reverb effect",
-        default=1000,
+        description="Duration a sound will persist in the reverb effect (in milliseconds)",
+        default=1500,
         min=0,
         max=20000,
         update= lambda s, c: s.modified(c)
     )
     early_delay: IntProperty(
         name="Early Delay",
-        description="Early delay in milliseconds for the reverb effect",
-        default=50,
+        description="Early delay for the reverb effect (in milliseconds)",
+        default=300,
         min=0,
-        max=500,
+        max=1000,
         update= lambda s, c: s.modified(c)
     )
     late_delay: IntProperty(
         name="Late Delay",
-        description="Late delay in milliseconds for the reverb effect",
-        default=250,
+        description="Late delay for the reverb effect (in milliseconds)",
+        default=100,
         min=0,
-        max=500,
+        max=1000,
         update= lambda s, c: s.modified(c)
     )
     hf_reference: IntProperty(
@@ -169,7 +168,7 @@ class AC_AudioSource(PropertyGroup):
     )
     hf_decay_ratio: IntProperty(
         name="HF Decay Ratio",
-        description="High frequency decay ratio for the reverb effect",
+        description="Rate of decay for high frequencies in the reverb effect",
         default=75,
         min=0,
         max=100,
@@ -177,7 +176,7 @@ class AC_AudioSource(PropertyGroup):
     )
     diffusion: IntProperty(
         name="Diffusion",
-        description="Diffusion for the reverb effect",
+        description="Size/spacing of the reflections for the reverb effect",
         default=100,
         min=0,
         max=100,
@@ -185,7 +184,7 @@ class AC_AudioSource(PropertyGroup):
     )
     density: IntProperty(
         name="Density",
-        description="Density for the reverb effect",
+        description="Density of the reflections for the reverb effect",
         default=100,
         min=0,
         max=100,
@@ -203,8 +202,8 @@ class AC_AudioSource(PropertyGroup):
         name="Low Shelf Gain",
         description="Low shelf gain for the reverb effect",
         default=0,
-        min=-36,
-        max=12,
+        min=-50,
+        max=50,
         update= lambda s, c: s.modified(c)
     )
     high_cut: IntProperty(
@@ -227,8 +226,8 @@ class AC_AudioSource(PropertyGroup):
         name="Wet Level",
         description="Wet level for the reverb effect",
         default=-6,
-        min=-80.0,
-        max=20.0,
+        min=-100.0,
+        max=100.0,
         update= lambda s, c: s.modified(c)
     )
 
@@ -249,14 +248,12 @@ class AC_AudioSource(PropertyGroup):
                 reverb.append(audio.name)
 
     def from_preset(self, _:Context):
-        self.restoring = True
         preset = self.preset
         if(preset == 'CUSTOM'):
             return
         if preset in REVERB_PRESETS:
             for i, key in enumerate(REVERB_PRESETS['MAPPING']):
                 setattr(self, key.lower().replace(' ', '_'), REVERB_PRESETS[preset][i])
-        self.restoring = False
 
 REVERB_PRESETS = {
     'DEFINITION': ('Decay Time', 'Early Delay', 'Late Delay', 'HF Reference', 'HF Decay Ratio', 'Diffusion', 'Density', 'Low Shelf Frequency', 'Low Shelf Gain', 'High Cut', 'Early Late Mix', 'Wet Level'),
