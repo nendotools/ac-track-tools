@@ -18,7 +18,8 @@ from ...utils.constants import (
     PIT_BOX_REGEX,
     START_AB_L_REGEX,
     START_AB_R_REGEX,
-    START_CIRCUIT_REGEX
+    START_CIRCUIT_REGEX,
+    START_HOTLAP_REGEX
 )
 
 ##
@@ -29,11 +30,6 @@ class AC_AudioSource(PropertyGroup):
     ##
     ## Global Properties
     ##
-    index: IntProperty(
-        name="Index",
-        description="Index of the audio source",
-        default=0
-    )
     name: StringProperty(
         name="Name",
         description="Name of the audio source",
@@ -61,6 +57,7 @@ class AC_AudioSource(PropertyGroup):
         name="Node Pointer",
         description="Pointer to the node to attach the audio source to",
         type=Object,
+        poll= lambda s,o: o.name.startswith('AC_') if s.audio_type == 'REVERB' else re.match(r"AC_AUDIO_\d+",o.name),
         update= lambda s,c: s.assert_name(c)
     )
     expand: BoolProperty(
@@ -74,8 +71,7 @@ class AC_AudioSource(PropertyGroup):
     ##
     filename: StringProperty(
         name="Filename",
-        description="Filename of the audio source",
-        subtype='FILE_PATH',
+        description="WAV file must be a reference to a sound bank to work",
         default="",
     )
     volume: FloatProperty(
@@ -102,7 +98,7 @@ class AC_AudioSource(PropertyGroup):
         description="Is the audio source enabled",
         default=True
     )
-    # TODO: This should be a reference field, now. It cannot be updated on attribute change without triggering light recursion.
+    # TODO: This should be a reference field. It cannot be updated on attribute change without triggering light recursion.
     #       It should always be saved to the INI as CUSTOM.
     preset: EnumProperty(
         name="Preset",
@@ -132,9 +128,8 @@ class AC_AudioSource(PropertyGroup):
             ('PARKINGLOT', "Parking Lot", "Parking Lot reverb effect"),
             ('SEWERPIPE', "Sewer Pipe", "Sewer Pipe reverb effect"),
             ('UNDERWATER', "Underwater", "Underwater reverb effect"),
-            ('CUSTOM', "Choose a Preset", "Choose a preset to init settings")
         ],
-        default='CUSTOM',
+        default='NONE',
         update= lambda s,c: s.from_preset(c)
     )
     min_distance: IntProperty(
@@ -257,16 +252,21 @@ class AC_AudioSource(PropertyGroup):
     def assert_name(self, context: Context):
         name_rules = [
             lambda n: n.startswith('AC_AUDIO_'),
-            lambda n: re.match(r'AC_AUDIO_\d+', n),
-            lambda n: re.match(START_CIRCUIT_REGEX, n),
-            lambda n: re.match(START_AB_L_REGEX, n),
-            lambda n: re.match(START_AB_R_REGEX, n),
-            lambda n: re.match(FINISH_AB_L_REGEX, n),
-            lambda n: re.match(FINISH_AB_R_REGEX, n),
-            lambda n: re.match(AC_TIME_L_REGEX, n),
-            lambda n: re.match(AC_TIME_R_REGEX, n),
-            lambda n: re.match(PIT_BOX_REGEX, n),
         ]
+        if self.audio_type == 'REVERB':
+            name_rules = [
+                lambda n: n.startswith('AC_AUDIO_'),
+                lambda n: re.match(r'AC_AUDIO_\d+', n),
+                lambda n: re.match(START_CIRCUIT_REGEX, n),
+                lambda n: re.match(START_HOTLAP_REGEX, n),
+                lambda n: re.match(START_AB_L_REGEX, n),
+                lambda n: re.match(START_AB_R_REGEX, n),
+                lambda n: re.match(FINISH_AB_L_REGEX, n),
+                lambda n: re.match(FINISH_AB_R_REGEX, n),
+                lambda n: re.match(AC_TIME_L_REGEX, n),
+                lambda n: re.match(AC_TIME_R_REGEX, n),
+                lambda n: re.match(PIT_BOX_REGEX, n),
+            ]
         if not self.node_pointer:
             self.node = ""
             return
@@ -278,14 +278,16 @@ class AC_AudioSource(PropertyGroup):
 
         if self.node_pointer:
             self.node = self.node_pointer.name
+            if self.audio_type == 'SFX':
+                self.name = self.node_pointer.name
 
     def refit_name(self, context: Context):
         settings = context.scene.AC_Settings
         sfx = []
         reverb = []
         for audio in settings.audio_sources:
-            if audio.audio_type == 'SFX':
-                audio.name = f"AC_AUDIO_{len(sfx)}"
+            if audio.audio_type == 'SFX' and not audio.node_pointer:
+                audio.name = f"AC_AUDIO_{1 + len(sfx)}"
                 sfx.append(audio.name)
             else:
                 audio.name = f"REVERB_{len(reverb)}"

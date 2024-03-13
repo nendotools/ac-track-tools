@@ -6,15 +6,16 @@ class AC_AddAudioSource(Operator):
     bl_idname = "ac.add_audio_source"
     bl_label = "Add AudioSource"
     bl_options = {'REGISTER'}
-    name: StringProperty(
-        name="Name",
-        default="New Audio Source",
+    audio_type: StringProperty(
+        name="Audio Type",
+        default="REVERB",
     )
     def execute(self, context):
         settings = context.scene.AC_Settings # type: ignore
-        reverbs = [a for a in settings.audio_sources if a.audio_type == "REVERB"]
         audio_source = settings.audio_sources.add()
-        audio_source.name = f"REVERB_{len(reverbs)}"
+        audio_source.name = "REVERB_1" if self.audio_type == "REVERB" else "AC_AUDIO_1"
+        audio_source.audio_type = self.audio_type
+        audio_source.refit_name(context)
         return {'FINISHED'}
 
 class AC_ToggleAudio(Operator):
