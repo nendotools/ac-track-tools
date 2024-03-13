@@ -39,7 +39,15 @@
   - [ ] Focus Movement
   - [ ] Monitor Groups
 - [ ] Lighting
+  - [ ] Sun
 - [ ] Map
+  - [ ] Generate Map
+    - over head view of track
+    - disable all non-track objects
+    - black and white
+    - resolution config
+    - save mini version as ui/outline.png (for track selection)
+    - save full version as map.png (for mini-map and loading screen)
 - [ ] Overlays: Time-Attack
 - [ ] Sections: Track Regions
 - [ ] Groove
@@ -49,6 +57,8 @@
 - [x] Sounds
   - [x] Reverb Zones
   - [x] Sound Sources
+- [ ] Animation
+  - Investigate Implementation
 - [ ] Multi-Modal Configuration
   - Investigate Implementation
   - useful to reuse track without reconfiguring everything
