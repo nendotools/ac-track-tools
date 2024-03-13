@@ -23,6 +23,9 @@ class AC_SaveSettings(Operator):
             return { 'CANCELLED' }
         save_ini(data_dir + '/surface.ini', surface_data)
 
+        audio_data = settings.map_audio()
+        save_ini(data_dir + '/audio_sources.ini', audio_data)
+
         ui_dir = get_ui_directory()
         track_data = settings.map_track()
         save_json(ui_dir + '/ui_track.json', track_data)
@@ -40,6 +43,10 @@ class AC_LoadSettings(Operator):
         surface_map = load_ini(data_dir + '/surface.ini')
         if surface_map:
             settings.load_surfaces(surface_map)
+
+        audio_map = load_ini(data_dir + '/audio_sources.ini')
+        if audio_map:
+            settings.load_audio(audio_map)
 
         ui_dir = get_ui_directory()
         track = load_json(ui_dir + '/ui_track.json')

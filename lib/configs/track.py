@@ -10,6 +10,13 @@ from bpy.props import (
 )
 from ...utils.properties import KeyValuePair
 
+run_modes = [
+    ("A2B", "a-b", "A to B"),
+    ("B2A", "b-a", "B to A"),
+    ("CW", "clockwise", "Clockwise"),
+    ("CCW", "counter-clockwise", "Counter Clockwise")
+]
+
 # TODO: handle tags and geotags as a list of strings
 class AC_Track(PropertyGroup):
     name: StringProperty(
@@ -77,12 +84,7 @@ class AC_Track(PropertyGroup):
     # Those specifics are better off declared in tags for searchability.
     run: EnumProperty(
         name="Run",
-        items=[
-            ("A2B", "A-B", "A to B"),
-            ("B2A", "B-A", "B to A"),
-            ("CW", "clockwise", "Clockwise"),
-            ("CCW", "counter-clockwise", "Counter Clockwise")
-        ],
+        items=run_modes,
         description="Run direction",
         default="CW"
     )
@@ -120,9 +122,21 @@ class AC_Track(PropertyGroup):
             "city": self.city,
             "length": self.length,
             "width": self.width,
-            "run": self.run,
+            "run": self.get_run_mode_value(self.run),
             "pitboxes": self.pitboxes
         }
+
+    def get_run_mode_key(self, mode: str) -> str:
+        for item in run_modes:
+            if item[1] == mode:
+                return item[0]
+        return "CW"
+
+    def get_run_mode_value(self, key: str) -> str:
+        for item in run_modes:
+            if item[0] == key:
+                return item[1]
+        return "clockwise"
 
     def from_dict(self, data: dict):
         self.name = data["name"]
@@ -139,5 +153,5 @@ class AC_Track(PropertyGroup):
         self.city = data["city"]
         self.length = data["length"]
         self.width = data["width"]
-        self.run = data["run"] if data["run"] in ["a-b", "b-a", "clockwise", "counter clockwise"] else "clockwise"
+        self.run = self.get_run_mode_key(data['run']) if data["run"] in ["a-b", "b-a", "clockwise", "counter clockwise"] else "CW"
         self.pitboxes = int(data["pitboxes"])

@@ -111,42 +111,42 @@ class AC_Surface(PropertyGroup):
 
     def to_dict(self) -> dict:
         return {
-            "name": self.name,
-            "key": self.key,
-            "friction": self.friction,
-            "damping": self.damping,
-            "wav": self.wav,
-            "wav_pitch": self.wav_pitch,
-            "ff_effect": self.ff_effect,
-            "dirt_additive": self.dirt_additive,
-            "is_pit_lane": self.is_pit_lane,
-            "is_valid_track": self.is_valid_track,
-            "black_flag_time": self.black_flag_time,
-            "sin_height": self.sin_height,
-            "sin_length": self.sin_length,
-            "vibration_gain": self.vibration_gain,
-            "vibration_length": self.vibration_length
+            "NAME": self.name,
+            "KEY": self.key,
+            "FRICTION": self.friction,
+            "DAMPING": self.damping,
+            "WAV": self.wav,
+            "WAV_PITCH": self.wav_pitch,
+            "FF_EFFECT": self.ff_effect,
+            "DIRT_ADDITIVE": self.dirt_additive,
+            "IS_PIT_LANE": self.is_pit_lane,
+            "IS_VALID_TRACK": self.is_valid_track,
+            "BLACK_FLAG_TIME": self.black_flag_time,
+            "SIN_HEIGHT": self.sin_height,
+            "SIN_LENGTH": self.sin_length,
+            "VIBRATION_GAIN": self.vibration_gain,
+            "VIBRATION_LENGTH": self.vibration_length,
         }
 
     # long floats may be interpreted as strings when reading from file
     # so we should cast non-string types to prevent errors
     def from_dict(self, data: dict):
-        self.name = data["name"]
-        self.key = data["key"]
-        if data["key"] in ['ROAD', 'KERB', 'GRASS', 'SAND']:
+        self.name = data["NAME"] if "NAME" in data else data["KEY"]
+        self.key = data["KEY"]
+        if data["KEY"] in ['ROAD', 'KERB', 'GRASS', 'SAND']:
             self.custom = False
             return
         self.custom = True
-        self.friction = float(data["friction"])
-        self.damping = float(data["damping"])
-        self.wav = data["wav"]
-        self.wav_pitch = float(data["wav_pitch"])
-        self.ff_effect = data["ff_effect"]
-        self.dirt_additive = float(data["dirt_additive"])
-        self.is_pit_lane = bool(data["is_pit_lane"])
-        self.is_valid_track = bool(data["is_valid_track"])
-        self.black_flag_time = int(data["black_flag_time"])
-        self.sin_height = float(data["sin_height"])
-        self.sin_length = float(data["sin_length"])
-        self.vibration_gain = float(data["vibration_gain"])
-        self.vibration_length = float(data["vibration_length"])
+        self.friction = float(data["FRICTION"])
+        self.damping = float(data["DAMPING"])
+        self.wav = data["WAV"]
+        self.wav_pitch = float(data["WAV_PITCH"])
+        self.ff_effect = data["FF_EFFECT"]
+        self.dirt_additive = float(data["DIRT_ADDITIVE"])
+        self.is_pit_lane = bool(data["IS_PIT_LANE"])
+        self.is_valid_track = bool(data["IS_VALID_TRACK"])
+        self.black_flag_time = int(data["BLACK_FLAG_TIME"])
+        self.sin_height = float(data["SIN_HEIGHT"])
+        self.sin_length = float(data["SIN_LENGTH"])
+        self.vibration_gain = float(data["VIBRATION_GAIN"])
+        self.vibration_length = float(data["VIBRATION_LENGTH"])

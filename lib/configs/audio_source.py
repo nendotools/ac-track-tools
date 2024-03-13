@@ -301,6 +301,63 @@ class AC_AudioSource(PropertyGroup):
             for i, key in enumerate(REVERB_PRESETS['MAPPING']):
                 setattr(self, key.lower().replace(' ', '_'), REVERB_PRESETS[preset][i])
 
+    def to_dict(self) -> dict:
+        if self.audio_type == 'SFX':
+            return {
+                'NAME': self.name,
+                'FILENAME': self.filename,
+                'VOLUME': self.volume,
+                'VOLUME_SCALE': self.volume_scale
+            }
+        return {
+            'NAME': self.name,
+            'ENABLED': 1 if self.enabled else 0,
+            'NODE': self.node,
+            'PRESET': 'CUSTOM',
+            'MIN_DISTANCE': self.min_distance,
+            'MAX_DISTANCE': self.max_distance,
+            'DECAY_TIME': self.decay_time,
+            'EARLY_DELAY': self.early_delay,
+            'LATE_DELAY': self.late_delay,
+            'HF_REFERENCE': self.hf_reference,
+            'HF_DECAY_RATIO': self.hf_decay_ratio,
+            'DIFFUSION': self.diffusion,
+            'DENSITY': self.density,
+            'LOW_SHELF_FREQUENCY': self.low_shelf_frequency,
+            'LOW_SHELF_GAIN': self.low_shelf_gain,
+            'HIGH_CUT': self.high_cut,
+            'EARLY_LATE_MIX': self.early_late_mix,
+            'WET_LEVEL': self.wet_level
+        }
+
+    def from_dict(self, audio: dict):
+        self.name = audio['NAME']
+        if 'filename' in audio:
+            self.audio_type = 'SFX'
+            self.filename = audio['FILENAME']
+            self.volume = float(audio['VOLUME'])
+            self.volume_scale = float(audio['VOLUME_SCALE'])
+        else:
+            self.audio_type = 'REVERB'
+            self.enabled = True if audio['ENABLED'] else False
+            self.node = audio['NODE']
+            self.presets = 'NONE'
+            self.min_distance = int(audio['MIN_DISTANCE'])
+            self.max_distance = int(audio['MAX_DISTANCE'])
+            self.decay_time = int(audio['DECAY_TIME'])
+            self.early_delay = int(audio['EARLY_DELAY'])
+            self.late_delay = int(audio['LATE_DELAY'])
+            self.hf_reference = int(audio['HF_REFERENCE'])
+            self.hf_decay_ratio = int(audio['HF_DECAY_RATIO'])
+            self.diffusion = int(audio['DIFFUSION'])
+            self.density = int(audio['DENSITY'])
+            self.low_shelf_frequency = int(audio['LOW_SHELF_FREQUENCY'])
+            self.low_shelf_gain = int(audio['LOW_SHELF_GAIN'])
+            self.high_cut = int(audio['HIGH_CUT'])
+            self.early_late_mix = int(audio['EARLY_LATE_MIX'])
+            self.wet_level = float(audio['WET_LEVEL'])
+
+
 REVERB_PRESETS = {
     'DEFINITION': ('Decay Time', 'Early Delay', 'Late Delay', 'HF Reference', 'HF Decay Ratio', 'Diffusion', 'Density', 'Low Shelf Frequency', 'Low Shelf Gain', 'High Cut', 'Early Late Mix', 'Wet Level'),
     'MAPPING': ('decay_time', 'early_delay', 'late_delay', 'hf_reference', 'hf_decay_ratio', 'diffusion', 'density', 'low_shelf_frequency', 'lw_shelf_gain', 'high_cut', 'early_late_mix', 'wet_level'),

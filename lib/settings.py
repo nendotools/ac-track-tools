@@ -32,47 +32,47 @@ class AC_Settings(PropertyGroup):
     active_surfaces: list[str] = []
     default_surfaces: dict = {
         "ROAD": {
-            "key": "ROAD",
-            "name": "Road",
-            "friction": 1,
+            "KEY": "ROAD",
+            "NAME": "Road",
+            "FRICTION": 1,
         },
         "KERB": {
-            "key": "KERB",
-            "name": "Kerb",
-            "friction": 0.92,
-            "wav": "kerb.wav",
-            "wav_pitch": 1.3,
-            "ff_effect": 1,
-            "vibration_gain": 1.0,
-            "vibration_length": 1.5,
+            "KEY": "KERB",
+            "NAME": "Kerb",
+            "FRICTION": 0.92,
+            "WAV": "kerb.wav",
+            "WAV_PITCH": 1.3,
+            "FF_EFFECT": 1,
+            "VIBRATION_GAIN": 1.0,
+            "VIBRATION_LENGTH": 1.5,
         },
         "GRASS": {
-            "key": "GRASS",
-            "name": "Grass",
-            "friction": 0.6,
-            "wav": "grass.wav",
-            "wav_pitch": 0,
-            "dirt_additive": 1,
-            "is_valid_track": False,
+            "KEY": "GRASS",
+            "NAME": "Grass",
+            "FRICTION": 0.6,
+            "WAV": "grass.wav",
+            "WAV_PITCH": 0,
+            "DIRT_ADDITIVE": 1,
+            "IS_VALID_TRACK": False,
             "sin_height": 0.03,
-            "sin_length": 0.5,
-            "vibration_gain": 0.2,
-            "vibration_length": 0.6,
+            "SIN_LENGTH": 0.5,
+            "VIBRATION_GAIN": 0.2,
+            "VIBRATION_LENGTH": 0.6,
         },
         "SAND": {
-            "key": "SAND",
-            "name": "Sand",
-            "friction": 0.8,
-            "damping": 0.1,
-            "wav": "sand.wav",
-            "wav_pitch": 0,
-            "ff_effect": 0,
-            "dirt_additive": 1,
-            "is_valid_track": False,
-            "sin_height": 0.04,
-            "sin_length": 0.5,
-            "vibration_gain": 0.2,
-            "vibration_length": 0.3,
+            "KEY": "SAND",
+            "NAME": "Sand",
+            "FRICTION": 0.8,
+            "DAMPING": 0.1,
+            "WAV": "sand.wav",
+            "WAV_PITCH": 0,
+            "FF_EFFECT": 0,
+            "DIRT_ADDITIVE": 1,
+            "IS_VALID_TRACK": False,
+            "SIN_HEIGHT": 0.04,
+            "SIN_LENGTH": 0.5,
+            "VIBRATION_GAIN": 0.2,
+            "VIBRATION_LENGTH": 0.3,
         },
     }
 
@@ -136,6 +136,27 @@ class AC_Settings(PropertyGroup):
 
     def load_track(self, track: dict):
         self.track.from_dict(track)
+
+    def map_audio(self) -> dict:
+        audio_map = {}
+        for audio in self.audio_sources:
+            mapped = audio.to_dict()
+            audio_map[mapped['NAME']] = mapped
+            audio_map[mapped['NAME']].pop('NAME')
+        return audio_map
+
+    def load_audio(self, audio_map: dict):
+        self.audio_sources.clear()
+        for audio in audio_map.items():
+            if audio[0].startswith("DEFAULT"):
+                continue
+            if not audio[0]:
+                continue
+            new_audio = self.audio_sources.add()
+            audio[1]['NAME'] = audio[0]
+            new_audio.from_dict(audio[1])
+            # find the object in the scene by name and assign it to the audio source
+            new_audio.node_pointer = bpy.data.objects.get(audio[1]["NODE"])
 
     def get_starts(self, context) -> list[Object]:
         return [obj for obj in context.scene.objects if obj.name.startswith("AC_START")]
