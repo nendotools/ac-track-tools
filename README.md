@@ -46,9 +46,9 @@
   - Investigate Implementation
 - [ ] AI
   - Investigate Implementation
-- [ ] Sounds
-  - [ ] Reverb Zones
-  - [ ] Sound Sources
+- [x] Sounds
+  - [x] Reverb Zones
+  - [x] Sound Sources
 - [ ] Multi-Modal Configuration
   - Investigate Implementation
   - useful to reuse track without reconfiguring everything
