@@ -106,8 +106,10 @@ class VIEW3D_PT_AC_Sidebar_Surfaces(VIEW3D_PT_AC_Sidebar, Panel):
             box = layout.box()
             row = box.row()
             toggle = row.operator("ac.toggle_surface", text="", icon='TRIA_DOWN' if surface.name in active else 'TRIA_RIGHT')
-            row.label(text=f"{surface.name} [{len(assigned[surface.key])}]")
             toggle.target = surface.name
+            row.label(text=f"{surface.name} [{len(assigned[surface.key])}]")
+            select_all = row.operator("ac.select_all_surfaces", text="", icon='RESTRICT_SELECT_OFF')
+            select_all.surface = surface.key
             if surface.name in active:
                 col = box.column(align=True)
                 col.enabled = surface.custom

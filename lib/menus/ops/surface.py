@@ -1,5 +1,6 @@
 import re
-from bpy.types import Operator
+import bpy
+from bpy.types import Object, Operator
 from bpy.props import StringProperty
 
 from ....utils.constants import SURFACE_REGEX
@@ -89,6 +90,22 @@ class AC_AssignSurface(Operator):
             obj.name = f"1{self.key}_{cleaned_name}"
         return {'FINISHED'}
 
+class AC_SelectAllSurfaces(Operator):
+    bl_label = "Select All Surfaces"
+    bl_idname = "ac.select_all_surfaces"
+    bl_options = {'REGISTER', 'UNDO'}
+    surface: StringProperty(
+        name="Surface Key",
+        default="",
+    )
+    def execute(self, context):
+        settings: AC_Settings = context.scene.AC_Settings # type: ignore
+        bpy.ops.object.select_all(action='DESELECT')
+        for obj in settings.get_surface_groups(context, self.surface):
+            if isinstance(obj, Object):
+                obj.select_set(True)
+        return {'FINISHED'}
+
 class AC_AssignWall(Operator):
     bl_label = "Convert to Wall"
     bl_idname = "ac.assign_wall"
@@ -120,6 +137,8 @@ def remove_existing_prefix(name: str) -> str:
     match = re.match(SURFACE_REGEX, name)
     # check ignores empty groups and returns the last group
     # if the first group is not empty, assume there's no surface prefix
-    if match and match.group(1) != '' and match.group(3):
-        return match.group(3)
+    if match and match.group(1) != '':
+        if match.group(3):
+            return match.group(3)
+        return ''
     return name

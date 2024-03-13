@@ -9,7 +9,6 @@ from .menus.ops.project import (
     AC_AddTimeGate,
     AC_AddABStartGate,
     AC_AddABFinishGate
-
 )
 from .menus.ops.track import (
     AC_AddTag,
@@ -25,6 +24,7 @@ from .menus.ops.surface import (
     AC_RemoveSurface,
     AC_ToggleSurface,
     AC_AssignSurface,
+    AC_SelectAllSurfaces,
     AC_AssignWall,
     AC_AssignPhysProp
 )
@@ -46,7 +46,7 @@ from .configs.surface import AC_Surface
 from .configs.audio_source import AC_AudioSource
 
 __classes__ = (
-    AC_InitSurfaces, AC_AddSurface, AC_RemoveSurface, AC_ToggleSurface, AC_AssignSurface, AC_AssignWall, AC_AssignPhysProp,
+    AC_InitSurfaces, AC_AddSurface, AC_RemoveSurface, AC_ToggleSurface, AC_AssignSurface, AC_SelectAllSurfaces, AC_AssignWall, AC_AssignPhysProp,
     AC_AddTag, AC_RemoveTag, AC_AddGeoTag, AC_RemoveGeoTag, AC_ToggleTag, AC_ToggleGeoTag,
     AC_SaveSettings, AC_LoadSettings,
     AC_AddAudioSource, AC_ToggleAudio,
