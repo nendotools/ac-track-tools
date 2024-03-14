@@ -23,7 +23,7 @@ class AC_Surface(PropertyGroup):
         default=0.96,
         min=0,
         max=1,
-        precision=2
+        precision=3
     )
     damping: FloatProperty(
         name="Damping",
@@ -31,7 +31,7 @@ class AC_Surface(PropertyGroup):
         default=0,
         min=0,
         max=1,
-        precision=2
+        precision=3
     )
     wav: StringProperty(
         name="Wav",
@@ -60,8 +60,8 @@ class AC_Surface(PropertyGroup):
         description="Amount of dirt added from the surface",
         default=0,
         min=0,
-        max=0.45,
-        precision=2
+        max=1,
+        precision=3
     )
     is_pit_lane: BoolProperty(
         name="Is Pit Lane",
@@ -87,7 +87,7 @@ class AC_Surface(PropertyGroup):
         default=0,
         min=0,
         max=3,
-        precision=2
+        precision=3
     )
     sin_length: FloatProperty(
         name="Sin Length",
@@ -95,7 +95,7 @@ class AC_Surface(PropertyGroup):
         default=0,
         min=0,
         max=3,
-        precision=2
+        precision=3
     )
     vibration_gain: FloatProperty(
         name="Vibration Gain",
@@ -103,7 +103,7 @@ class AC_Surface(PropertyGroup):
         default=0,
         min=0,
         max=3,
-        precision=2
+        precision=3
     )
     vibration_length: FloatProperty(
         name="Vibration Length",
@@ -111,7 +111,7 @@ class AC_Surface(PropertyGroup):
         default=0,
         min=0,
         max=3,
-        precision=2
+        precision=3
     )
 
     def to_dict(self) -> dict:
