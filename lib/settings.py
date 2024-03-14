@@ -128,6 +128,7 @@ class AC_Settings(PropertyGroup):
         for surface in {**self.default_surfaces, **surface_map}.items():
             if surface[0].startswith("DEFAULT"):
                 continue
+            print("loading surface:", surface[0])
             new_surface = self.surfaces.add()
             new_surface.from_dict(surface[1])
 
@@ -155,8 +156,9 @@ class AC_Settings(PropertyGroup):
             new_audio = self.audio_sources.add()
             audio[1]['NAME'] = audio[0]
             new_audio.from_dict(audio[1])
+            pointer_name = audio[1]["NODE"] if "NODE" in audio[1] else audio[1]["NAME"]
             # find the object in the scene by name and assign it to the audio source
-            new_audio.node_pointer = bpy.data.objects.get(audio[1]["NODE"])
+            new_audio.node_pointer = bpy.data.objects.get(pointer_name)
 
     def get_starts(self, context) -> list[Object]:
         return [obj for obj in context.scene.objects if obj.name.startswith("AC_START")]

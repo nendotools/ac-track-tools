@@ -314,8 +314,8 @@ class AC_AudioSource(PropertyGroup):
             'ENABLED': 1 if self.enabled else 0,
             'NODE': self.node,
             'PRESET': 'CUSTOM',
-            'MIN_DISTANCE': self.min_distance,
-            'MAX_DISTANCE': self.max_distance,
+            'MINDISTANCE': self.min_distance,
+            'MAXDISTANCE': self.max_distance,
             'DECAY_TIME': self.decay_time,
             'EARLY_DELAY': self.early_delay,
             'LATE_DELAY': self.late_delay,
@@ -336,14 +336,14 @@ class AC_AudioSource(PropertyGroup):
             self.audio_type = 'SFX'
             self.filename = audio['FILENAME']
             self.volume = float(audio['VOLUME'])
-            self.volume_scale = float(audio['VOLUME_SCALE'])
+            self.volume_scale = int(audio['VOLUME_SCALE'])
         else:
             self.audio_type = 'REVERB'
             self.enabled = True if audio['ENABLED'] else False
             self.node = audio['NODE']
             self.presets = 'NONE'
-            self.min_distance = int(audio['MIN_DISTANCE'])
-            self.max_distance = int(audio['MAX_DISTANCE'])
+            self.min_distance = int(audio['MINDISTANCE'])
+            self.max_distance = int(audio['MAXDISTANCE'])
             self.decay_time = int(audio['DECAY_TIME'])
             self.early_delay = int(audio['EARLY_DELAY'])
             self.late_delay = int(audio['LATE_DELAY'])

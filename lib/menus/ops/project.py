@@ -21,7 +21,7 @@ class AC_SaveSettings(Operator):
             settings.reset_errors()
             self.report({'ERROR'}, msg)
             return { 'CANCELLED' }
-        save_ini(data_dir + '/surface.ini', surface_data)
+        save_ini(data_dir + '/surfaces.ini', surface_data)
 
         audio_data = settings.map_audio()
         save_ini(data_dir + '/audio_sources.ini', audio_data)
@@ -40,7 +40,7 @@ class AC_LoadSettings(Operator):
     def execute(self, context):
         settings = context.scene.AC_Settings # type: ignore
         data_dir = get_data_directory()
-        surface_map = load_ini(data_dir + '/surface.ini')
+        surface_map = load_ini(data_dir + '/surfaces.ini')
         if surface_map:
             settings.load_surfaces(surface_map)
 
