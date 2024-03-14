@@ -102,12 +102,14 @@ class VIEW3D_PT_AC_Sidebar_Surfaces(VIEW3D_PT_AC_Sidebar, Panel):
 
         assigned = settings.get_surface_groups(context)
         active = settings.active_surfaces
-        for surface in settings.surfaces:
+        for surface in settings.get_surfaces():
             box = layout.box()
             row = box.row()
             toggle = row.operator("ac.toggle_surface", text="", icon='TRIA_DOWN' if surface.name in active else 'TRIA_RIGHT')
             toggle.target = surface.name
             row.label(text=f"{surface.name} [{len(assigned[surface.key])}]")
+            copy_surface = row.operator("ac.add_surface", text="", icon='COPYDOWN')
+            copy_surface.copy_from = surface.key
             select_all = row.operator("ac.select_all_surfaces", text="", icon='RESTRICT_SELECT_OFF')
             select_all.surface = surface.key
             if surface.name in active:

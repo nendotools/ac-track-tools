@@ -17,24 +17,45 @@ class AC_InitSurfaces(Operator):
         return {'FINISHED'}
 
 class AC_AddSurface(Operator):
-    bl_label = "Add Surface"
+    bl_label = "Add/Copy Surface"
     bl_idname = "ac.add_surface"
     bl_options = {'REGISTER'}
+    copy_from: StringProperty(
+        name="Copy Surface Key",
+        default="",
+    )
+
+    @classmethod
+    def description(cls, context, properties):
+        if properties.copy_from != "":
+            return f"Create a new surface based on {properties.copy_from}"
+        return "Create a new surface"
+
     def execute(self, context):
         settings = context.scene.AC_Settings # type: ignore
         surface = settings.surfaces.add()
-        # set surface name to unique
-        surface.name = self.find_unique_name("Surface", settings)
+        surface.key = "SURFACE"
+        if self.copy_from != "":
+            source = next((s for s in settings.surfaces if s.key == self.copy_from), None)
+            if source:
+                for attr in source.keys():
+                    setattr(surface, attr, getattr(source, attr))
+        surface.key = self.find_unique_value(surface.key, "key", settings)
+        surface.name = surface.key
         return {'FINISHED'}
 
-    def find_unique_name(self, name: str, settings: AC_Settings):
-        names = [surface.name for surface in settings.surfaces]
-        if name not in names:
-            return name
+    def find_unique_value(self, key: str, field: str, settings: AC_Settings):
+        keys = []
+        for surface in settings.surfaces:
+            keys.append(getattr(surface, field))
+        if key not in keys:
+            return key
         i = 1
-        while f"{name}.{i}" in names:
+        num_check = re.match(r"^(.*?)([._-]?\d*)$", key)
+        true_name = num_check.group(1) if num_check else key
+        while f"{true_name}-{i}" in keys:
             i += 1
-        return f"{name}.{i}"
+        return f"{true_name}-{i}"
 
 class AC_RemoveSurface(Operator):
     bl_label = "Remove Surface"

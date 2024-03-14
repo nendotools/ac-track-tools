@@ -35,6 +35,7 @@ class AC_Settings(PropertyGroup):
             "KEY": "ROAD",
             "NAME": "Road",
             "FRICTION": 1,
+            "CUSTOM": False
         },
         "KERB": {
             "KEY": "KERB",
@@ -45,6 +46,7 @@ class AC_Settings(PropertyGroup):
             "FF_EFFECT": 1,
             "VIBRATION_GAIN": 1.0,
             "VIBRATION_LENGTH": 1.5,
+            "CUSTOM": False
         },
         "GRASS": {
             "KEY": "GRASS",
@@ -58,6 +60,7 @@ class AC_Settings(PropertyGroup):
             "SIN_LENGTH": 0.5,
             "VIBRATION_GAIN": 0.2,
             "VIBRATION_LENGTH": 0.6,
+            "CUSTOM": False
         },
         "SAND": {
             "KEY": "SAND",
@@ -73,6 +76,7 @@ class AC_Settings(PropertyGroup):
             "SIN_LENGTH": 0.5,
             "VIBRATION_GAIN": 0.2,
             "VIBRATION_LENGTH": 0.3,
+            "CUSTOM": False
         },
     }
 
@@ -97,16 +101,20 @@ class AC_Settings(PropertyGroup):
         return groups if key is None else groups[key]
 
     def update_directory(self, path: str):
-        print("updating directory:", path)
         if path == "":
             return
         self.initialized = True
         print("initializing directory", path)
         bpy.ops.ac.load_settings()
 
+    def get_surfaces(self) -> list[AC_Surface]:
+        out_surfaces = {}
+        for surface in self.surfaces:
+            out_surfaces[surface.key] = surface
+        return list(out_surfaces.values())
+
     def map_surfaces(self) -> dict:
         surface_map = {}
-        keys = ['ROAD', 'KERB', 'GRASS', 'SAND']
 
         # only save custom surfaces
         custom_surfaces = [surface for surface in self.surfaces if surface.custom]
@@ -115,11 +123,6 @@ class AC_Settings(PropertyGroup):
             if not re.match(r"^[A-Z]*$", surface.key):
                 self.error["surface"] = f"Surface {surface.name} assigned invalid key: {surface.key}"
 
-            # duplicate check
-            if surface.key in keys:
-                self.error["surface"] = f"Surface {surface.name} assigned duplicate key: {surface.key}"
-
-            keys.append(surface.key)
             surface_map[f"SURFACE_{i}"] = surface.to_dict()
         return surface_map
 
@@ -128,9 +131,8 @@ class AC_Settings(PropertyGroup):
         for surface in {**self.default_surfaces, **surface_map}.items():
             if surface[0].startswith("DEFAULT"):
                 continue
-            print("loading surface:", surface[0])
             new_surface = self.surfaces.add()
-            new_surface.from_dict(surface[1])
+            new_surface.from_dict(surface[1], surface[1]["CUSTOM"] if "CUSTOM" in surface[1] else True)
 
     def map_track(self) -> dict:
         return self.track.to_dict()
