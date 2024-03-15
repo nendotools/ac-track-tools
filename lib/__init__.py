@@ -16,7 +16,7 @@ from .menus.ops.track import (
     AC_ToggleTag,
     AC_AddGeoTag,
     AC_RemoveGeoTag,
-    AC_ToggleGeoTag
+    AC_ToggleGeoTag,
 )
 from .menus.ops.surface import (
     AC_InitSurfaces,
@@ -26,7 +26,9 @@ from .menus.ops.surface import (
     AC_AssignSurface,
     AC_SelectAllSurfaces,
     AC_AssignWall,
-    AC_AssignPhysProp
+    AC_AssignPhysProp,
+    AC_AddSurfaceExt,
+    AC_DeleteSurfaceExt,
 )
 from .menus.ops.audio import (
     AC_AddAudioSource,
@@ -34,6 +36,7 @@ from .menus.ops.audio import (
 )
 from .menus.sidebar import (
     AC_UL_Tags,
+    AC_UL_Extenstions,
     VIEW3D_PT_AC_Sidebar_Project,
     VIEW3D_PT_AC_Sidebar_Track,
     VIEW3D_PT_AC_Sidebar_Surfaces,
@@ -47,12 +50,13 @@ from .configs.audio_source import AC_AudioSource
 
 __classes__ = (
     AC_InitSurfaces, AC_AddSurface, AC_RemoveSurface, AC_ToggleSurface, AC_AssignSurface, AC_SelectAllSurfaces, AC_AssignWall, AC_AssignPhysProp,
+    AC_AddSurfaceExt, AC_DeleteSurfaceExt,
     AC_AddTag, AC_RemoveTag, AC_AddGeoTag, AC_RemoveGeoTag, AC_ToggleTag, AC_ToggleGeoTag,
     AC_SaveSettings, AC_LoadSettings,
     AC_AddAudioSource, AC_ToggleAudio,
     AC_AddStart, AC_AddHotlapStart, AC_AddPitbox, AC_AddTimeGate, AC_AddABStartGate, AC_AddABFinishGate, AC_AddAudioEmitter, 
     AC_Track, AC_Surface, AC_AudioSource, AC_Settings,
-    AC_UL_Tags,
+    AC_UL_Tags, AC_UL_Extenstions,
     VIEW3D_PT_AC_Sidebar_Project, VIEW3D_PT_AC_Sidebar_Track, VIEW3D_PT_AC_Sidebar_Surfaces, VIEW3D_PT_AC_Sidebar_Audio,
     WM_MT_AssignSurface,
 )

@@ -3,6 +3,7 @@ import bpy
 from bpy.types import PropertyGroup, Object
 from bpy.props import CollectionProperty, PointerProperty, StringProperty
 
+from ..utils.properties import ExtensionCollection
 from .configs.track import AC_Track
 from .configs.surface import AC_Surface
 from .configs.audio_source import AC_AudioSource
@@ -24,6 +25,11 @@ class AC_Settings(PropertyGroup):
         type=AC_Surface,
         name="Track Surfaces",
     )
+    surface_ext: CollectionProperty(
+        type=ExtensionCollection,
+        name="Surface Extensions",
+        description="Unsupported extesion to save/load",
+    )
     audio_sources: CollectionProperty(
         type=AC_AudioSource,
         name="Audio Sources",
@@ -31,13 +37,13 @@ class AC_Settings(PropertyGroup):
     error: dict = {}
     active_surfaces: list[str] = []
     default_surfaces: dict = {
-        "ROAD": {
+        "SURFACE_ROAD": {
             "KEY": "ROAD",
             "NAME": "Road",
             "FRICTION": 1,
             "CUSTOM": False
         },
-        "KERB": {
+        "SURFACE_KERB": {
             "KEY": "KERB",
             "NAME": "Kerb",
             "FRICTION": 0.92,
@@ -48,7 +54,7 @@ class AC_Settings(PropertyGroup):
             "VIBRATION_LENGTH": 1.5,
             "CUSTOM": False
         },
-        "GRASS": {
+        "SURFACE_GRASS": {
             "KEY": "GRASS",
             "NAME": "Grass",
             "FRICTION": 0.6,
@@ -62,7 +68,7 @@ class AC_Settings(PropertyGroup):
             "VIBRATION_LENGTH": 0.6,
             "CUSTOM": False
         },
-        "SAND": {
+        "SURFACE_SAND": {
             "KEY": "SAND",
             "NAME": "Sand",
             "FRICTION": 0.8,
@@ -124,12 +130,26 @@ class AC_Settings(PropertyGroup):
                 self.error["surface"] = f"Surface {surface.name} assigned invalid key: {surface.key}"
 
             surface_map[f"SURFACE_{i}"] = surface.to_dict()
+
+        for extension in self.surface_ext:
+            surface_map[extension.name] = {}
+            for item in extension.items:
+                surface_map[extension.name][item.key] = item.value
         return surface_map
 
     def load_surfaces(self, surface_map: dict):
         self.surfaces.clear()
         for surface in {**self.default_surfaces, **surface_map}.items():
             if surface[0].startswith("DEFAULT"):
+                continue
+            if not surface[0].startswith("SURFACE_"):
+                print("loading surface ext", surface[0])
+                extension = self.surface_ext.add()
+                extension.name = surface[0]
+                for key, value in surface[1].items():
+                    pair = extension.items.add()
+                    pair.key = key
+                    pair.value = f"{value}"
                 continue
             new_surface = self.surfaces.add()
             new_surface.from_dict(surface[1], surface[1]["CUSTOM"] if "CUSTOM" in surface[1] else True)

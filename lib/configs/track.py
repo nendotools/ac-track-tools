@@ -142,11 +142,12 @@ class AC_Track(PropertyGroup):
         self.name = data["name"]
         self.description = data["description"]
         self.tags.clear()
-        for value in data["tags"]:
+        for value in data["tags"] if "tags" in data else []:
             item = self.tags.add()
             item.value = value
         self.geotags.clear()
-        for value in data["geotags"]:
+        # geotags is optional
+        for value in data["geotags"] if "geotags" in data else []:
             item = self.geotags.add()
             item.value = value
         self.country = data["country"]

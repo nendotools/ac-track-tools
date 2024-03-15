@@ -1,7 +1,7 @@
 import re
 import bpy
 from bpy.types import Object, Operator
-from bpy.props import StringProperty
+from bpy.props import StringProperty, IntProperty
 
 from ....utils.constants import SURFACE_REGEX
 from ...configs.surface import AC_Surface
@@ -152,6 +152,51 @@ class AC_AssignPhysProp(Operator):
         for obj in objects:
             cleaned_name = remove_existing_prefix(obj.name)
             obj.name = f"AC_POBJECT_{cleaned_name}"
+        return {'FINISHED'}
+
+class AC_AddSurfaceExt(Operator):
+    bl_label = "Add Surface Extension"
+    bl_idname = "ac.add_surface_ext"
+    bl_options = {'REGISTER', 'UNDO'}
+    extension: StringProperty(
+        name="Extension",
+        default="",
+    )
+    def execute(self, context):
+        settings: AC_Settings = context.scene.AC_Settings
+        # if self.extension == "": add new extension
+        # else: add properties to existing extension
+        if self.extension == "":
+            extension = settings.surface_ext.add()
+        else:
+            extension = next((ext for ext in settings.surface_ext if ext.name == self.extension), None)
+            if not extension:
+                extension = settings.surface_ext.add()
+            extension.items.add()
+        return {'FINISHED'}
+
+class AC_DeleteSurfaceExt(Operator):
+    bl_label = "Delete Surface Extension"
+    bl_idname = "ac.delete_surface_ext"
+    bl_options = {'REGISTER', 'UNDO'}
+    extension: StringProperty(
+        name="Extension",
+        default="",
+    )
+    index: IntProperty(
+        name="Index",
+        default=-1,
+    )
+    def execute(self, context):
+        settings: AC_Settings = context.scene.AC_Settings
+        # if extension is empty, delete the extension at the index
+        # else: delete the property from the extension
+        if self.extension == "":
+            settings.surface_ext.remove(self.index)
+        else:
+            extension = next((ext for ext in settings.surface_ext if ext.name == self.extension), None)
+            if extension:
+                extension.items.remove(self.index)
         return {'FINISHED'}
 
 def remove_existing_prefix(name: str) -> str:

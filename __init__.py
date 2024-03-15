@@ -16,8 +16,8 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 from . import lib
+from .utils.properties import ExtensionCollection, KeyValuePair
 from bpy.utils import register_class, unregister_class
-from .utils.properties import KeyValuePair
 
 bl_info = {
     "name": "Assetto Corsa Configurator",
@@ -37,8 +37,10 @@ bl_info = {
 
 def register():
     register_class(KeyValuePair)
+    register_class(ExtensionCollection)
     lib.register()
 
 def unregister():
     lib.unregister()
+    unregister_class(ExtensionCollection)
     unregister_class(KeyValuePair)

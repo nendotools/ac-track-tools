@@ -87,6 +87,15 @@ class AC_UL_Tags(UIList):
             delete = row.operator("ac.remove_geo_tag", text="", icon='X')
             delete.index = index
 
+class AC_UL_Extenstions(UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_property, index): # type: ignore
+        row = layout.split(factor=0.3)
+        row.prop(item, "key", text="", emboss=False)
+        sub = row.row()
+        sub.prop(item, "value", text="", emboss=False)
+        delete = sub.operator("ac.delete_surface_ext", text="", icon='X')
+        delete.extension = data.name
+        delete.index = index
 
 class VIEW3D_PT_AC_Sidebar_Surfaces(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Surfaces"
@@ -154,7 +163,24 @@ class VIEW3D_PT_AC_Sidebar_Surfaces(VIEW3D_PT_AC_Sidebar, Panel):
         col = layout.column(align=True)
         col.separator(factor=1.5)
         row = layout.row()
-        row.operator("ac.add_surface", text="New Surface", icon='ADD')
+        self.show_extensions(context, layout)
+        layout.operator("ac.add_surface", text="New Surface", icon='ADD')
+
+    def show_extensions(self, context, layout):
+        settings = context.scene.AC_Settings
+        extensions = settings.surface_ext
+        if not extensions:
+            return
+
+        for extension in extensions:
+            box = layout.box()
+            row = box.row()
+            row.label(text=f"{extension.name}")
+            box.template_list("AC_UL_Extenstions", "", extension, "items", extension, "index", rows=3)
+            box.separator()
+            ext = box.operator("ac.add_surface_ext", text="Add Extension", icon='ADD')
+            ext.extension = extension.name
+
 
 ## TODO: Add Audio Source as fixed type (don't allow changing from SFX to REVERB)
 class VIEW3D_PT_AC_Sidebar_Audio(VIEW3D_PT_AC_Sidebar, Panel):

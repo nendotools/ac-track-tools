@@ -14,6 +14,11 @@ class AC_SaveSettings(Operator):
     def execute(self, context):
         print("Saving settings")
         settings = context.scene.AC_Settings # type: ignore
+
+        ui_dir = get_ui_directory()
+        track_data = settings.map_track()
+        save_json(ui_dir + '/ui_track.json', track_data)
+
         data_dir = get_data_directory()
         surface_data = settings.map_surfaces()
         if 'surface' in list(settings.error.keys()):
@@ -25,10 +30,6 @@ class AC_SaveSettings(Operator):
 
         audio_data = settings.map_audio()
         save_ini(data_dir + '/audio_sources.ini', audio_data)
-
-        ui_dir = get_ui_directory()
-        track_data = settings.map_track()
-        save_json(ui_dir + '/ui_track.json', track_data)
         print("Settings saved")
         return {'FINISHED'}
 
@@ -39,6 +40,12 @@ class AC_LoadSettings(Operator):
     bl_options = {'REGISTER'}
     def execute(self, context):
         settings = context.scene.AC_Settings # type: ignore
+
+        ui_dir = get_ui_directory()
+        track = load_json(ui_dir + '/ui_track.json')
+        if track:
+            settings.load_track(track)
+
         data_dir = get_data_directory()
         surface_map = load_ini(data_dir + '/surfaces.ini')
         if surface_map:
@@ -47,11 +54,6 @@ class AC_LoadSettings(Operator):
         audio_map = load_ini(data_dir + '/audio_sources.ini')
         if audio_map:
             settings.load_audio(audio_map)
-
-        ui_dir = get_ui_directory()
-        track = load_json(ui_dir + '/ui_track.json')
-        if track:
-            settings.load_track(track)
 
         return {'FINISHED'}
 

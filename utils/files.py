@@ -1,5 +1,5 @@
 from bpy import path
-import os, json, configparser
+import os, re, json, configparser
 from ..lib.settings import get_settings
 
 ##
@@ -15,11 +15,8 @@ def ensure_path_exists(loc: str):
     return os.path.normpath(loc)
 
 def get_active_directory():
-    # get full path of the working directory
-    loc = os.path.abspath(get_settings().working_dir)
-    if loc in ['/','//','\\']:
-        return path.abspath('//')
-    return ensure_path_exists(loc)
+    abs_path = path.abspath(get_settings().working_dir)
+    return os.path.realpath(abs_path)
 
 def get_ai_directory():
     return ensure_path_exists(get_active_directory() + '/ai/')
@@ -84,4 +81,4 @@ def save_ini(filename: str, config: dict):
     parser.read_dict(config)
     normalized_file = ensure_path_exists(filename)
     with open(normalized_file, 'w') as configfile:
-        parser.write(configfile)
+        parser.write(configfile, False)
