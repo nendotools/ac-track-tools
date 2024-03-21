@@ -30,6 +30,9 @@ def get_ui_directory():
 def get_content_directory():
     return ensure_path_exists(get_active_directory() + '/content/')
 
+def get_extension_directory():
+    return ensure_path_exists(get_active_directory() + '/extension/')
+
 def get_sfx_directory():
     return ensure_path_exists(get_content_directory() + '/sfx/')
 
@@ -69,7 +72,7 @@ def save_json(filename: str, data):
 ##  INI Files
 ##
 def load_ini(filename: str):
-    config = configparser.ConfigParser()
+    config = configparser.ConfigParser(allow_no_value=True, strict=False)
     try:
         config.read(filename)
         return config

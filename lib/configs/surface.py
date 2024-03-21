@@ -114,23 +114,24 @@ class AC_Surface(PropertyGroup):
         precision=3
     )
 
+    SAVE_PRECISION = 2
     def to_dict(self) -> dict:
         return {
             "NAME": self.name,
             "KEY": self.key,
-            "FRICTION": self.friction,
-            "DAMPING": self.damping,
+            "FRICTION": round(self.friction, self.SAVE_PRECISION),
+            "DAMPING": round(self.damping, self.SAVE_PRECISION),
             "WAV": self.wav,
-            "WAV_PITCH": self.wav_pitch,
+            "WAV_PITCH": round(self.wav_pitch, self.SAVE_PRECISION),
             "FF_EFFECT": 'NULL' if self.ff_effect == '' else self.ff_effect,
-            "DIRT_ADDITIVE": self.dirt_additive,
+            "DIRT_ADDITIVE": round(self.dirt_additive, self.SAVE_PRECISION),
             "IS_PITLANE": self.is_pit_lane,
             "IS_VALID_TRACK": self.is_valid_track,
             "BLACK_FLAG_TIME": self.black_flag_time,
-            "SIN_HEIGHT": self.sin_height,
-            "SIN_LENGTH": self.sin_length,
-            "VIBRATION_GAIN": self.vibration_gain,
-            "VIBRATION_LENGTH": self.vibration_length,
+            "SIN_HEIGHT": round(self.sin_height, self.SAVE_PRECISION),
+            "SIN_LENGTH": round(self.sin_length, self.SAVE_PRECISION),
+            "VIBRATION_GAIN": round(self.vibration_gain, self.SAVE_PRECISION),
+            "VIBRATION_LENGTH": round(self.vibration_length, self.SAVE_PRECISION)
         }
 
     # long floats may be interpreted as strings when reading from file

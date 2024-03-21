@@ -301,12 +301,13 @@ class AC_AudioSource(PropertyGroup):
             for i, key in enumerate(REVERB_PRESETS['MAPPING']):
                 setattr(self, key.lower().replace(' ', '_'), REVERB_PRESETS[preset][i])
 
+    SAVE_PRECISION = 2
     def to_dict(self) -> dict:
         if self.audio_type == 'SFX':
             return {
                 'NAME': self.name,
                 'FILENAME': self.filename,
-                'VOLUME': self.volume,
+                'VOLUME': round(self.volume, self.SAVE_PRECISION),
                 'VOLUME_SCALE': self.volume_scale
             }
         return {
@@ -327,7 +328,7 @@ class AC_AudioSource(PropertyGroup):
             'LOW_SHELF_GAIN': self.low_shelf_gain,
             'HIGH_CUT': self.high_cut,
             'EARLY_LATE_MIX': self.early_late_mix,
-            'WET_LEVEL': self.wet_level
+            'WET_LEVEL': round(self.wet_level, self.SAVE_PRECISION)
         }
 
     def from_dict(self, audio: dict):

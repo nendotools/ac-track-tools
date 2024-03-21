@@ -3,8 +3,17 @@ import bpy
 from bpy.types import Operator
 from bpy.props import StringProperty, BoolProperty
 
-from ....utils.files import ensure_path_exists, get_active_directory, get_data_directory, get_ui_directory, load_ini, load_json, save_ini, save_json
-
+from ....utils.files import (
+    ensure_path_exists,
+    get_active_directory,
+    get_data_directory,
+    get_ui_directory,
+    get_extension_directory,
+    load_ini,
+    save_ini,
+    load_json,
+    save_json
+)
 
 class AC_SaveSettings(Operator):
     """Save the current settings"""
@@ -12,7 +21,6 @@ class AC_SaveSettings(Operator):
     bl_label = "Save Settings"
     bl_options = {'REGISTER'}
     def execute(self, context):
-        print("Saving settings")
         settings = context.scene.AC_Settings # type: ignore
 
         ui_dir = get_ui_directory()
@@ -30,6 +38,11 @@ class AC_SaveSettings(Operator):
 
         audio_data = settings.map_audio()
         save_ini(data_dir + '/audio_sources.ini', audio_data)
+
+        extension_map: dict = settings.map_extensions()
+        if 'extension' not in list(settings.error.keys()) and len(extension_map.keys()) > 0:
+            extension_dir = get_extension_directory()
+            save_ini(extension_dir + '/ext_config.ini', extension_map)
         print("Settings saved")
         return {'FINISHED'}
 
@@ -55,6 +68,10 @@ class AC_LoadSettings(Operator):
         if audio_map:
             settings.load_audio(audio_map)
 
+        extension_dir = get_extension_directory()
+        extension_map = load_ini(extension_dir + '/ext_config.ini')
+        if extension_map:
+            settings.load_extensions(extension_map)
         return {'FINISHED'}
 
 class AC_AddStart(Operator):
@@ -63,10 +80,8 @@ class AC_AddStart(Operator):
     bl_label = "Add Start"
     bl_options = {'REGISTER'}
     def execute(self, context):
-        # create empty SingleArrow object at mouse location
         bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, 0, 0))
         start_pos = bpy.context.object
-        print("start_pos", start_pos)
         start_pos.name = "AC_START_0"
         return {'FINISHED'}
 
@@ -76,10 +91,8 @@ class AC_AddHotlapStart(Operator):
     bl_label = "Add Hotlap Start"
     bl_options = {'REGISTER'}
     def execute(self, context):
-        # create empty SingleArrow object at mouse location
         bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, 0, 0))
         start_pos = bpy.context.object
-        print("start_pos", start_pos)
         start_pos.name = "AC_HOTLAP_START_0"
         return {'FINISHED'}
 
@@ -89,9 +102,8 @@ class AC_AddPitbox(Operator):
     bl_label = "Add Pitbox"
     bl_options = {'REGISTER'}
     def execute(self, context):
-        bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0))
+        bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(math.pi * -0.5, 0, 0))
         pitbox = bpy.context.object
-        print("pitbox", pitbox)
         pitbox.name = "AC_PIT_0"
         return {'FINISHED'}
 

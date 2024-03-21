@@ -30,6 +30,11 @@ class AC_Settings(PropertyGroup):
         name="Surface Extensions",
         description="Unsupported extesion to save/load",
     )
+    global_extensions: CollectionProperty(
+        type=ExtensionCollection,
+        name="Global Extensions",
+        description="Unsupported extesion to save/load"
+    )
     audio_sources: CollectionProperty(
         type=AC_AudioSource,
         name="Audio Sources",
@@ -110,7 +115,6 @@ class AC_Settings(PropertyGroup):
         if path == "":
             return
         self.initialized = True
-        print("initializing directory", path)
         bpy.ops.ac.load_settings()
 
     def get_surfaces(self) -> list[AC_Surface]:
@@ -139,11 +143,11 @@ class AC_Settings(PropertyGroup):
 
     def load_surfaces(self, surface_map: dict):
         self.surfaces.clear()
+        self.surface_ext.clear()
         for surface in {**self.default_surfaces, **surface_map}.items():
             if surface[0].startswith("DEFAULT"):
                 continue
             if not surface[0].startswith("SURFACE_"):
-                print("loading surface ext", surface[0])
                 extension = self.surface_ext.add()
                 extension.name = surface[0]
                 for key, value in surface[1].items():
@@ -181,6 +185,25 @@ class AC_Settings(PropertyGroup):
             pointer_name = audio[1]["NODE"] if "NODE" in audio[1] else audio[1]["NAME"]
             # find the object in the scene by name and assign it to the audio source
             new_audio.node_pointer = bpy.data.objects.get(pointer_name)
+
+    def map_extensions(self) -> dict:
+        extension_map = {}
+        for extension in self.global_extensions:
+            extension_map[extension.name] = {}
+            for item in extension.items:
+                extension_map[extension.name][item.key] = item.value
+        return extension_map
+
+    def load_extensions(self, extension_map: dict):
+        for extension in extension_map.items():
+            if extension[0].startswith("DEFAULT") or not extension[0]:
+                continue
+            ext_group = self.global_extensions.add()
+            ext_group.name = extension[0]
+            for item in extension[1].items():
+                new_item = ext_group.items.add()
+                new_item.key = item[0]
+                new_item.value = item[1]
 
     def get_starts(self, context) -> list[Object]:
         return [obj for obj in context.scene.objects if obj.name.startswith("AC_START")]

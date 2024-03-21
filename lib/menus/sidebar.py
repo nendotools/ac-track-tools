@@ -2,6 +2,47 @@ from bpy.types import Panel, UIList
 from ..configs.audio_source import AC_AudioSource
 
 
+class AC_UL_Tags(UIList):
+    layout_type = 'COMPACT'
+    def draw_item(self, context, layout, data, item, icon, active_data, active_property, index): # type: ignore
+        row = layout.row()
+        row.prop(item, "value", text="", emboss=False)
+        if(active_property == "tags_index"):
+            delete = row.operator("ac.remove_tag", text="", icon='X')
+            delete.index = index
+        if(active_property == "geotags_index"):
+            delete = row.operator("ac.remove_geo_tag", text="", icon='X')
+            delete.index = index
+
+    def draw_filter(self, context, layout):
+        pass
+
+class AC_UL_Extenstions(UIList):
+    layout_type = 'COMPACT'
+    def draw_item(self, context, layout, data, item, icon, active_data, active_property, index): # type: ignore
+        row = layout.row()
+        row.prop(item, "name", text="", emboss=False)
+        delete = row.operator("ac.global.remove_extension_item", text="", icon='X')
+        delete.extension = item.name
+
+    def draw_filter(self, context, layout):
+        pass
+
+class AC_UL_SurfaceExtenstions(UIList):
+    layout_type = 'COMPACT'
+    def draw_item(self, context, layout, data, item, icon, active_data, active_property, index): # type: ignore
+        row = layout.split(factor=0.3)
+        row.prop(item, "key", text="", emboss=False)
+        sub = row.row()
+        sub.prop(item, "value", text="", emboss=False)
+        delete = sub.operator("ac.delete_surface_ext", text="", icon='X')
+        delete.extension = data.name
+        delete.index = index
+
+    def draw_filter(self, context, layout):
+        pass
+
+
 class VIEW3D_PT_AC_Sidebar:
     bl_label = "Assetto Corsa Configurator"
     bl_space_type = 'VIEW_3D'
@@ -60,7 +101,7 @@ class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
             inner = row.column(align=True)
             inner.operator("ac.add_tag", text="New Tag", icon='ADD')
             inner.label(text="Searchable tags for track")
-            row.template_list("AC_UL_Tags", "", track, "tags", track, "tags_index", rows=3)
+            row.template_list("AC_UL_Tags", "tags", track, "tags", track, "tags_index", rows=3)
 
         # geotag display
         col = layout.column(align=True)
@@ -72,30 +113,8 @@ class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
             inner = row.column(align=True)
             inner.operator("ac.add_geo_tag", text="New Tag", icon='ADD')
             inner.label(text="Optional Latitude, Longitude, Altitude of track")
-            row.template_list("AC_UL_Tags", "", track, "geotags", track, "geotags_index", rows=3)
+            row.template_list("AC_UL_Tags", "geotags", track, "geotags", track, "geotags_index", rows=3)
 
-
-
-class AC_UL_Tags(UIList):
-    def draw_item(self, context, layout, data, item, icon, active_data, active_property, index): # type: ignore
-        row = layout.row()
-        row.prop(item, "value", text="", emboss=False)
-        if(active_property == "tags_index"):
-            delete = row.operator("ac.remove_tag", text="", icon='X')
-            delete.index = index
-        if(active_property == "geotags_index"):
-            delete = row.operator("ac.remove_geo_tag", text="", icon='X')
-            delete.index = index
-
-class AC_UL_Extenstions(UIList):
-    def draw_item(self, context, layout, data, item, icon, active_data, active_property, index): # type: ignore
-        row = layout.split(factor=0.3)
-        row.prop(item, "key", text="", emboss=False)
-        sub = row.row()
-        sub.prop(item, "value", text="", emboss=False)
-        delete = sub.operator("ac.delete_surface_ext", text="", icon='X')
-        delete.extension = data.name
-        delete.index = index
 
 class VIEW3D_PT_AC_Sidebar_Surfaces(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Surfaces"
@@ -176,7 +195,7 @@ class VIEW3D_PT_AC_Sidebar_Surfaces(VIEW3D_PT_AC_Sidebar, Panel):
             box = layout.box()
             row = box.row()
             row.label(text=f"{extension.name}")
-            box.template_list("AC_UL_Extenstions", "", extension, "items", extension, "index", rows=3)
+            box.template_list("AC_UL_SurfaceExtenstions", "", extension, "items", extension, "index", rows=3)
             box.separator()
             ext = box.operator("ac.add_surface_ext", text="Add Extension", icon='ADD')
             ext.extension = extension.name
@@ -240,3 +259,21 @@ class VIEW3D_PT_AC_Sidebar_Audio(VIEW3D_PT_AC_Sidebar, Panel):
         sfx.audio_type = "SFX"
         reverb = row.operator("ac.add_audio_source", text="New Reverb Source", icon='ADD')
         reverb.audio_type = "REVERB"
+
+class VIEW3D_PT_AC_Sidebar_Extensions(VIEW3D_PT_AC_Sidebar, Panel):
+    bl_label = "Extensions"
+    bl_idname = "VIEW3D_PT_AC_Sidebar_Extensions"
+    bl_context = "objectmode"
+    def draw(self, context):
+        layout = self.layout
+        settings = context.scene.AC_Settings # type: ignore
+        extensions = settings.global_extensions
+        for extension in extensions:
+            box = layout.box()
+            row = box.row()
+            row.label(text=f"{extension.name}")
+            delete = layout.operator("ac.global_remove_extension", text="Delete Config Group", icon='X')
+            delete.name = extension.name
+            box.template_list("AC_UL_SurfaceExtenstions", f"{extension.name}", extension, "items", extension, "index", rows=3)
+            box.separator()
+        layout.operator("ac.global_add_extension", text="Add Extension", icon='ADD')
