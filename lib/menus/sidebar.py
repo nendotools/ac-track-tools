@@ -21,9 +21,13 @@ class AC_UL_Extenstions(UIList):
     layout_type = 'COMPACT'
     def draw_item(self, context, layout, data, item, icon, active_data, active_property, index): # type: ignore
         row = layout.row()
-        row.prop(item, "name", text="", emboss=False)
-        delete = row.operator("ac.global.remove_extension_item", text="", icon='X')
-        delete.extension = item.name
+        attr = row.split(factor=0.3)
+        attr.prop(item, "key", text="", emboss=False)
+        sub = attr.row()
+        sub.prop(item, "value", text="", emboss=False)
+        delete = row.operator("ac.global_remove_extension_item", text="", icon='X')
+        delete.ext_index = int(self.list_id.split('-')[-1])
+        delete.item_index = index
 
     def draw_filter(self, context, layout):
         pass
@@ -268,12 +272,15 @@ class VIEW3D_PT_AC_Sidebar_Extensions(VIEW3D_PT_AC_Sidebar, Panel):
         layout = self.layout
         settings = context.scene.AC_Settings # type: ignore
         extensions = settings.global_extensions
-        for extension in extensions:
+        for i, extension in enumerate(extensions):
             box = layout.box()
             row = box.row()
-            row.label(text=f"{extension.name}")
-            delete = layout.operator("ac.global_remove_extension", text="Delete Config Group", icon='X')
-            delete.name = extension.name
-            box.template_list("AC_UL_SurfaceExtenstions", f"{extension.name}", extension, "items", extension, "index", rows=3)
-            box.separator()
+            toggle = row.operator("ac.global_toggle_extension", text="", icon='TRIA_DOWN' if extension.expand else 'TRIA_RIGHT')
+            toggle.index = i
+            row.prop(extension, "name", text="", emboss=True if extension.expand else False)
+            if extension.expand:
+                box.template_list("AC_UL_Extenstions", f"{extension.name}-{i}", extension, "items", extension, "index", rows=3)
+                delete = box.operator("ac.global_remove_extension", text="Delete Config Group", icon='X')
+                delete.name = extension.name
+        layout.separator(factor=1.2)
         layout.operator("ac.global_add_extension", text="Add Extension", icon='ADD')

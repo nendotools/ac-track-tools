@@ -32,6 +32,22 @@ class AC_RemoveGlobalExtension(Operator):
                 break
         return {'FINISHED'}
 
+class AC_ToggleGlobalExtension(Operator):
+    """Toggle a global extension on or off"""
+    bl_idname = "ac.global_toggle_extension"
+    bl_label = "Toggle Global Extension"
+    bl_options = {'REGISTER'}
+    index: IntProperty(
+        name="Extension Index",
+        default=-1
+    )
+    def execute(self, context):
+        settings = context.scene.AC_Settings # type: ignore
+        ext_group = settings.global_extensions[self.index]
+        if ext_group:
+            ext_group.expand = not ext_group.expand
+        return {'FINISHED'}
+
 class AC_AddGlobalExtensionItem(Operator):
     """Add a new item to a global extension"""
     bl_idname = "ac.global_add_extension_item"
@@ -53,9 +69,9 @@ class AC_RemoveGlobalExtensionItem(Operator):
     bl_idname = "ac.global_remove_extension_item"
     bl_label = "Remove Global Extension Item"
     bl_options = {'REGISTER'}
-    extension_name: StringProperty(
-        name="Extension Name",
-        default=""
+    ext_index: IntProperty(
+        name="Extension Index",
+        default=-1
     )
     item_index: IntProperty(
         name="Item Index",
@@ -63,6 +79,6 @@ class AC_RemoveGlobalExtensionItem(Operator):
     )
     def execute(self, context):
         settings = context.scene.AC_Settings # type: ignore
-        ext_group = settings.global_extensions.get(self.extension_name)
+        ext_group = settings.global_extensions[self.ext_index]
         ext_group.items.remove(self.item_index)
         return {'FINISHED'}

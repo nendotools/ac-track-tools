@@ -37,6 +37,7 @@ from .menus.ops.audio import (
 from .menus.ops.extensions import (
     AC_AddGlobalExtension,
     AC_RemoveGlobalExtension,
+    AC_ToggleGlobalExtension,
     AC_AddGlobalExtensionItem,
     AC_RemoveGlobalExtensionItem
 )
@@ -62,7 +63,7 @@ __classes__ = (
     AC_AddTag, AC_RemoveTag, AC_AddGeoTag, AC_RemoveGeoTag, AC_ToggleTag, AC_ToggleGeoTag,
     AC_SaveSettings, AC_LoadSettings,
     AC_AddAudioSource, AC_ToggleAudio,
-    AC_AddGlobalExtension, AC_RemoveGlobalExtension, AC_AddGlobalExtensionItem, AC_RemoveGlobalExtensionItem,
+    AC_AddGlobalExtension, AC_RemoveGlobalExtension, AC_ToggleGlobalExtension, AC_AddGlobalExtensionItem, AC_RemoveGlobalExtensionItem,
     AC_AddStart, AC_AddHotlapStart, AC_AddPitbox, AC_AddTimeGate, AC_AddABStartGate, AC_AddABFinishGate, AC_AddAudioEmitter, 
     AC_Track, AC_Surface, AC_AudioSource, AC_Settings,
     AC_UL_Tags, AC_UL_Extenstions, AC_UL_SurfaceExtenstions,

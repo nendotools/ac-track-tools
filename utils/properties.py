@@ -2,7 +2,7 @@
 #  This file contains helper properties not available natively in the Blender API.
 ###
 from bpy.types import PropertyGroup
-from bpy.props import StringProperty, IntProperty, CollectionProperty
+from bpy.props import StringProperty, IntProperty, BoolProperty, CollectionProperty
 
 class KeyValuePair(PropertyGroup):
     key: StringProperty(
@@ -21,6 +21,11 @@ class ExtensionCollection(PropertyGroup):
         name="Name",
         description="Section Name for the collection",
         default="_EXT"
+    )
+    expand: BoolProperty(
+        name="Expand",
+        description="Expand the audio source properties",
+        default=False
     )
     items: CollectionProperty(
         type=KeyValuePair,
