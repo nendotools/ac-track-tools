@@ -1,6 +1,5 @@
-from bpy.types import Panel, UIList
+from bpy.types import OperatorProperties, Panel, UIList
 from ..configs.audio_source import AC_AudioSource
-
 
 class AC_UL_Tags(UIList):
     layout_type = 'COMPACT'

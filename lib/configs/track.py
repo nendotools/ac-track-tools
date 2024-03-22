@@ -3,7 +3,6 @@ from bpy.types import PropertyGroup
 from bpy.props import (
     CollectionProperty,
     StringProperty,
-    FloatProperty,
     EnumProperty,
     IntProperty,
     BoolProperty

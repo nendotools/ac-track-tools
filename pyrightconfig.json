@@ -1,2 +1,4 @@
 {
+  "reportInvalidTypeForm": false,
+  "reportAttributeAccessIssue": false
 }
