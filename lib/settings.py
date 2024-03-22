@@ -3,10 +3,12 @@ import bpy
 from bpy.types import PropertyGroup, Object
 from bpy.props import CollectionProperty, PointerProperty, StringProperty
 
+
 from ..utils.properties import ExtensionCollection
 from .configs.track import AC_Track
 from .configs.surface import AC_Surface
 from .configs.audio_source import AC_AudioSource
+from .configs.lighting import AC_Lighting
 
 class AC_Settings(PropertyGroup):
     working_dir: StringProperty(
@@ -14,9 +16,8 @@ class AC_Settings(PropertyGroup):
         description="Directory to save and load files",
         default="",
         subtype='DIR_PATH',
-        update=lambda self, context: self.update_directory(self.working_dir),
+        update=lambda s, c: s.update_directory(s.working_dir),
     )
-    initialized: bool = False # check if the folder structure has been initialized
     track: PointerProperty(
         type=AC_Track,
         name="Track",
@@ -38,6 +39,10 @@ class AC_Settings(PropertyGroup):
     audio_sources: CollectionProperty(
         type=AC_AudioSource,
         name="Audio Sources",
+    )
+    lighting: PointerProperty(
+        type=AC_Lighting,
+        name="Lighting",
     )
     error: dict = {}
     active_surfaces: list[str] = []

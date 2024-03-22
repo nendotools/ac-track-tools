@@ -263,6 +263,24 @@ class VIEW3D_PT_AC_Sidebar_Audio(VIEW3D_PT_AC_Sidebar, Panel):
         reverb = row.operator("ac.add_audio_source", text="New Reverb Source", icon='ADD')
         reverb.audio_type = "REVERB"
 
+class VIEW3D_PT_AC_Sidebar_Lighting(VIEW3D_PT_AC_Sidebar, Panel):
+    bl_label = "Lighting"
+    bl_idname = "VIEW3D_PT_AC_Sidebar_Lighting"
+    bl_context = "objectmode"
+    def draw(self, context):
+        layout = self.layout
+        settings = context.scene.AC_Settings # type: ignore
+        lighting = settings.lighting
+        col = layout.column(align=True)
+        col.label(text="Time of Day: " + ("Sunrise" if lighting.sun_pitch_angle < 20 else "Sunset" if lighting.sun_pitch_angle > 160 else "Mid-day"))
+        col.prop(lighting, "sun_pitch_angle", text="Sun Pitch Angle", slider=True)
+
+        headings = ["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West"]
+        heading = headings[int((lighting.sun_heading_angle + 90) % 360 / 45)]
+        col.label(text=f"Sunrise Direction: {heading}")
+        col.prop(lighting, "sun_heading_angle", text="Sun Heading Angle", slider=True)
+
+
 class VIEW3D_PT_AC_Sidebar_Extensions(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Extensions"
     bl_idname = "VIEW3D_PT_AC_Sidebar_Extensions"
