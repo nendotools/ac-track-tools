@@ -17,3 +17,13 @@ class AC_Lighting(PropertyGroup):
         min=-180,
         max=180
     )
+
+    def from_dict(self, data: dict):
+        self.sun_pitch_angle = data.get("sun_pitch_angle", 45)
+        self.sun_heading_angle = data.get("sun_heading_angle", 0)
+
+    def to_dict(self) -> dict:
+        return {
+            "sun_pitch_angle": self.sun_pitch_angle,
+            "sun_heading_angle": self.sun_heading_angle
+        }

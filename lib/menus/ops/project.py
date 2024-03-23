@@ -39,6 +39,8 @@ class AC_SaveSettings(Operator):
         audio_data = settings.map_audio()
         save_ini(data_dir + '/audio_sources.ini', audio_data)
 
+        save_ini(data_dir + '/lighting.ini', settings.map_lighting())
+
         extension_map: dict = settings.map_extensions()
         if 'extension' not in list(settings.error.keys()) and len(extension_map.keys()) > 0:
             extension_dir = get_extension_directory()
@@ -67,6 +69,10 @@ class AC_LoadSettings(Operator):
         audio_map = load_ini(data_dir + '/audio_sources.ini')
         if audio_map:
             settings.load_audio(audio_map)
+
+        lighting_map = load_ini(data_dir + '/lighting.ini')
+        if lighting_map:
+            settings.load_lighting(lighting_map)
 
         extension_dir = get_extension_directory()
         extension_map = load_ini(extension_dir + '/ext_config.ini')

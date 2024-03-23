@@ -169,6 +169,12 @@ class AC_Settings(PropertyGroup):
     def load_track(self, track: dict):
         self.track.from_dict(track)
 
+    def map_lighting(self) -> dict:
+        return self.lighting.to_dict()
+
+    def load_lighting(self, lighting: dict):
+        self.lighting.from_dict(lighting)
+
     def map_audio(self) -> dict:
         audio_map = {}
         for audio in self.audio_sources:
