@@ -278,8 +278,8 @@ class VIEW3D_PT_AC_Sidebar_Lighting(VIEW3D_PT_AC_Sidebar, Panel):
         cardinal_headings = ["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West"]
         xy_headings = ["+Y", "+X +Y", "+X", "+X -Y", "-Y", "-X -Y", "-X", "-X +Y"]
         dir_index = int((lighting.sun_heading_angle + 90) % 360 / 45)
-        col.label(text=f"Sunrise Direction: {cardinal_headings[dir_index]}")
-        col.label(text=f"Sunrise Direction: {xy_headings[dir_index]}")
+        col.label(text=f"Sunrise Cardinal Direction: {cardinal_headings[dir_index]}")
+        col.label(text=f"Sunrise Euclidean Direction: {xy_headings[dir_index]}")
         col.prop(lighting, "sun_heading_angle", text="Sun Heading Angle", slider=True)
 
 
