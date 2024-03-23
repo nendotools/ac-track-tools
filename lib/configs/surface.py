@@ -137,7 +137,7 @@ class AC_Surface(PropertyGroup):
     # long floats may be interpreted as strings when reading from file
     # so we should cast non-string types to prevent errors
     def from_dict(self, data: dict, custom: bool = True):
-        self.name = data["NAME"] if "NAME" in data else data["KEY"]
+        self.name = data["NAME"] if "NAME" in data else data["KEY"].replace("_", " ").title()
         self.key = data["KEY"]
         self.custom = custom
         self.friction = float(data["FRICTION"]) if "FRICTION" in data else 0.99

@@ -40,6 +40,8 @@ class AC_AddSurface(Operator):
             if source:
                 for attr in source.keys():
                     setattr(surface, attr, getattr(source, attr))
+                # update surface name to replace _ with space and title case
+                surface.name = surface.key.replace("_", " ").title()
                 surface.custom = True
         surface.key = self.find_unique_value(surface.key, "key", settings)
         surface.name = surface.key
