@@ -40,6 +40,7 @@ class AC_AddSurface(Operator):
             if source:
                 for attr in source.keys():
                     setattr(surface, attr, getattr(source, attr))
+                surface.custom = True
         surface.key = self.find_unique_value(surface.key, "key", settings)
         surface.name = surface.key
         return {'FINISHED'}

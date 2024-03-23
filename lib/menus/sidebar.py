@@ -274,6 +274,7 @@ class VIEW3D_PT_AC_Sidebar_Lighting(VIEW3D_PT_AC_Sidebar, Panel):
         col = layout.column(align=True)
         col.label(text="Time of Day: " + ("Sunrise" if lighting.sun_pitch_angle < 20 else "Sunset" if lighting.sun_pitch_angle > 160 else "Mid-day"))
         col.prop(lighting, "sun_pitch_angle", text="Sun Pitch Angle", slider=True)
+        col.separator()
 
         cardinal_headings = ["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West"]
         xy_headings = ["+Y", "+X +Y", "+X", "+X -Y", "-Y", "-X -Y", "-X", "-X +Y"]

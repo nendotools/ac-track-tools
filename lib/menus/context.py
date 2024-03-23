@@ -12,7 +12,7 @@ class WM_MT_AssignSurface(Menu):
         layout = self.layout
         settings = context.scene.AC_Settings
         surface: AC_Surface
-        for surface in settings.surfaces:
+        for surface in settings.get_surfaces():
             if not re.match(SURFACE_VALID_KEY, surface.key):
                 layout.label(text=f"Invalid surface key: {surface.key}")
                 continue
