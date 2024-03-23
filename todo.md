@@ -1,2 +1,1 @@
-- save/load lighting config
 - add export settings to save/load menu

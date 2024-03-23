@@ -1,11 +1,8 @@
 import math
 import bpy
 from bpy.types import Operator
-from bpy.props import StringProperty, BoolProperty
 
 from ....utils.files import (
-    ensure_path_exists,
-    get_active_directory,
     get_data_directory,
     get_ui_directory,
     get_extension_directory,
@@ -119,19 +116,12 @@ class AC_AddTimeGate(Operator):
     bl_label = "Add Time Gate"
     bl_options = {'REGISTER'}
     def execute(self, context):
-        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(10, 2, 2), rotation=(math.pi * -0.5, 0, 0))
-        direction_indicator = bpy.context.object
-        direction_indicator.name = "TIMEGATE_0"
         bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
         time_gate_L = bpy.context.object
         time_gate_L.name = "AC_TIME_0_L"
-        bpy.context.view_layer.objects.active = direction_indicator
-        bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
         bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
         time_gate_R = bpy.context.object
         time_gate_R.name = "AC_TIME_0_R"
-        bpy.context.view_layer.objects.active = direction_indicator
-        bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
         return {'FINISHED'}
 
 class AC_AddABStartGate(Operator):
@@ -140,19 +130,12 @@ class AC_AddABStartGate(Operator):
     bl_label = "Add AB Start Gate"
     bl_options = {'REGISTER'}
     def execute(self, context):
-        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(10, 2, 2), rotation=(math.pi * -0.5, 0, 0))
-        direction_indicator = bpy.context.object
-        direction_indicator.name = "AB_START"
         bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
         ab_start_L = bpy.context.object
         ab_start_L.name = "AC_AB_START_L"
-        bpy.context.view_layer.objects.active = direction_indicator
-        bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
         bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
         ab_start_R = bpy.context.object
         ab_start_R.name = "AC_AB_START_R"
-        bpy.context.view_layer.objects.active = direction_indicator
-        bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
         return {'FINISHED'}
 
 class AC_AddABFinishGate(Operator):
@@ -161,19 +144,12 @@ class AC_AddABFinishGate(Operator):
     bl_label = "Add AB Finish Gate"
     bl_options = {'REGISTER'}
     def execute(self, context):
-        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(10, 2, 2), rotation=(math.pi * -0.5, 0, 0))
-        direction_indicator = bpy.context.object
-        direction_indicator.name = "AB_FINISH"
         bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
         ab_finish_L = bpy.context.object
         ab_finish_L.name = "AC_AB_FINISH_L"
-        bpy.context.view_layer.objects.active = direction_indicator
-        bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
         bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
         ab_finish_R = bpy.context.object
         ab_finish_R.name = "AC_AB_FINISH_R"
-        bpy.context.view_layer.objects.active = direction_indicator
-        bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
         return {'FINISHED'}
 
 class AC_AddAudioEmitter(Operator):
