@@ -173,7 +173,10 @@ class AC_Settings(PropertyGroup):
         return self.lighting.to_dict()
 
     def load_lighting(self, lighting: dict):
-        self.lighting.from_dict(lighting)
+        for section in lighting.items():
+            if section[0] == "DEFAULT":
+                continue
+            self.lighting.from_dict(section[1])
 
     def map_audio(self) -> dict:
         audio_map = {}
@@ -197,6 +200,8 @@ class AC_Settings(PropertyGroup):
             # find the object in the scene by name and assign it to the audio source
             new_audio.node_pointer = bpy.data.objects.get(pointer_name)
 
+    # extensions are stored in a single config file, but should be organized by group within the UI.
+    # each config section should get mapped to the proper config group when loaded, then saved back to the same file
     def map_extensions(self) -> dict:
         extension_map = {}
         for extension in self.global_extensions:
@@ -209,6 +214,16 @@ class AC_Settings(PropertyGroup):
         for extension in extension_map.items():
             if extension[0].startswith("DEFAULT") or not extension[0]:
                 continue
+
+            if extension[0] == "LIGHTING": #global light settings
+                self.lighting.global_lighting.from_dict(extension[1])
+                continue
+
+            if extension[0].startswith("LIGHT_SERIES_"): # string-lighting
+                continue
+            elif extension[0].startswith("LIGHT_"): # individual lighting: using elif to avoid double assignment
+                continue
+
             ext_group = self.global_extensions.add()
             ext_group.name = extension[0]
             for item in extension[1].items():

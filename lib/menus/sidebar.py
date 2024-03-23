@@ -270,18 +270,50 @@ class VIEW3D_PT_AC_Sidebar_Lighting(VIEW3D_PT_AC_Sidebar, Panel):
     def draw(self, context):
         layout = self.layout
         settings = context.scene.AC_Settings # type: ignore
-        lighting = settings.lighting
-        col = layout.column(align=True)
-        col.label(text="Time of Day: " + ("Sunrise" if lighting.sun_pitch_angle < 20 else "Sunset" if lighting.sun_pitch_angle > 160 else "Mid-day"))
-        col.prop(lighting, "sun_pitch_angle", text="Sun Pitch Angle", slider=True)
+        light_settings = settings.lighting
+
+        sun_section = layout.box().split(factor=0.3)
+        sun_section.column(align=True).label(text="Sun Settings")
+        sun = light_settings.sun
+        col = sun_section.column(align=True)
+        col.label(text="Time of Day: " + ("Sunrise" if sun.sun_pitch_angle < 20 else "Sunset" if sun.sun_pitch_angle > 160 else "Mid-day"))
+        col.prop(sun, "sun_pitch_angle", text="Sun Pitch Angle", slider=True)
         col.separator()
 
         cardinal_headings = ["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West"]
         xy_headings = ["+Y", "+X +Y", "+X", "+X -Y", "-Y", "-X -Y", "-X", "-X +Y"]
-        dir_index = int((lighting.sun_heading_angle + 90) % 360 / 45)
+        dir_index = int((sun.sun_heading_angle + 90) % 360 / 45)
         col.label(text=f"Sunrise Cardinal Direction: {cardinal_headings[dir_index]}")
         col.label(text=f"Sunrise Euclidean Direction: {xy_headings[dir_index]}")
-        col.prop(lighting, "sun_heading_angle", text="Sun Heading Angle", slider=True)
+        col.prop(sun, "sun_heading_angle", text="Sun Heading Angle", slider=True)
+
+        global_section = layout.box()
+        row = global_section.split(factor=0.3)
+        row.column(align=True).label(text="Global Lighting")
+
+        global_lighting = light_settings.global_lighting
+        row = global_section.split(factor=0.3)
+        row.column(align=True).label(text="Tree Lighting")
+        row.prop(global_lighting, "enable_trees_lighting", text="Disabled" if not global_lighting.enable_trees_lighting else "Enabled", toggle=True)
+
+        row = global_section.split(factor=0.3)
+        row.prop(global_lighting, "use_track_ambient_ground_mult", text="Use Track Ambient Ground Mult", toggle=True)
+        row.prop(global_lighting, "track_ambient_ground_mult", text="Track Ambient Ground Mult", slider=True, emboss=global_lighting.use_track_ambient_ground_mult)
+
+        row = global_section.split(factor=0.3)
+        row.prop(global_lighting, "use_multipliers", text="Use Multipliers", toggle=True)
+        col = row.column(align=True)
+        col.prop(global_lighting, "lit_mult", text="Lit Multiplier", slider=True, emboss=global_lighting.use_multipliers)
+        col.prop(global_lighting, "specular_mult", text="Specular Multiplier", slider=True, emboss=global_lighting.use_multipliers)
+        col.prop(global_lighting, "car_lights_lit_mult", text="Car Lights Lit Multiplier", slider=True, emboss=global_lighting.use_multipliers)
+
+        row = global_section.split(factor=0.3)
+        row.prop(global_lighting, "use_bounced_light_mult", text="Use Bounced Light Mult", toggle=True)
+        row.prop(global_lighting, "bounced_light_mult", text="Bounced Light Mult", slider=True, emboss=global_lighting.use_bounced_light_mult)
+
+        row = global_section.split(factor=0.3)
+        row.prop(global_lighting, "use_terrain_shadows_threshold", text="Use Terrain Shadows Threshold", toggle=True)
+        row.prop(global_lighting, "terrain_shadows_threshold", text="Terrain Shadows Threshold", slider=True, emboss=global_lighting.use_terrain_shadows_threshold)
 
 
 class VIEW3D_PT_AC_Sidebar_Extensions(VIEW3D_PT_AC_Sidebar, Panel):
