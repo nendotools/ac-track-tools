@@ -8,7 +8,6 @@ from .menus.ops.project import (
     AC_AddHotlapStart,
     AC_AddTimeGate,
     AC_AddABStartGate,
-    AC_AddABStartGateModal,
     AC_AddABFinishGate
 )
 from .menus.ops.track import (
@@ -67,7 +66,7 @@ __classes__ = (
     AC_SaveSettings, AC_LoadSettings,
     AC_AddAudioSource, AC_ToggleAudio,
     AC_AddGlobalExtension, AC_RemoveGlobalExtension, AC_ToggleGlobalExtension, AC_AddGlobalExtensionItem, AC_RemoveGlobalExtensionItem,
-    AC_AddStart, AC_AddHotlapStart, AC_AddPitbox, AC_AddTimeGate, AC_AddABStartGate, AC_AddABStartGateModal, AC_AddABFinishGate, AC_AddAudioEmitter, 
+    AC_AddStart, AC_AddHotlapStart, AC_AddPitbox, AC_AddTimeGate, AC_AddABStartGate, AC_AddABFinishGate, AC_AddAudioEmitter, 
     AC_Track, AC_Surface, AC_AudioSource, AC_Lighting, AC_Settings,
     AC_UL_Tags, AC_UL_Extenstions, AC_UL_SurfaceExtenstions,
     VIEW3D_PT_AC_Sidebar_Project, VIEW3D_PT_AC_Sidebar_Track, VIEW3D_PT_AC_Sidebar_Surfaces, VIEW3D_PT_AC_Sidebar_Audio, VIEW3D_PT_AC_Sidebar_Lighting, VIEW3D_PT_AC_Sidebar_Extensions,

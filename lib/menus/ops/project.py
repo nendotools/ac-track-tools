@@ -1,8 +1,6 @@
 import math
 import bpy
-from mathutils import Matrix, Vector
-from bpy_extras import view3d_utils
-from bpy.types import Depsgraph, Operator
+from bpy.types import Operator
 
 from ....utils.files import (
     get_data_directory,
@@ -139,50 +137,6 @@ class AC_AddABStartGate(Operator):
         ab_start_R = bpy.context.object
         ab_start_R.name = "AC_AB_START_R"
         return {'FINISHED'}
-
-class AC_AddABStartGateModal(Operator):
-    """Add a new AB start gate"""
-    bl_idname = "ac.add_ab_start_gate_modal"
-    bl_label = "Add AB Start Gate by Modal"
-    bl_options = {'REGISTER'}
-
-    # Modal Operator to place the AB Start Gate with the mouse
-    # should detect the ground and place the gate there
-    # should have a cancel option using ESC
-    # should have a confirm option using LMB
-    # should increase distance between L and R gates with Shift + mouse wheel
-    # should rotate the gate with CTRL + mouse wheel
-    # should have a preview of the gate while placing it
-    def modal(self, context, event):
-        if event.type == 'MOUSEMOVE':
-            print(f"Mouse move at {event.mouse_x}, {event.mouse_y}")
-            return {'RUNNING_MODAL'}
-        elif event.type == 'LEFTMOUSE':
-            print(f"Left mouse at {event.mouse_x}, {event.mouse_y}")
-            position = self.mouse_to_xy(context, event)
-            print(f"Left mouse at {position}")
-            # place the gate at the position on the xy plane with 20 units between L and R gates
-            bpy.ops.object.delete()
-            bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(position[0] - 10, position[1], 0))
-            ab_start_L = bpy.context.object
-            ab_start_L.name = "AC_AB_START_L"
-            bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(position[0] + 10, position[1], 0))
-            ab_start_R = bpy.context.object
-            ab_start_R.name = "AC_AB_START_R"
-            # delete the empty circle
-            return {'FINISHED'}
-        elif event.type in {'RIGHTMOUSE', 'ESC'}:
-            print("Right mouse or ESC")
-            return {'CANCELLED'}
-        return {'RUNNING_MODAL'}
-
-    def invoke(self, context, event):
-        self.execute(context)
-
-    def execute(self, context):
-        # create an empty circle flat on the xy plane
-        context.window_manager.modal_handler_add(self)
-        return {'RUNNING_MODAL'}
 
 class AC_AddABFinishGate(Operator):
     """Add a new AB finish gate"""
