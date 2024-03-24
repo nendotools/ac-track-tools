@@ -1,4 +1,3 @@
-from os import name
 from bpy import context
 from bpy.types import PropertyGroup, Object, Material
 from bpy.props import (
@@ -500,7 +499,7 @@ class AC_Light(PropertyGroup):
     )
 
     def from_dict(self, data: dict, is_series: bool = False):
-        self.active = True if "ACTIVE" in data and data["ACTIVE"] == 1 else False
+        self.active = True if "active" in data and data["active"] == '1' else False
         self.description = data.get("DESCRIPTION", "")
         if not is_series:
             self.mesh = data.get("MESH", None)
@@ -516,6 +515,8 @@ class AC_Light(PropertyGroup):
                 # TODO: bind mesh passed from settings
             else:
                 self.light_type = "SPOT"
+            direction = data.get("DIRECTION", (0, -1, 0))
+            self.direction = (-direction[0], -direction[1], -direction[2])
         else:
             self.light_type = "SERIES"
             self.meshes.clear()
@@ -523,7 +524,8 @@ class AC_Light(PropertyGroup):
             self.positions.clear()
             self.directions.clear()
             self.direction_mode = 'NORMAL' if data.get('DIRECTION', 'NORMAL') == 'NORMAL' else 'FIXED'
-            self.direction = data.get('DIRECTION', (0, -1, 0))
+            direction = data.get('DIRECTION', (0, -1, 0))
+            self.direction = (-direction[0], -direction[1], -direction[2])
             self.direction_alter = data.get('DIRECTION_ALTER', (0, 0, 0))
             self.direction_offset = data.get('DIRECTION_OFFSET', (0, 0, 0))
             if "MESHES" in data:
@@ -550,7 +552,6 @@ class AC_Light(PropertyGroup):
         self.range_gradient_offset = float(data.get("RANGE_GRADIENT_OFFSET", 0.2))
 
         # color settings
-        print(self.int_hex_to_float(data['COLOR']))
         self.color =  (1, 1, 1, 1) if "COLOR" not in data else self.int_hex_to_float(data["COLOR"])
         self.specular_multiplier = float(data.get("SPECULAR_MULTIPLIER", 0))
         self.single_frequency = True if "SINGLE_FREQUENCY" in data and data["SINGLE_FREQUENCY"] == 1 else False
@@ -616,7 +617,8 @@ class AC_Light(PropertyGroup):
                     data[f"DIRECTION_{i}"] = self.directions[i] if len(self.directions) > i else (0, -1, 0)
             data['OFFSET'] = self.position
         else:
-            data["DIRECTION"] = self.direction
+            # inverse direction for export
+            data["DIRECTION"] = (-self.direction[0], -self.direction[1], -self.direction[2])
         if self.modify_shape:
             data["SPOT"] = self.spot
             data["SPOT_SHARPNESS"] = self.spot_sharpness

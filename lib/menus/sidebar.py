@@ -330,6 +330,51 @@ class VIEW3D_PT_AC_Sidebar_Lighting(VIEW3D_PT_AC_Sidebar, Panel):
                 col.prop(light, "description", text="")
                 col.prop(light, "light_type", text="Type", expand=False)
 
+                section = light_section.split(factor=0.3)
+                section.column(align=True).label(text="Position")
+                col = section.column(align=True)
+                if light.light_type == "SPOT":
+                    row = col.split(factor=0.8)
+                    col = row.column(align=True)
+                    col.prop(light, "position", text="Coordinates")
+                    col = row.column(align=True)
+                    col.prop(light, "direction", text="")
+                elif light.light_type == "MESH":
+                    col.prop(light, "mesh", text="Mesh")
+                    row = col.row()
+                    row.prop(light, "position", text="Offset", slider=True)
+                    row.prop(light, "direction", text="Direction")
+                elif light.light_type == "LINE":
+                    # line from, line to
+                    col.prop(light, "line_from", text="From")
+                    col.prop(light, "line_to", text="To")
+                # TODO: handle light series
+
+                section = light_section.split(factor=0.3)
+                section.column(align=True).label(text="Shape")
+                col = section.column(align=True)
+                col.prop(light, "spot", text="Spotlight Radius", slider=True)
+                col.prop(light, "spot_sharpness", text="Spotlight Edge Sharpness", slider=True)
+                col.prop(light, "range", slider=True)
+                col.prop(light, "range_gradient_offset", text="Range Gradient Offset", slider=True)
+                col.prop(light, "fade_at", text="Fade At", slider=True)
+                col.prop(light, "fade_smooth", text="Fade Smooth", slider=True)
+
+                section = light_section.split(factor=0.3)
+                section.column(align=True).label(text="Color")
+                col = section.column(align=True)
+                col.prop(light, "color", text="Color")
+                col.prop(light, "specular_multiplier", text="Specular Multiplier", slider=True)
+                col.prop(light, "single_frequency", text="Single Frequency", toggle=True)
+                col.prop(light, "diffuse_concentration", text="Diffuse Concentration", slider=True)
+
+                section = light_section.split(factor=0.3)
+                section.column(align=True).label(text="Condition")
+                col = section.column(align=True)
+                col.prop(light, "condition", text="")
+                col.prop(light, "condition_offset", text="Offset", slider=True)
+
+
 
 class VIEW3D_PT_AC_Sidebar_Extensions(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Extensions"
