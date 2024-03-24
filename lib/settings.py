@@ -1,14 +1,15 @@
 import re
-import bpy
-from bpy.types import PropertyGroup, Object
-from bpy.props import CollectionProperty, PointerProperty, StringProperty
 
+import bpy
+from bpy.props import CollectionProperty, PointerProperty, StringProperty
+from bpy.types import Object, PropertyGroup
 
 from ..utils.properties import ExtensionCollection
-from .configs.track import AC_Track
-from .configs.surface import AC_Surface
 from .configs.audio_source import AC_AudioSource
 from .configs.lighting import AC_Lighting
+from .configs.surface import AC_Surface
+from .configs.track import AC_Track
+
 
 class AC_Settings(PropertyGroup):
     working_dir: StringProperty(
@@ -29,12 +30,12 @@ class AC_Settings(PropertyGroup):
     surface_ext: CollectionProperty(
         type=ExtensionCollection,
         name="Surface Extensions",
-        description="Unsupported extesion to save/load",
+        description="Unsupported extension to save/load",
     )
     global_extensions: CollectionProperty(
         type=ExtensionCollection,
         name="Global Extensions",
-        description="Unsupported extesion to save/load"
+        description="Unsupported extension to save/load"
     )
     audio_sources: CollectionProperty(
         type=AC_AudioSource,

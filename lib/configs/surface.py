@@ -1,5 +1,6 @@
+from bpy.props import BoolProperty, FloatProperty, IntProperty, StringProperty
 from bpy.types import PropertyGroup
-from bpy.props import StringProperty, FloatProperty, IntProperty, BoolProperty
+
 
 class AC_Surface(PropertyGroup):
     custom: BoolProperty(

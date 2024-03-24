@@ -1,6 +1,12 @@
+import configparser
+import json
+import os
+import re
+
 from bpy import path
-import os, re, json, configparser
+
 from ..lib.settings import get_settings
+
 
 ##
 ##  Directory Management

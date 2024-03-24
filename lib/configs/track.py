@@ -1,12 +1,8 @@
 import bpy
+from bpy.props import (BoolProperty, CollectionProperty, EnumProperty,
+                       IntProperty, StringProperty)
 from bpy.types import PropertyGroup
-from bpy.props import (
-    CollectionProperty,
-    StringProperty,
-    EnumProperty,
-    IntProperty,
-    BoolProperty
-)
+
 from ...utils.properties import KeyValuePair
 
 run_modes = [

@@ -1,5 +1,6 @@
+from bpy.props import IntProperty, StringProperty
 from bpy.types import Operator
-from bpy.props import StringProperty, IntProperty
+
 
 # add tag to track
 class AC_AddTag(Operator):

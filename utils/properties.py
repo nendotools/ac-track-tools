@@ -1,8 +1,10 @@
 ###
 #  This file contains helper properties not available natively in the Blender API.
 ###
+from bpy.props import (BoolProperty, CollectionProperty, IntProperty,
+                       StringProperty)
 from bpy.types import PropertyGroup
-from bpy.props import StringProperty, IntProperty, BoolProperty, CollectionProperty
+
 
 class KeyValuePair(PropertyGroup):
     key: StringProperty(

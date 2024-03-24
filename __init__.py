@@ -15,9 +15,10 @@
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # ##### END GPL LICENSE BLOCK #####
+from bpy.utils import register_class, unregister_class
+
 from . import lib
 from .utils.properties import ExtensionCollection, KeyValuePair
-from bpy.utils import register_class, unregister_class
 
 bl_info = {
     "name": "Assetto Corsa Configurator",

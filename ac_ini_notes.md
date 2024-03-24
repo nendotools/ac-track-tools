@@ -149,7 +149,7 @@ map.png : the map of the track
 
 #### Default Types
 
-- `WALL` : a solid barrier, typically used to define the track boundaries, shoul be simple and low poly
+- `WALL` : a solid barrier, typically used to define the track boundaries, should be simple and low poly
 - `ROAD` : the main driving surface of the track, should be smooth and have a high (0.95+) friction coefficient
 - `GRASS` : the off-road surface of the track, should be bumpy and have a mid (0.6+) friction coefficient
 - `SAND` : the off-road surface of the track, should be bumpy and have a low (0.4+) friction coefficient
@@ -160,7 +160,7 @@ So, it would be best to define a custom surface for the pitlane for every projec
 
 #### Race Logic Nodes
 
-All logic nodes should be placed a 1 or 2 meters above the ground to avoid any issues with the collision detection.
+All logic nodes should be placed a few meters above the ground to avoid any issues with the collision detection.
 
 It's important to remember that the local rotation of the nodes is used to determine the forward direction of the node.
 In the case of the starting grid, the forward direction is used to determine the direction of the grid slot.

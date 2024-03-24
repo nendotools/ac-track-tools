@@ -1,5 +1,5 @@
-from bpy.types import Operator
 from bpy.props import IntProperty, StringProperty
+from bpy.types import Operator
 
 
 class AC_AddGlobalExtension(Operator):

@@ -1,8 +1,10 @@
 import re
+
 from bpy.types import Menu, UILayout
 
 from ...utils.constants import SURFACE_VALID_KEY
 from ..configs.surface import AC_Surface
+
 
 class WM_MT_AssignSurface(Menu):
     bl_label = "Assign Surface"

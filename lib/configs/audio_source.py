@@ -1,26 +1,15 @@
 import re
-from bpy.types import Context, Object
-from bpy.types import PropertyGroup
-from bpy.props import (
-    PointerProperty,
-    StringProperty,
-    IntProperty,
-    FloatProperty,
-    BoolProperty,
-    EnumProperty
-)
 
-from ...utils.constants import (
-    AC_TIME_L_REGEX,
-    AC_TIME_R_REGEX,
-    FINISH_AB_L_REGEX,
-    FINISH_AB_R_REGEX,
-    PIT_BOX_REGEX,
-    START_AB_L_REGEX,
-    START_AB_R_REGEX,
-    START_CIRCUIT_REGEX,
-    START_HOTLAP_REGEX
-)
+from bpy.props import (BoolProperty, EnumProperty, FloatProperty, IntProperty,
+                       PointerProperty, StringProperty)
+from bpy.types import Context, Object, PropertyGroup
+
+from ...utils.constants import (AC_TIME_L_REGEX, AC_TIME_R_REGEX,
+                                FINISH_AB_L_REGEX, FINISH_AB_R_REGEX,
+                                PIT_BOX_REGEX, START_AB_L_REGEX,
+                                START_AB_R_REGEX, START_CIRCUIT_REGEX,
+                                START_HOTLAP_REGEX)
+
 
 ##
 ## Audio Sources can support playing sounds when driving in range of the source node

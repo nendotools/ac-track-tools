@@ -1,72 +1,38 @@
 import bpy
-from .menus.ops.project import (
-    AC_AddAudioEmitter,
-    AC_SaveSettings,
-    AC_LoadSettings,
-    AC_AddPitbox,
-    AC_AddStart,
-    AC_AddHotlapStart,
-    AC_AddTimeGate,
-    AC_AddABStartGate,
-    AC_AddABFinishGate
-)
-from .menus.ops.track import (
-    AC_AddTag,
-    AC_RemoveTag,
-    AC_ToggleTag,
-    AC_AddGeoTag,
-    AC_RemoveGeoTag,
-    AC_ToggleGeoTag,
-)
-from .menus.ops.surface import (
-    AC_InitSurfaces,
-    AC_AddSurface,
-    AC_RemoveSurface,
-    AC_ToggleSurface,
-    AC_AssignSurface,
-    AC_SelectAllSurfaces,
-    AC_AssignWall,
-    AC_AssignPhysProp,
-    AC_AddSurfaceExt,
-    AC_DeleteSurfaceExt,
-)
-from .menus.ops.audio import (
-    AC_AddAudioSource,
-    AC_ToggleAudio
-)
-from .menus.ops.extensions import (
-    AC_AddGlobalExtension,
-    AC_RemoveGlobalExtension,
-    AC_ToggleGlobalExtension,
-    AC_AddGlobalExtensionItem,
-    AC_RemoveGlobalExtensionItem
-)
-from .menus.sidebar import (
-    AC_UL_Tags,
-    AC_UL_SurfaceExtenstions,
-    AC_UL_Extenstions,
-    VIEW3D_PT_AC_Sidebar_Project,
-    VIEW3D_PT_AC_Sidebar_Track,
-    VIEW3D_PT_AC_Sidebar_Surfaces,
-    VIEW3D_PT_AC_Sidebar_Audio,
-    VIEW3D_PT_AC_Sidebar_Lighting,
-    VIEW3D_PT_AC_Sidebar_Extensions
-)
-from .menus.context import WM_MT_AssignSurface, pit_menu, start_menu, surface_menu, utility_menu
-from .settings import AC_Settings
-from .configs.track import AC_Track
-from .configs.surface import AC_Surface
-from .configs.lighting import (
-    AC_MeshList,
-    AC_MaterialList,
-    AC_PositionList,
-    AC_DirectionList,
-    AC_SunSettings,
-    AC_GlobalLighting,
-    AC_Light,
-    AC_Lighting
-)
+
 from .configs.audio_source import AC_AudioSource
+from .configs.lighting import (AC_DirectionList, AC_GlobalLighting, AC_Light,
+                               AC_Lighting, AC_MaterialList, AC_MeshList,
+                               AC_PositionList, AC_SunSettings)
+from .configs.surface import AC_Surface
+from .configs.track import AC_Track
+from .menus.context import (WM_MT_AssignSurface, pit_menu, start_menu,
+                            surface_menu, utility_menu)
+from .menus.ops.audio import AC_AddAudioSource, AC_ToggleAudio
+from .menus.ops.extensions import (AC_AddGlobalExtension,
+                                   AC_AddGlobalExtensionItem,
+                                   AC_RemoveGlobalExtension,
+                                   AC_RemoveGlobalExtensionItem,
+                                   AC_ToggleGlobalExtension)
+from .menus.ops.project import (AC_AddABFinishGate, AC_AddABStartGate,
+                                AC_AddAudioEmitter, AC_AddHotlapStart,
+                                AC_AddPitbox, AC_AddStart, AC_AddTimeGate,
+                                AC_LoadSettings, AC_SaveSettings)
+from .menus.ops.surface import (AC_AddSurface, AC_AddSurfaceExt,
+                                AC_AssignPhysProp, AC_AssignSurface,
+                                AC_AssignWall, AC_DeleteSurfaceExt,
+                                AC_InitSurfaces, AC_RemoveSurface,
+                                AC_SelectAllSurfaces, AC_ToggleSurface)
+from .menus.ops.track import (AC_AddGeoTag, AC_AddTag, AC_RemoveGeoTag,
+                              AC_RemoveTag, AC_ToggleGeoTag, AC_ToggleTag)
+from .menus.sidebar import (AC_UL_Extenstions, AC_UL_SurfaceExtenstions,
+                            AC_UL_Tags, VIEW3D_PT_AC_Sidebar_Audio,
+                            VIEW3D_PT_AC_Sidebar_Extensions,
+                            VIEW3D_PT_AC_Sidebar_Lighting,
+                            VIEW3D_PT_AC_Sidebar_Project,
+                            VIEW3D_PT_AC_Sidebar_Surfaces,
+                            VIEW3D_PT_AC_Sidebar_Track)
+from .settings import AC_Settings
 
 __classes__ = (
     AC_InitSurfaces, AC_AddSurface, AC_RemoveSurface, AC_ToggleSurface, AC_AssignSurface, AC_SelectAllSurfaces, AC_AssignWall, AC_AssignPhysProp,

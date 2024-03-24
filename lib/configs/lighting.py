@@ -1,15 +1,9 @@
 from bpy import context
-from bpy.types import PropertyGroup, Object, Material
-from bpy.props import (
-    IntProperty,
-    FloatProperty,
-    FloatVectorProperty,
-    StringProperty,
-    BoolProperty,
-    EnumProperty,
-    PointerProperty,
-    CollectionProperty
-)
+from bpy.props import (BoolProperty, CollectionProperty, EnumProperty,
+                       FloatProperty, FloatVectorProperty, IntProperty,
+                       PointerProperty, StringProperty)
+from bpy.types import Material, Object, PropertyGroup
+
 
 class AC_SunSettings(PropertyGroup):
     sun_pitch_angle: IntProperty(

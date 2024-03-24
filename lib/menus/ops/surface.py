@@ -1,11 +1,13 @@
 import re
+
 import bpy
+from bpy.props import IntProperty, StringProperty
 from bpy.types import Object, Operator
-from bpy.props import StringProperty, IntProperty
 
 from ....utils.constants import SURFACE_REGEX
 from ...configs.surface import AC_Surface
 from ...settings import AC_Settings
+
 
 class AC_InitSurfaces(Operator):
     bl_label = "Init Surfaces"

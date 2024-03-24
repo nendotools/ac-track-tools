@@ -1,16 +1,12 @@
 import math
+
 import bpy
 from bpy.types import Operator
 
-from ....utils.files import (
-    get_data_directory,
-    get_ui_directory,
-    get_extension_directory,
-    load_ini,
-    save_ini,
-    load_json,
-    save_json
-)
+from ....utils.files import (get_data_directory, get_extension_directory,
+                             get_ui_directory, load_ini, load_json, save_ini,
+                             save_json)
+
 
 class AC_SaveSettings(Operator):
     """Save the current settings"""
