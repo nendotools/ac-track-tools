@@ -25,9 +25,9 @@ bl_info = {
         "Track configuration tool for easier management of assets, nodes, and"
         "track settings intended to speed up track development",
     "author": "NENDO",
-    "version": (0, 1, 0),
+    "version": (0, 3, 0),
     "blender": (2, 93, 0),
-    "location": "View3D > Tools > AC CFG",
+    "location": "View3D > Tools > Assetto Corsa: Track",
     "warning": "",
     "doc_url": "",
     "tracker_url": "https://github.com/nendotools/touchview/issues",

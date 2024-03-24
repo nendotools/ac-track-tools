@@ -50,7 +50,7 @@ class VIEW3D_PT_AC_Sidebar:
     bl_label = "Assetto Corsa Configurator"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'Assetto Corsa'
+    bl_category = 'Assetto Corsa: Track'
 
 class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Main"
@@ -351,28 +351,37 @@ class VIEW3D_PT_AC_Sidebar_Lighting(VIEW3D_PT_AC_Sidebar, Panel):
                 # TODO: handle light series
 
                 section = light_section.split(factor=0.3)
-                section.column(align=True).label(text="Shape")
-                col = section.column(align=True)
-                col.prop(light, "spot", text="Spotlight Radius", slider=True)
-                col.prop(light, "spot_sharpness", text="Spotlight Edge Sharpness", slider=True)
-                col.prop(light, "range", slider=True)
-                col.prop(light, "range_gradient_offset", text="Range Gradient Offset", slider=True)
-                col.prop(light, "fade_at", text="Fade At", slider=True)
-                col.prop(light, "fade_smooth", text="Fade Smooth", slider=True)
+                row = section.column(align=True).row()
+                row.prop(light, "modify_shape", text="", toggle=True, icon='TRIA_DOWN' if light.modify_shape else 'TRIA_RIGHT')
+                row.label(text="Shape")
+                if light.modify_shape:
+                    col = section.column(align=True)
+                    col.prop(light, "spot", text="Spotlight Radius", slider=True)
+                    col.prop(light, "spot_sharpness", text="Spotlight Edge Sharpness", slider=True)
+                    col.prop(light, "range", slider=True)
+                    col.prop(light, "range_gradient_offset", text="Range Gradient Offset", slider=True)
+                    col.prop(light, "fade_at", text="Fade At", slider=True)
+                    col.prop(light, "fade_smooth", text="Fade Smooth", slider=True)
 
                 section = light_section.split(factor=0.3)
-                section.column(align=True).label(text="Color")
-                col = section.column(align=True)
-                col.prop(light, "color", text="Color")
-                col.prop(light, "specular_multiplier", text="Specular Multiplier", slider=True)
-                col.prop(light, "single_frequency", text="Single Frequency", toggle=True)
-                col.prop(light, "diffuse_concentration", text="Diffuse Concentration", slider=True)
+                row = section.column(align=True).row()
+                row.prop(light, "modify_color", text="", toggle=True, icon='TRIA_DOWN' if light.modify_color else 'TRIA_RIGHT')
+                row.label(text="Color")
+                if light.modify_color:
+                    col = section.column(align=True)
+                    col.prop(light, "color", text="Color")
+                    col.prop(light, "specular_multiplier", text="Specular Multiplier", slider=True)
+                    col.prop(light, "single_frequency", text="Single Frequency", toggle=True)
+                    col.prop(light, "diffuse_concentration", text="Diffuse Concentration", slider=True)
 
                 section = light_section.split(factor=0.3)
-                section.column(align=True).label(text="Condition")
-                col = section.column(align=True)
-                col.prop(light, "condition", text="")
-                col.prop(light, "condition_offset", text="Offset", slider=True)
+                row.label(text="Condition")
+                row = section.column(align=True).row()
+                row.prop(light, "use_condition", text="", toggle=True, icon='TRIA_DOWN' if light.use_condition else 'TRIA_RIGHT')
+                if light.use_condition:
+                    col = section.column(align=True)
+                    col.prop(light, "condition", text="")
+                    col.prop(light, "condition_offset", text="Offset", slider=True)
 
 
 

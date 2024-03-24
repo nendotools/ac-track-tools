@@ -13,10 +13,17 @@
 
 ### Table of Contents
 
+- [Overview](#overview)
 - [TODO](#todo)
-- [Features](#features)
-- [Installation](#installation)
-- [Change Log](#change-log)
+
+### Overview
+
+Assetto Corsa Track Tools is a Blender 3D add-on built to streamline the process of creating and configuring tracks by
+exposing various configuration options in a more digestible and intuitive manner. It provides several quality of life
+tools to help manage track settings, surfaces, track/race nodes, cameras, lighting, sounds, and more.
+
+This project is still in its early stages, and many features are still in development. If you have any suggestions or
+requests, please feel free to open an issue or pull request.
 
 ### TODO
 
@@ -38,8 +45,13 @@
   - [ ] Attach Camera
   - [ ] Focus Movement
   - [ ] Monitor Groups
-- [ ] Lighting
-  - [ ] Sun
+- [x] Lighting
+  - [x] Sun
+  - Extension (WIP)
+    - [x] Spotlights
+    - [ ] Mesh Lights
+    - [ ] Line Lights
+    - [ ] Light Series
 - [ ] Map
   - [ ] Generate Map
     - over head view of track
