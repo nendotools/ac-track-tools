@@ -55,7 +55,7 @@ def verify_local_file(file_path: str, folder: str):
         return None
     target_file = ensure_path_exists(get_active_directory() + '/' + folder + '/' + file_path.split('/')[-1])
     if not os.path.exists(target_file):
-        os.system('cp "' + file_path + '" "' + target_file + '"')
+        return None
     return target_file
 
 ##
