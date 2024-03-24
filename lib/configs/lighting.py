@@ -132,7 +132,41 @@ class AC_GlobalLighting(PropertyGroup):
         return data
 
 
+class AC_MeshList(PropertyGroup):
+    mesh: PointerProperty(
+        name="Mesh",
+        description="Mesh object to use as light source",
+        type=Object
+    )
+
+class AC_MaterialList(PropertyGroup):
+    material: PointerProperty(
+        name="Material",
+        description="Material to use as light source",
+        type=Material
+    )
+
+class AC_PositionList(PropertyGroup):
+    position: FloatVectorProperty(
+        name="Position",
+        description="Light position",
+        default=(0, 0, 0),
+        subtype="XYZ"
+    )
+
+class AC_DirectionList(PropertyGroup):
+    direction: FloatVectorProperty(
+        name="Direction",
+        description="Light direction",
+        default=(0, -1, 0),
+        subtype="DIRECTION"
+    )
+
 class AC_Light(PropertyGroup):
+    expand: BoolProperty(
+        name="Expand",
+        default=False
+    )
     active: BoolProperty(
         name="Active",
         default=True
@@ -234,26 +268,22 @@ class AC_Light(PropertyGroup):
     )
 
     meshes: CollectionProperty(
-        type=PointerProperty(
-            type=Object
-        ),
         name="Meshes",
-        description="List of meshes to use as light source"
+        description="List of meshes to use as light source",
+        type=AC_MeshList
     )
     materials: CollectionProperty(
-        type=PointerProperty(
-            type=Material
-        ),
         name="Materials",
-        description="List of materials to use as light source"
+        description="List of materials to use as light source",
+        type=AC_MaterialList
     )
     positions: CollectionProperty(
-        type=FloatVectorProperty,
+        type=AC_PositionList,
         name="Positions",
         description="List of light positions"
     )
     directions: CollectionProperty(
-        type=FloatVectorProperty,
+        type=AC_DirectionList,
         name="Directions",
         description="List of light directions"
     )
@@ -483,11 +513,7 @@ class AC_Light(PropertyGroup):
                 self.line_to = data["LINE_TO"]
             elif "MESH" in data:
                 self.light_type = "MESH"
-                mesh = context.scene.objects.get(data["MESH"])
-                if mesh:
-                    self.mesh = mesh
-                else:
-                    self.mesh = None
+                # TODO: bind mesh passed from settings
             else:
                 self.light_type = "SPOT"
         else:
@@ -501,33 +527,31 @@ class AC_Light(PropertyGroup):
             self.direction_alter = data.get('DIRECTION_ALTER', (0, 0, 0))
             self.direction_offset = data.get('DIRECTION_OFFSET', (0, 0, 0))
             if "MESHES" in data:
-                for mesh_name in data["MESHES"]:
-                    mesh = context.scene.objects.get(mesh_name)
-                    if mesh:
-                        self.meshes.add().name = mesh_name
+                # TODO: bind mesh passed from settings
+                pass
             elif "MATERIALS" in data:
                 for material_name in data["MATERIALS"]:
-                    material = context.scene.objects.get(material_name)
-                    if material:
-                        self.materials.add().name = material_name
+                    # TODO: bind material passed from settings
+                    pass
             else:
                 for property in data:
                     if property.startswith("POSITION_"):
                         pos = self.positions.add()
-                        pos.value = data[property]
+                        pos.position = data[property]
                     elif property.startswith("DIRECTION_"):
-                        direction = self.directions.add()
-                        direction.value = data[property]
+                        dir = self.directions.add()
+                        dir.direction = data[property]
 
         #shape settings
         self.modify_shape = True if "SPOT" in data else False
-        self.spot = int(data.get("SPOT", 120))
+        self.spot = int(data.get("SPOT", 120).split(' ')[0]) # some configs include unused values after the angle
         self.spot_sharpness = float(data.get("SPOT_SHARPNESS", 0.3))
         self.range = float(data.get("RANGE", 40))
         self.range_gradient_offset = float(data.get("RANGE_GRADIENT_OFFSET", 0.2))
 
         # color settings
-        self.color = data.get("COLOR", (1, 1, 1, 1))
+        print(self.int_hex_to_float(data['COLOR']))
+        self.color =  (1, 1, 1, 1) if "COLOR" not in data else self.int_hex_to_float(data["COLOR"])
         self.specular_multiplier = float(data.get("SPECULAR_MULTIPLIER", 0))
         self.single_frequency = True if "SINGLE_FREQUENCY" in data and data["SINGLE_FREQUENCY"] == 1 else False
         self.diffuse_concentration = float(data.get("DIFFUSE_CONCENTRATION", 0.88))
@@ -557,6 +581,11 @@ class AC_Light(PropertyGroup):
         self.shadows_clip_sphere = float(data.get("SHADOWS_CLIP_SPHERE", 0.5))
         self.shadows_exp_factor = int(data.get("SHADOW_EXP_FACTOR", 20))
         self.shadows_extra_blur = True if "SHADOW_EXTRA_BLUR" in data and data["SHADOW_EXTRA_BLUR"] == 1 else False
+    def int_hex_to_float(self, in_str: str) -> tuple:
+        # split string by ',' and trim whitespace
+        hex = in_str.split(',')
+        hex = [float(i.strip()) for i in hex]
+        return (hex[0] / 255, hex[1] / 255, hex[2] / 255, float(hex[3]))
 
     def to_dict(self) -> dict:
         data = {
@@ -649,6 +678,10 @@ class AC_Lighting(PropertyGroup):
     def from_dict(self, data: dict):
         self.sun.sun_pitch_angle = data.get("SUN_PITCH_ANGLE", 45)
         self.sun.sun_heading_angle = data.get("SUN_HEADING_ANGLE", 0)
+
+    def light_from_dict(self, data: dict, is_series: bool = False):
+        l = self.lights.add()
+        l.from_dict(data, is_series)
 
     def to_dict(self) -> dict:
         return {

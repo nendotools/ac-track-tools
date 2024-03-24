@@ -222,7 +222,8 @@ class AC_Settings(PropertyGroup):
                 continue
 
             elif extension[0].startswith("LIGHT_"): # individual lighting: using elif to avoid double assignment
-                self.lighting.lights.from_dict(extension[1], True if extension[0].startswith("LIGHT_SERIES_") else False)
+                print(extension[0])
+                self.lighting.light_from_dict(extension[1], True if extension[0].startswith("LIGHT_SERIES_") else False)
                 continue
 
             ext_group = self.global_extensions.add()

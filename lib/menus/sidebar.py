@@ -315,6 +315,21 @@ class VIEW3D_PT_AC_Sidebar_Lighting(VIEW3D_PT_AC_Sidebar, Panel):
         row.prop(global_lighting, "use_terrain_shadows_threshold", text="Use Terrain Shadows Threshold", toggle=True)
         row.prop(global_lighting, "terrain_shadows_threshold", text="Terrain Shadows Threshold", slider=True, emboss=global_lighting.use_terrain_shadows_threshold)
 
+        for light in light_settings.lights:
+            light_section = layout.box()
+            header = light_section.split(factor=0.3)
+            row = header.row()
+            row.prop(light, "expand", text="", icon='TRIA_DOWN' if light.expand else 'TRIA_RIGHT')
+            row.label(text=f"{str(light.light_type).title()} Light")
+            header.prop(light, "active", text="Enabled" if light.active else "Disabled", toggle=True)
+            if light.expand:
+                # light settings by section: description + type, position + direction + mesh/material, color, extras, shadow
+                section = light_section.split(factor=0.3)
+                section.column(align=True).label(text="Description")
+                col = section.column(align=True)
+                col.prop(light, "description", text="")
+                col.prop(light, "light_type", text="Type", expand=False)
+
 
 class VIEW3D_PT_AC_Sidebar_Extensions(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Extensions"
