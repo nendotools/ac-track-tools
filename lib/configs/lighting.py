@@ -470,20 +470,20 @@ class AC_Light(PropertyGroup):
     )
 
     def from_dict(self, data: dict, is_series: bool = False):
-        self.active = True if "active" in data and data["active"] == 1 else False
-        self.description = data.get("description", "")
+        self.active = True if "ACTIVE" in data and data["ACTIVE"] == 1 else False
+        self.description = data.get("DESCRIPTION", "")
         if not is_series:
-            self.mesh = data.get("mesh", None)
-            position = data.get("position", (0, 0, 0))
-            offset = data.get("offset", (0, 0, 0))
+            self.mesh = data.get("MESH", None)
+            position = data.get("POSITION", (0, 0, 0))
+            offset = data.get("OFFSET", (0, 0, 0))
             self.position = offset if self.mesh else position
-            if "line_from" in data:
+            if "LINE_FROM" in data:
                 self.light_type = "LINE"
-                self.line_from = data["line_from"]
-                self.line_to = data["line_to"]
-            elif "mesh" in data:
+                self.line_from = data["LINE_FROM"]
+                self.line_to = data["LINE_TO"]
+            elif "MESH" in data:
                 self.light_type = "MESH"
-                mesh = context.scene.objects.get(data["mesh"])
+                mesh = context.scene.objects.get(data["MESH"])
                 if mesh:
                     self.mesh = mesh
                 else:
@@ -492,7 +492,32 @@ class AC_Light(PropertyGroup):
                 self.light_type = "SPOT"
         else:
             self.light_type = "SERIES"
-            # TODO: handle series lights
+            self.meshes.clear()
+            self.materials.clear()
+            self.positions.clear()
+            self.directions.clear()
+            self.direction_mode = 'NORMAL' if data.get('DIRECTION', 'NORMAL') == 'NORMAL' else 'FIXED'
+            self.direction = data.get('DIRECTION', (0, -1, 0))
+            self.direction_alter = data.get('DIRECTION_ALTER', (0, 0, 0))
+            self.direction_offset = data.get('DIRECTION_OFFSET', (0, 0, 0))
+            if "MESHES" in data:
+                for mesh_name in data["MESHES"]:
+                    mesh = context.scene.objects.get(mesh_name)
+                    if mesh:
+                        self.meshes.add().name = mesh_name
+            elif "MATERIALS" in data:
+                for material_name in data["MATERIALS"]:
+                    material = context.scene.objects.get(material_name)
+                    if material:
+                        self.materials.add().name = material_name
+            else:
+                for property in data:
+                    if property.startswith("POSITION_"):
+                        pos = self.positions.add()
+                        pos.value = data[property]
+                    elif property.startswith("DIRECTION_"):
+                        direction = self.directions.add()
+                        direction.value = data[property]
 
         #shape settings
         self.modify_shape = True if "SPOT" in data else False
