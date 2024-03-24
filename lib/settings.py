@@ -208,6 +208,8 @@ class AC_Settings(PropertyGroup):
             extension_map[extension.name] = {}
             for item in extension.items:
                 extension_map[extension.name][item.key] = item.value
+
+        extension_map["LIGHTING"] = self.lighting.global_lighting.to_dict()
         return extension_map
 
     def load_extensions(self, extension_map: dict):
