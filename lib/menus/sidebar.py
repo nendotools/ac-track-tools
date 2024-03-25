@@ -386,7 +386,6 @@ class VIEW3D_PT_AC_Sidebar_Lighting(VIEW3D_PT_AC_Sidebar, Panel):
                     col.prop(light, "condition_offset", text="Offset", slider=True)
 
 
-
 class VIEW3D_PT_AC_Sidebar_Extensions(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Extensions"
     bl_idname = "VIEW3D_PT_AC_Sidebar_Extensions"

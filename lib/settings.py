@@ -164,8 +164,12 @@ class AC_Settings(PropertyGroup):
             new_surface = self.surfaces.add()
             new_surface.from_dict(surface[1], surface[1]["CUSTOM"] if "CUSTOM" in surface[1] else True)
 
-    def map_track(self) -> dict:
-        return self.track.to_dict()
+    def map_track(self, context) -> dict:
+        track_info = self.track.to_dict()
+        track_info.update({
+            "pitboxes": len(self.get_pitboxes(context)),
+        })
+        return track_info
 
     def load_track(self, track: dict):
         self.track.from_dict(track)
@@ -238,7 +242,7 @@ class AC_Settings(PropertyGroup):
         return [obj for obj in context.scene.objects if obj.name.startswith("AC_START")]
 
     def get_pitboxes(self, context) -> list[Object]:
-        return [obj for obj in context.scene.objects if obj.name.startswith("AC_PITBOX")]
+        return [obj for obj in context.scene.objects if obj.name.startswith("AC_PIT")]
 
     def get_hotlap_starts(self, context) -> list[Object]:
         return [obj for obj in context.scene.objects if obj.name.startswith("AC_HOTLAP_START")]
@@ -251,6 +255,9 @@ class AC_Settings(PropertyGroup):
 
     def get_ab_finish_gates(self, context) -> list[Object]:
         return [obj for obj in context.scene.objects if obj.name.startswith("AC_AB_FINISH")]
+
+    def get_audio_emitters(self, context) -> list[Object]:
+        return [obj for obj in context.scene.objects if obj.name.startswith("AC_AUDIO")]
 
     def consolidate_logic_gates(self, context):
         starts = self.get_starts(context)

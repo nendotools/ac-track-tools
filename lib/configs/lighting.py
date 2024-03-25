@@ -681,6 +681,8 @@ class AC_Lighting(PropertyGroup):
 
     def to_dict(self) -> dict:
         return {
-            "SUN_PITCH_ANGLE": self.sun.sun_pitch_angle,
-            "SUN_HEADING_ANGLE": self.sun.sun_heading_angle
+            "LIGHTING": {
+                "SUN_PITCH_ANGLE": self.sun.sun_pitch_angle,
+                "SUN_HEADING_ANGLE": self.sun.sun_heading_angle
+            }
         }

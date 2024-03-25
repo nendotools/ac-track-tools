@@ -12,7 +12,7 @@ class WM_MT_AssignSurface(Menu):
 
     def draw(self, context):
         layout = self.layout
-        settings = context.scene.AC_Settings
+        settings = context.scene.AC_Settings # type: ignore
         surface: AC_Surface
         for surface in settings.get_surfaces():
             if not re.match(SURFACE_VALID_KEY, surface.key):
@@ -56,5 +56,6 @@ def surface_menu(self, context):
 def utility_menu(self, context):
     layout: UILayout = self.layout
     layout.separator()
-    layout.operator("ac.assign_phys_prop")
+    if len(context.selected_objects) > 0:
+        layout.operator("ac.assign_phys_prop")
     layout.operator("ac.add_audio_emitter")

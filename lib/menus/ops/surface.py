@@ -10,6 +10,7 @@ from ...settings import AC_Settings
 
 
 class AC_InitSurfaces(Operator):
+    """Initialize default surfaces"""
     bl_label = "Init Surfaces"
     bl_idname = "ac.init_surfaces"
     bl_options = {'REGISTER'}
@@ -19,6 +20,7 @@ class AC_InitSurfaces(Operator):
         return {'FINISHED'}
 
 class AC_AddSurface(Operator):
+    """Add a new surface"""
     bl_label = "Add/Copy Surface"
     bl_idname = "ac.add_surface"
     bl_options = {'REGISTER'}
@@ -63,6 +65,7 @@ class AC_AddSurface(Operator):
         return f"{true_name}-{i}"
 
 class AC_RemoveSurface(Operator):
+    """Remove a surface"""
     bl_label = "Remove Surface"
     bl_idname = "ac.remove_surface"
     bl_options = {'REGISTER'}
@@ -85,6 +88,7 @@ class AC_RemoveSurface(Operator):
         return {'FINISHED'}
 
 class AC_ToggleSurface(Operator):
+    """Toggle surface menu visibility"""
     bl_label = "Toggle Surface"
     bl_idname = "ac.toggle_surface"
     bl_options = {'REGISTER'}
@@ -101,6 +105,7 @@ class AC_ToggleSurface(Operator):
         return {'FINISHED'}
 
 class AC_AssignSurface(Operator):
+    """Assign a surface type to selected objects"""
     bl_label = "Assign Surface"
     bl_idname = "ac.assign_surface"
     bl_options = {'REGISTER', 'UNDO'}
@@ -117,6 +122,7 @@ class AC_AssignSurface(Operator):
         return {'FINISHED'}
 
 class AC_SelectAllSurfaces(Operator):
+    """Select all objects with the specified surface key"""
     bl_label = "Select All Surfaces"
     bl_idname = "ac.select_all_surfaces"
     bl_options = {'REGISTER', 'UNDO'}
@@ -133,6 +139,7 @@ class AC_SelectAllSurfaces(Operator):
         return {'FINISHED'}
 
 class AC_AssignWall(Operator):
+    """Assign a wall type to selected objects"""
     bl_label = "Convert to Wall"
     bl_idname = "ac.assign_wall"
     bl_options = {'REGISTER', 'UNDO'}
@@ -148,6 +155,7 @@ class AC_AssignWall(Operator):
         return {'FINISHED'}
 
 class AC_AssignPhysProp(Operator):
+    """Assign physical properties to selected objects"""
     bl_label = "Assign Physical Properties"
     bl_idname = "ac.assign_phys_prop"
     bl_options = {'REGISTER', 'UNDO'}
@@ -160,6 +168,7 @@ class AC_AssignPhysProp(Operator):
         return {'FINISHED'}
 
 class AC_AddSurfaceExt(Operator):
+    """Add a new surface extension"""
     bl_label = "Add Surface Extension"
     bl_idname = "ac.add_surface_ext"
     bl_options = {'REGISTER', 'UNDO'}
@@ -181,6 +190,7 @@ class AC_AddSurfaceExt(Operator):
         return {'FINISHED'}
 
 class AC_DeleteSurfaceExt(Operator):
+    """Delete a surface extension"""
     bl_label = "Delete Surface Extension"
     bl_idname = "ac.delete_surface_ext"
     bl_options = {'REGISTER', 'UNDO'}

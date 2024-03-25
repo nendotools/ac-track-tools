@@ -17,7 +17,7 @@ class AC_SaveSettings(Operator):
         settings = context.scene.AC_Settings # type: ignore
 
         ui_dir = get_ui_directory()
-        track_data = settings.map_track()
+        track_data = settings.map_track(context)
         save_json(ui_dir + '/ui_track.json', track_data)
 
         data_dir = get_data_directory()
@@ -80,8 +80,11 @@ class AC_AddStart(Operator):
     bl_options = {'REGISTER'}
     def execute(self, context):
         bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, 0, 0))
+        settings = context.scene.AC_Settings # type: ignore
+        settings.consolidate_logic_gates(context)
         start_pos = bpy.context.object
-        start_pos.name = "AC_START_0"
+        # get next start position
+        start_pos.name = f"AC_START_{len(settings.get_starts(context))}"
         return {'FINISHED'}
 
 class AC_AddHotlapStart(Operator):
@@ -91,8 +94,10 @@ class AC_AddHotlapStart(Operator):
     bl_options = {'REGISTER'}
     def execute(self, context):
         bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, 0, 0))
+        settings = context.scene.AC_Settings # type: ignore
+        settings.consolidate_logic_gates(context)
         start_pos = bpy.context.object
-        start_pos.name = "AC_HOTLAP_START_0"
+        start_pos.name = f"AC_HOTLAP_START_{len(settings.get_hotlap_starts(context))}"
         return {'FINISHED'}
 
 class AC_AddPitbox(Operator):
@@ -102,8 +107,10 @@ class AC_AddPitbox(Operator):
     bl_options = {'REGISTER'}
     def execute(self, context):
         bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(math.pi * -0.5, 0, 0))
+        settings = context.scene.AC_Settings # type: ignore
+        settings.consolidate_logic_gates(context)
         pitbox = bpy.context.object
-        pitbox.name = "AC_PIT_0"
+        pitbox.name = f"AC_PIT_{len(settings.get_pitboxes(context))}"
         return {'FINISHED'}
 
 class AC_AddTimeGate(Operator):
@@ -112,12 +119,15 @@ class AC_AddTimeGate(Operator):
     bl_label = "Add Time Gate"
     bl_options = {'REGISTER'}
     def execute(self, context):
+        settings = context.scene.AC_Settings # type: ignore
+        settings.consolidate_logic_gates(context)
+        count = len(settings.get_time_gates(context)) // 2
         bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
         time_gate_L = bpy.context.object
-        time_gate_L.name = "AC_TIME_0_L"
+        time_gate_L.name = f"AC_TIME_{count}_L"
         bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
         time_gate_R = bpy.context.object
-        time_gate_R.name = "AC_TIME_0_R"
+        time_gate_R.name = f"AC_TIME_{count}_R"
         return {'FINISHED'}
 
 class AC_AddABStartGate(Operator):
@@ -154,7 +164,9 @@ class AC_AddAudioEmitter(Operator):
     bl_label = "Add Audio Emitter"
     bl_options = {'REGISTER'}
     def execute(self, context):
+        settings = context.scene.AC_Settings # type: ignore
+        settings.consolidate_logic_gates(context)
         bpy.ops.object.empty_add(type='SPHERE', scale=(2, 2, 2))
         audio_emitter = bpy.context.object
-        audio_emitter.name = f"AC_AUDIO_1"
+        audio_emitter.name = f"AC_AUDIO_{len(settings.get_audio_emitters(context)) + 1}"
         return {'FINISHED'}
