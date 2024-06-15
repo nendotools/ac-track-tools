@@ -672,8 +672,8 @@ class AC_Lighting(PropertyGroup):
     )
 
     def from_dict(self, data: dict):
-        self.sun.sun_pitch_angle = data.get("SUN_PITCH_ANGLE", 45)
-        self.sun.sun_heading_angle = data.get("SUN_HEADING_ANGLE", 0)
+        self.sun.sun_pitch_angle = int(data.get("SUN_PITCH_ANGLE", 45))
+        self.sun.sun_heading_angle = int(data.get("SUN_HEADING_ANGLE", 0))
 
     def light_from_dict(self, data: dict, is_series: bool = False):
         l = self.lights.add()

@@ -1,4 +1,6 @@
-from bpy.types import OperatorProperties, Panel, UIList
+from bpy.types import Context, Panel, UILayout, UIList
+
+from ..settings import AC_Settings
 
 from ..configs.audio_source import AC_AudioSource
 
@@ -15,7 +17,7 @@ class AC_UL_Tags(UIList):
             delete = row.operator("ac.remove_geo_tag", text="", icon='X')
             delete.index = index
 
-    def draw_filter(self, context, layout):
+    def draw_filter(self, context:Context, layout: UILayout): # type: ignore
         pass
 
 class AC_UL_Extenstions(UIList):
@@ -60,7 +62,7 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
     bl_context = "objectmode"
     def draw(self, context):
         layout = self.layout
-        settings = context.scene.AC_Settings # type: ignore
+        settings:AC_Settings = context.scene.AC_Settings # type: ignore
         col = layout.column(align=True)
         col.prop(settings, "working_dir", text="Working Directory")
         if settings.working_dir:
@@ -73,6 +75,32 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
             row.alignment = 'CENTER'
             row.label(text="Please set a working directory")
 
+        col.separator(factor=1.5)
+        col.label(text="Project Status")
+        # TODO: Add pre-flight checks
+        box = col.box()
+        count = 0
+        # - pitbox mismatch
+        if len(settings.get_pitboxes(context)) != len(settings.get_starts(context)):
+            box.label(text="Pitbox<-> Race Start mismatch", icon='ERROR')
+            count += 1
+        if len(settings.get_pitboxes(context)) != settings.track.pitboxes:
+            box.label(text="Pitbox count mismatch", icon='CANCEL')
+            count += 1
+        # - check for no assigned surfaces
+        if not len(settings.get_nonwalls(context)):
+            box.label(text="No Surfaces Assigned", icon='ERROR')
+            count += 1
+        # - check for no assigned walls
+        if not len(settings.get_walls(context)):
+            box.label(text="No Walls Assigned", icon='ERROR')
+            count += 1
+        # - check for missing files (material textures not in texture folder
+        # - measurements not using metric
+        # - fbx export settings wrong
+        # - objects are not assigned materials
+        if count == 0:
+            box.label(text="Ready for Export!", icon='CHECKMARK')
 
 class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Track"

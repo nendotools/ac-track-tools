@@ -17,7 +17,7 @@ class AC_Settings(PropertyGroup):
         description="Directory to save and load files",
         default="",
         subtype='DIR_PATH',
-        update=lambda s, c: s.update_directory(s.working_dir),
+        update=lambda s, _: s.update_directory(s.working_dir),
     )
     track: PointerProperty(
         type=AC_Track,
@@ -100,12 +100,13 @@ class AC_Settings(PropertyGroup):
     def reset_errors(self):
         self.error.clear()
 
-    def get_surface_groups(self, context, key: str | None = None) -> list[Object] | dict[str, Object]:
+    def get_surface_groups(self, context, key: str | None = None, ex_key: str | None = None) -> list[Object] | dict[str, Object]:
         # dict of lists surface keys
         groups = {}
         for surface in self.surfaces:
             if surface.key not in groups:
                 groups[surface.key] = []
+        groups['WALL'] = []
 
         # if key is provided, only return objects from the scene matching the key
         for surfaceKey in groups:
@@ -115,7 +116,18 @@ class AC_Settings(PropertyGroup):
                 if match:
                     groups[surfaceKey].append(obj)
 
-        return groups if key is None else groups[key]
+        if key:
+            return groups[key]
+        if ex_key:
+            groups.pop(ex_key)
+            return [obj for sublist in groups.values() for obj in sublist]
+        return groups
+
+    def get_walls(self, context) -> list[Object]:
+        return self.get_surface_groups(context, "WALL") # type: ignore
+
+    def get_nonwalls(self, context) -> list[Object]:
+        return self.get_surface_groups(context, ex_key="WALL") # type: ignore
 
     def update_directory(self, path: str):
         if path == "":
