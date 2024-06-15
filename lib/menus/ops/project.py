@@ -3,11 +3,10 @@ import math
 import bpy
 from bpy.types import Operator
 
-from ...settings import AC_Settings
-
 from ....utils.files import (get_data_directory, get_extension_directory,
                              get_ui_directory, load_ini, load_json, save_ini,
                              save_json)
+from ...settings import AC_Settings
 
 
 class AC_SaveSettings(Operator):
