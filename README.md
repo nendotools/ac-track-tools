@@ -14,6 +14,7 @@
 ### Table of Contents
 
 - [Overview](#overview)
+- [Features](#features)
 - [TODO](#todo)
 
 ### Overview
@@ -24,6 +25,49 @@ tools to help manage track settings, surfaces, track/race nodes, cameras, lighti
 
 This project is still in its early stages, and many features are still in development. If you have any suggestions or
 requests, please feel free to open an issue or pull request.
+
+#### Objectives
+
+- Simplify the process of creating and configuring tracks for Assetto Corsa
+- Provide a more intuitive and user-friendly interface for managing track settings
+- Automate common tasks and checks to reduce human error
+- Provide clear and explicit defaults and ranges for all settings to reduce ambiguity
+
+### Features
+
+#### Configuration Management
+
+Save/Load track settings, surfaces, nodes, cameras, lighting, and sound settings. This allows for not only effortless
+validation of inputs, but also binds all track configurations to the Blender project file.
+
+Project initialization automatically creates the necessary folder structure and files to configure the track once the
+working directory is set.
+
+Pre-flight checks are also performed to ensure that all required settings are present before exporting the track. It's
+also able to correct some common issues automatically.
+
+#### Surfaces
+
+Default surfaces are automatically available. Surfaces can easily be added, modified, and overridden from the UI.
+Surfaces can be easily assigned to selected meshes from the context menu (right click). The UI also allows for easily
+selecting all meshes with an assigned surface.
+
+#### Track Nodes
+
+Race start locations, time gates, and pitboxes can be added from the context menu and moved around the track where
+needed. The preflight check ensures that start locations and pitboxes are even and the ui_track.json file is updated.
+
+#### Lighting
+
+Currently, the sun settings and some basic lighting extension options are available from the UI. In the future, more
+advanced settings and mesh bindings will be added to simplify the process of adding the various lighting options
+available through modding.
+
+#### Sounds
+
+Reverb zones and sound emitters can be added from the context menu. Some default example reverb options are available
+and can be easily customized to fit the track's needs. Sounds require some additional work outside of Blender to be
+useable in Assetto Corsa, but the add-on provides the necessary settings to hook them up once banks are created.
 
 ### TODO
 
