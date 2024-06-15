@@ -10,7 +10,6 @@ from .configs.lighting import AC_Lighting
 from .configs.surface import AC_Surface
 from .configs.track import AC_Track
 
-
 class AC_Settings(PropertyGroup):
     working_dir: StringProperty(
         name="Working Directory",
@@ -45,7 +44,7 @@ class AC_Settings(PropertyGroup):
         type=AC_Lighting,
         name="Lighting",
     )
-    error: dict = {}
+    error: list[dict] = []
     active_surfaces: list[str] = []
     default_surfaces: dict = {
         "SURFACE_ROAD": {
@@ -129,6 +128,58 @@ class AC_Settings(PropertyGroup):
     def get_nonwalls(self, context) -> list[Object]:
         return self.get_surface_groups(context, ex_key="WALL") # type: ignore
 
+    # return a list of {severity: int, message: str} objects
+    # severity: 0 = info, 1 = warning (fixable), 2 = error (unfixable)
+    def run_preflight(self, context) -> list:
+        self.error.clear()
+        if len(self.get_pitboxes(context)) != len(self.get_starts(context)):
+            self.error.append({
+                "severity": 2,
+                "message": "Pitbox<-> Race Start mismatch",
+                "code": "PITBOX_START_MISMATCH"
+            })
+        if len(self.get_pitboxes(context)) != self.track.pitboxes:
+            self.error.append({
+                "severity": 1,
+                "message": "Pitbox count mismatch",
+                "code": "PITBOX_COUNT_MISMATCH"
+            })
+        if not self.get_nonwalls(context):
+            self.error.append({
+            "severity": 2,
+            "message": "No track surfaces assigned",
+            "code": "NO_SURFACES"
+            })
+        if not self.get_walls(context):
+            self.error.append({
+                "severity": 0,
+                "message": "No walls assigned",
+                "code": "NO_WALLS"
+            })
+        if context.scene.unit_settings.system != 'METRIC':
+            self.error.append({
+            "severity": 1,
+            "message": "Scene units are not set to Metric",
+            "code": "IMPERIAL_UNITS"
+            })
+        if context.scene.unit_settings.length_unit != 'METERS':
+            self.error.append({
+            "severity": 1,
+            "message": "Scene units are not set to Meters",
+            "code": "INVALID_UNITS"
+            })
+        if context.scene.unit_settings.scale_length != 1:
+            self.error.append({
+            "severity": 1,
+            "message": "Scene scale is not set to 1",
+            "code": "INVALID_UNIT_SCALE"
+            })
+        # - fbx export settings wrong
+        # - objects are not assigned materials
+        # - check for missing files (material textures not in texture folder
+        return self.error
+
+
     def update_directory(self, path: str):
         if path == "":
             return
@@ -149,7 +200,8 @@ class AC_Settings(PropertyGroup):
         for i, surface in enumerate(custom_surfaces):
             # validity check
             if not re.match(r"^[A-Z]*$", surface.key):
-                self.error["surface"] = f"Surface {surface.name} assigned invalid key: {surface.key}"
+                print(f"Surface {surface.name} assigned invalid key: {surface.key}")
+                # self.error["surface"] = f"Surface {surface.name} assigned invalid key: {surface.key}"
 
             surface_map[f"SURFACE_{i}"] = surface.to_dict()
 

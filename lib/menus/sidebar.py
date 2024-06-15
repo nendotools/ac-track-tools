@@ -75,31 +75,22 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
             row.label(text="Please set a working directory")
 
         col.separator(factor=1.5)
-        col.label(text="Project Status")
-        # TODO: Add pre-flight checks
+        errors = settings.run_preflight(context)
+        can_fix = len([error for error in errors if error['severity'] == 1]) > 0
+        row = col.row()
+        row.label(text="Track Preflight Checks")
+        row.separator()
+        r = row.row()
+        r.enabled = can_fix
+        r.operator("ac.autofix_preflight", text="Fix Errors", icon='FAKE_USER_OFF' if can_fix else 'FAKE_USER_ON')
         box = col.box()
-        count = 0
-        # - pitbox mismatch
-        if len(settings.get_pitboxes(context)) != len(settings.get_starts(context)):
-            box.label(text="Pitbox<-> Race Start mismatch", icon='ERROR')
-            count += 1
-        if len(settings.get_pitboxes(context)) != settings.track.pitboxes:
-            box.label(text="Pitbox count mismatch", icon='CANCEL')
-            count += 1
-        # - check for no assigned surfaces
-        if not len(settings.get_nonwalls(context)):
-            box.label(text="No Surfaces Assigned", icon='ERROR')
-            count += 1
-        # - check for no assigned walls
-        if not len(settings.get_walls(context)):
-            box.label(text="No Walls Assigned", icon='ERROR')
-            count += 1
-        # - measurements not using metric
-        # - fbx export settings wrong
-        # - objects are not assigned materials
-        # - check for missing files (material textures not in texture folder
-        if count == 0:
+        box.enabled = len(errors) > 0
+        if len(errors) == 0:
             box.label(text="Ready for Export!", icon='CHECKMARK')
+        else:
+            for error in errors:
+                icon = 'CANCEL' if error['severity'] == 2 else 'ERROR' if error['severity'] == 1 else 'OUTLINER_OB_LIGHT'
+                box.label(text=error['message'], icon=icon)
 
 class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Track"

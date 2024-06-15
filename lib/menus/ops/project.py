@@ -73,6 +73,19 @@ class AC_LoadSettings(Operator):
             settings.load_extensions(extension_map)
         return {'FINISHED'}
 
+class AC_AutofixPreflight(Operator):
+    """Attempt to fix common issues"""
+    bl_idname = "ac.autofix_preflight"
+    bl_label = "Autofix Preflight"
+    bl_options = {'REGISTER'}
+    def execute(self, context):
+        settings = context.scene.AC_Settings # type: ignore
+        settings.track.pitboxes = len(settings.get_pitboxes(context))
+        context.scene.unit_settings.system = 'METRIC'
+        context.scene.unit_settings.length_unit = 'METERS'
+        context.scene.unit_settings.scale_length = 1
+        return {'FINISHED'}
+
 class AC_AddStart(Operator):
     """Add a new start position"""
     bl_idname = "ac.add_start"
