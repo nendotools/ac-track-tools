@@ -1,8 +1,7 @@
 from bpy.types import Context, Panel, UILayout, UIList
 
-from ..settings import AC_Settings
-
 from ..configs.audio_source import AC_AudioSource
+from ..settings import AC_Settings
 
 
 class AC_UL_Tags(UIList):
@@ -95,10 +94,10 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
         if not len(settings.get_walls(context)):
             box.label(text="No Walls Assigned", icon='ERROR')
             count += 1
-        # - check for missing files (material textures not in texture folder
         # - measurements not using metric
         # - fbx export settings wrong
         # - objects are not assigned materials
+        # - check for missing files (material textures not in texture folder
         if count == 0:
             box.label(text="Ready for Export!", icon='CHECKMARK')
 
