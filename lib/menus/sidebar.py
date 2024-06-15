@@ -87,10 +87,16 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
         box.enabled = len(errors) > 0
         if len(errors) == 0:
             box.label(text="Ready for Export!", icon='CHECKMARK')
+            col.separator(factor=1.5)
+            col.operator("ac.export_track", text="Export Track")
         else:
             for error in errors:
                 icon = 'CANCEL' if error['severity'] == 2 else 'ERROR' if error['severity'] == 1 else 'OUTLINER_OB_LIGHT'
                 box.label(text=error['message'], icon=icon)
+            col.separator(factor=1.5)
+            row = col.row()
+            row.enabled = False
+            row.operator("ac.export_track", text="Export Track")
 
 class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Track"

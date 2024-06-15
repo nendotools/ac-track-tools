@@ -3,6 +3,8 @@ import math
 import bpy
 from bpy.types import Operator
 
+from ...settings import AC_Settings
+
 from ....utils.files import (get_data_directory, get_extension_directory,
                              get_ui_directory, load_ini, load_json, save_ini,
                              save_json)
@@ -71,6 +73,29 @@ class AC_LoadSettings(Operator):
         extension_map = load_ini(extension_dir + '/ext_config.ini')
         if extension_map:
             settings.load_extensions(extension_map)
+        return {'FINISHED'}
+
+class AC_ExportTrack(Operator):
+    """Export track as FBX"""
+    bl_idname = "ac.export_track"
+    bl_label = "Export Track"
+    bl_options = {'REGISTER'}
+    def execute(self, context):
+        settings: AC_Settings = context.scene.AC_Settings # type: ignore
+        # filename should be same as working directory folder name + .fbx
+        print(settings.working_dir)
+        # sometimes '/' isn't the separator, should also check others
+        bpy.ops.export_scene.fbx(
+            filepath=settings.working_dir + '/' + bpy.path.basename(settings.working_dir) + '.fbx',
+            object_types={'EMPTY','MESH'},
+            global_scale=1.0,
+            apply_unit_scale=True,
+            apply_scale_options='FBX_SCALE_UNITS',
+            use_space_transform=True,
+            use_mesh_modifiers=True,
+            axis_up='Y',
+            axis_forward='-Z',
+        )
         return {'FINISHED'}
 
 class AC_AutofixPreflight(Operator):

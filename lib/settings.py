@@ -135,10 +135,16 @@ class AC_Settings(PropertyGroup):
     # severity: 0 = info, 1 = warning (fixable), 2 = error (unfixable)
     def run_preflight(self, context) -> list:
         self.error.clear()
+        if not context.preferences.addons['io_scene_fbx']:
+            self.error.append({
+                "severity": 2,
+                "message": "FBX Exporter not enabled",
+                "code": "NO_FBX"
+            })
         if len(self.get_pitboxes(context)) != len(self.get_starts(context)):
             self.error.append({
                 "severity": 2,
-                "message": "Pitbox<-> Race Start mismatch",
+                "message": "Pitbox <-> Race Start mismatch",
                 "code": "PITBOX_START_MISMATCH"
             })
         if len(self.get_pitboxes(context)) != self.track.pitboxes:
