@@ -4,6 +4,7 @@ import bpy
 from bpy.props import CollectionProperty, PointerProperty, StringProperty
 from bpy.types import Object, PropertyGroup
 
+from ..utils.files import find_maps, get_active_directory, set_path_reference
 from ..utils.properties import ExtensionCollection
 from .configs.audio_source import AC_AudioSource
 from .configs.lighting import AC_Lighting
@@ -45,6 +46,7 @@ class AC_Settings(PropertyGroup):
         name="Lighting",
     )
     error: list[dict] = []
+    surface_errors: dict = {}
     active_surfaces: list[str] = []
     default_surfaces: dict = {
         "SURFACE_ROAD": {
@@ -176,14 +178,39 @@ class AC_Settings(PropertyGroup):
             })
         # - fbx export settings wrong
         # - objects are not assigned materials
-        # - check for missing files (material textures not in texture folder
+        # - check for missing material textures not in texture folder
+        # - check for missing map files
+        if not self.working_dir or self.working_dir == "":
+            return self.error
+        if self.working_dir != get_active_directory():
+            set_path_reference(self.working_dir)
+        map_files = find_maps()
+        if not map_files['map']:
+            self.error.append({
+            "severity": 2,
+            "message": 'No map file found "./map.png"',
+            "code": "NO_MAP"
+            })
+        if not map_files['outline']:
+            self.error.append({
+            "severity": 2,
+            "message": 'No outline file found "./ui/outline.png"',
+            "code": "NO_OUTLINE"
+            })
+        if not map_files['preview']:
+            self.error.append({
+            "severity": 2,
+            "message": 'No preview file found "./ui/preview.png"',
+            "code": "NO_PREVIEW"
+            })
+        
         return self.error
 
 
     def update_directory(self, path: str):
         if path == "":
             return
-        self.initialized = True
+        set_path_reference(path)
         bpy.ops.ac.load_settings()
 
     def get_surfaces(self) -> list[AC_Surface]:
@@ -200,8 +227,7 @@ class AC_Settings(PropertyGroup):
         for i, surface in enumerate(custom_surfaces):
             # validity check
             if not re.match(r"^[A-Z]*$", surface.key):
-                print(f"Surface {surface.name} assigned invalid key: {surface.key}")
-                # self.error["surface"] = f"Surface {surface.name} assigned invalid key: {surface.key}"
+                self.surface_errors["surface"] = f"Surface {surface.name} assigned invalid key: {surface.key}"
 
             surface_map[f"SURFACE_{i}"] = surface.to_dict()
 

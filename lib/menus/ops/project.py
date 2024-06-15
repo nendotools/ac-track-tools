@@ -22,8 +22,8 @@ class AC_SaveSettings(Operator):
 
         data_dir = get_data_directory()
         surface_data = settings.map_surfaces()
-        if 'surface' in list(settings.error.keys()):
-            msg = settings.error['surface']
+        if 'surface' in list(settings.surface_errors.keys()):
+            msg = settings.surface_errors['surface']
             settings.reset_errors()
             self.report({'ERROR'}, msg)
             return { 'CANCELLED' }
@@ -35,7 +35,7 @@ class AC_SaveSettings(Operator):
         save_ini(data_dir + '/lighting.ini', settings.map_lighting())
 
         extension_map: dict = settings.map_extensions()
-        if 'extension' not in list(settings.error.keys()) and len(extension_map.keys()) > 0:
+        if 'extension' not in list(settings.surface_errors.keys()) and len(extension_map.keys()) > 0:
             extension_dir = get_extension_directory()
             save_ini(extension_dir + '/ext_config.ini', extension_map)
         print("Settings saved")

@@ -5,12 +5,11 @@ import re
 
 from bpy import path
 
-from ..lib.settings import get_settings
-
 
 ##
 ##  Directory Management
 ##
+path_ref = ""
 def ensure_path_exists(loc: str):
     # if path ends in a file, remove the file
     if '.' in loc.split('/')[-1]:
@@ -20,8 +19,12 @@ def ensure_path_exists(loc: str):
         os.makedirs(loc, exist_ok=True)
     return os.path.normpath(loc)
 
+def set_path_reference(path: str):
+    global path_ref
+    path_ref = path
+
 def get_active_directory():
-    abs_path = path.abspath(get_settings().working_dir)
+    abs_path = path.abspath(path_ref)
     return os.path.realpath(abs_path)
 
 def get_ai_directory():
@@ -91,3 +94,15 @@ def save_ini(filename: str, config: dict):
     normalized_file = ensure_path_exists(filename)
     with open(normalized_file, 'w') as configfile:
         parser.write(configfile, False)
+
+def find_maps():
+    main_dir = get_active_directory()
+    ui_dir = get_ui_directory()
+    result = {}
+    map = os.path.normpath(main_dir + '/map.png')
+    outline = os.path.normpath(ui_dir + '/outline.png')
+    preview = os.path.normpath(ui_dir + '/preview.png')
+    result['map'] = map if os.path.exists(map) else None
+    result['outline'] = outline if os.path.exists(outline) else None
+    result['preview'] = preview if os.path.exists(preview) else None
+    return result
