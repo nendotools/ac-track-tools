@@ -67,7 +67,7 @@ available through modding.
 
 Reverb zones and sound emitters can be added from the context menu. Some default example reverb options are available
 and can be easily customized to fit the track's needs. Sounds require some additional work outside of Blender to be
-useable in Assetto Corsa, but the add-on provides the necessary settings to hook them up once banks are created.
+usable in Assetto Corsa, but the add-on provides the necessary settings to hook them up once banks are created.
 
 ### TODO
 
