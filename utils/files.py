@@ -1,10 +1,8 @@
 import configparser
 import json
 import os
-import re
 
 from bpy import path
-
 
 ##
 ##  Directory Management

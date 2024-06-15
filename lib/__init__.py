@@ -17,8 +17,8 @@ from .menus.ops.extensions import (AC_AddGlobalExtension,
 from .menus.ops.project import (AC_AddABFinishGate, AC_AddABStartGate,
                                 AC_AddAudioEmitter, AC_AddHotlapStart,
                                 AC_AddPitbox, AC_AddStart, AC_AddTimeGate,
-                                AC_AutofixPreflight,
-                                AC_LoadSettings, AC_SaveSettings)
+                                AC_AutofixPreflight, AC_LoadSettings,
+                                AC_SaveSettings)
 from .menus.ops.surface import (AC_AddSurface, AC_AddSurfaceExt,
                                 AC_AssignPhysProp, AC_AssignSurface,
                                 AC_AssignWall, AC_DeleteSurfaceExt,

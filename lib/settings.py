@@ -11,6 +11,7 @@ from .configs.lighting import AC_Lighting
 from .configs.surface import AC_Surface
 from .configs.track import AC_Track
 
+
 class AC_Settings(PropertyGroup):
     working_dir: StringProperty(
         name="Working Directory",
