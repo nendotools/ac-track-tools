@@ -6,6 +6,7 @@ from .configs.lighting import (AC_DirectionList, AC_GlobalLighting, AC_Light,
                                AC_PositionList, AC_SunSettings)
 from .configs.surface import AC_Surface
 from .configs.track import AC_Track
+from .gizmos.pitbox import ( AC_GizmoPitbox, AC_GizmoStartPos, AC_GizmoGroup)
 from .menus.context import (WM_MT_AssignSurface, pit_menu, start_menu,
                             surface_menu, utility_menu)
 from .menus.ops.audio import AC_AddAudioSource, AC_ToggleAudio
@@ -25,7 +26,8 @@ from .menus.ops.surface import (AC_AddSurface, AC_AddSurfaceExt,
                                 AC_InitSurfaces, AC_RemoveSurface,
                                 AC_SelectAllSurfaces, AC_ToggleSurface)
 from .menus.ops.track import (AC_AddGeoTag, AC_AddTag, AC_RemoveGeoTag,
-                              AC_RemoveTag, AC_ToggleGeoTag, AC_ToggleTag)
+                              AC_RemoveTag, AC_ToggleGeoTag, AC_ToggleTag,
+                              AC_SelectByName)
 from .menus.sidebar import (AC_UL_Extenstions, AC_UL_SurfaceExtenstions,
                             AC_UL_Tags, VIEW3D_PT_AC_Sidebar_Audio,
                             VIEW3D_PT_AC_Sidebar_Extensions,
@@ -41,6 +43,8 @@ __classes__ = (
     AC_AddTag, AC_RemoveTag, AC_AddGeoTag, AC_RemoveGeoTag, AC_ToggleTag, AC_ToggleGeoTag,
     AC_AutofixPreflight, AC_ExportTrack,
     AC_SaveSettings, AC_LoadSettings,
+    AC_SelectByName,
+    AC_GizmoPitbox, AC_GizmoStartPos, AC_GizmoGroup,
     AC_AddAudioSource, AC_ToggleAudio,
     AC_AddGlobalExtension, AC_RemoveGlobalExtension, AC_ToggleGlobalExtension, AC_AddGlobalExtensionItem, AC_RemoveGlobalExtensionItem,
     AC_AddStart, AC_AddHotlapStart, AC_AddPitbox, AC_AddTimeGate, AC_AddABStartGate, AC_AddABFinishGate, AC_AddAudioEmitter, 

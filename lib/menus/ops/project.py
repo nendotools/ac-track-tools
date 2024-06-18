@@ -105,6 +105,7 @@ class AC_AutofixPreflight(Operator):
     def execute(self, context):
         settings = context.scene.AC_Settings # type: ignore
         settings.track.pitboxes = len(settings.get_pitboxes(context))
+        settings.consolidate_logic_gates(context)
         context.scene.unit_settings.system = 'METRIC'
         context.scene.unit_settings.length_unit = 'METERS'
         context.scene.unit_settings.scale_length = 1
@@ -116,7 +117,7 @@ class AC_AddStart(Operator):
     bl_label = "Add Start"
     bl_options = {'REGISTER'}
     def execute(self, context):
-        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, 0, 0))
+        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         start_pos = bpy.context.object
@@ -130,7 +131,7 @@ class AC_AddHotlapStart(Operator):
     bl_label = "Add Hotlap Start"
     bl_options = {'REGISTER'}
     def execute(self, context):
-        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, 0, 0))
+        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         start_pos = bpy.context.object
@@ -143,7 +144,7 @@ class AC_AddPitbox(Operator):
     bl_label = "Add Pitbox"
     bl_options = {'REGISTER'}
     def execute(self, context):
-        bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(math.pi * -0.5, 0, 0))
+        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         pitbox = bpy.context.object

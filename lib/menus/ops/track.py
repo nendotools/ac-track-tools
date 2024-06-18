@@ -1,3 +1,4 @@
+from bpy.ops import object
 from bpy.props import IntProperty, StringProperty
 from bpy.types import Operator
 
@@ -97,4 +98,21 @@ class AC_ToggleGeoTag(Operator):
     def execute(self, context):
         settings = context.scene.AC_Settings # type: ignore
         settings.track.show_geotags = not settings.track.show_geotags
+        return {'FINISHED'}
+
+class AC_SelectByName(Operator):
+    """Select object by name"""
+    bl_idname = "ac.select_by_name"
+    bl_label = "Select By Name"
+    bl_options = {'REGISTER'}
+    name: StringProperty(
+        name="Name",
+        default="",
+    )
+    def execute(self, context):
+        ob = context.scene.objects.get(self.name)
+        if ob:
+            object.select_all(action='DESELECT')
+            ob.select_set(True)
+            context.view_layer.objects.active = ob
         return {'FINISHED'}

@@ -131,6 +131,14 @@ class AC_Settings(PropertyGroup):
     def get_nonwalls(self, context) -> list[Object]:
         return self.get_surface_groups(context, ex_key="WALL") # type: ignore
 
+    def check_copy_names(self, context) -> bool:
+        # detect any AC objects with names ending in .001, .002, etc.
+        obs = [obj for obj in context.scene.objects if obj.name.startswith("AC_")]
+        for ob in obs:
+            if re.match(rf".*\.\d+$", ob.name):
+                return True
+        return False
+
     # return a list of {severity: int, message: str} objects
     # severity: 0 = info, 1 = warning (fixable), 2 = error (unfixable)
     def run_preflight(self, context) -> list:
@@ -164,6 +172,12 @@ class AC_Settings(PropertyGroup):
                 "severity": 0,
                 "message": "No walls assigned",
                 "code": "NO_WALLS"
+            })
+        if self.check_copy_names(context):
+            self.error.append({
+                "severity": 1,
+                "message": "Track object index errors detected",
+                "code": "DUPLICATE_NAMES"
             })
         if context.scene.unit_settings.system != 'METRIC':
             self.error.append({

@@ -89,7 +89,8 @@ class AC_Track(PropertyGroup):
         name="Pitboxes",
         description="Number of pitboxes",
         default=0,
-        min=0
+        min=0,
+        soft_max=120
     )
 
     # image outline reference
