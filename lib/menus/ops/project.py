@@ -4,7 +4,7 @@ from os import path
 import bpy
 from bpy.types import Operator
 
-from ....utils.files import (get_data_directory, get_extension_directory,
+from ....utils.files import (get_data_directory, get_extension_directory, get_texture_directory,
                              get_ui_directory, load_ini, load_json, save_ini,
                              save_json)
 from ...settings import AC_Settings
@@ -21,6 +21,9 @@ class AC_SaveSettings(Operator):
         ui_dir = get_ui_directory()
         track_data = settings.map_track(context)
         save_json(ui_dir + '/ui_track.json', track_data)
+
+        get_texture_directory() # only need to ensure the directory exists
+        # TODO: check materials for texture paths and update them to use the texture directory + relocate the textures
 
         data_dir = get_data_directory()
         surface_data = settings.map_surfaces()
@@ -55,6 +58,8 @@ class AC_LoadSettings(Operator):
         track = load_json(ui_dir + '/ui_track.json')
         if track:
             settings.load_track(track)
+
+        get_texture_directory() # only need to ensure the directory exists
 
         data_dir = get_data_directory()
         surface_map = load_ini(data_dir + '/surfaces.ini')

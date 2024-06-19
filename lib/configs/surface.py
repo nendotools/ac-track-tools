@@ -126,8 +126,9 @@ class AC_Surface(PropertyGroup):
             "WAV_PITCH": round(self.wav_pitch, self.SAVE_PRECISION),
             "FF_EFFECT": 'NULL' if self.ff_effect == '' else self.ff_effect,
             "DIRT_ADDITIVE": round(self.dirt_additive, self.SAVE_PRECISION),
-            "IS_PITLANE": self.is_pit_lane,
-            "IS_VALID_TRACK": self.is_valid_track,
+            # boolean should be converted to int for saving
+            "IS_PITLANE": int(self.is_pit_lane),
+            "IS_VALID_TRACK": int(self.is_valid_track),
             "BLACK_FLAG_TIME": self.black_flag_time,
             "SIN_HEIGHT": round(self.sin_height, self.SAVE_PRECISION),
             "SIN_LENGTH": round(self.sin_length, self.SAVE_PRECISION),

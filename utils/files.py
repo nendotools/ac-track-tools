@@ -43,6 +43,9 @@ def get_extension_directory():
 def get_sfx_directory():
     return ensure_path_exists(get_content_directory() + '/sfx/')
 
+def get_texture_directory():
+    return ensure_path_exists(get_content_directory() + '/texture/')
+
 ##
 ## Import File
 ##
@@ -88,6 +91,7 @@ def load_ini(filename: str):
 
 def save_ini(filename: str, config: dict):
     parser = configparser.ConfigParser()
+    parser.optionxform = lambda option: option
     parser.read_dict(config)
     normalized_file = ensure_path_exists(filename)
     with open(normalized_file, 'w') as configfile:
