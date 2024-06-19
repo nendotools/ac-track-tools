@@ -2,6 +2,7 @@ import math
 
 import bpy
 from bpy.types import Operator
+from os import path
 
 from ....utils.files import (get_data_directory, get_extension_directory,
                              get_ui_directory, load_ini, load_json, save_ini,
@@ -81,11 +82,9 @@ class AC_ExportTrack(Operator):
     bl_options = {'REGISTER'}
     def execute(self, context):
         settings: AC_Settings = context.scene.AC_Settings # type: ignore
-        # filename should be same as working directory folder name + .fbx
-        print(settings.working_dir)
-        # sometimes '/' isn't the separator, should also check others
+        target = settings.working_dir.rstrip(path.sep).split(path.sep)[-1]
         bpy.ops.export_scene.fbx(
-            filepath=settings.working_dir + '/' + bpy.path.basename(settings.working_dir) + '.fbx',
+            filepath=settings.working_dir + target + '.fbx',
             object_types={'EMPTY','MESH'},
             global_scale=1.0,
             apply_unit_scale=True,
