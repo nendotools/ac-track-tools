@@ -1,8 +1,8 @@
 import math
+from os import path
 
 import bpy
 from bpy.types import Operator
-from os import path
 
 from ....utils.files import (get_data_directory, get_extension_directory,
                              get_ui_directory, load_ini, load_json, save_ini,

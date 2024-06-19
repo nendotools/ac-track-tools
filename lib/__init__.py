@@ -6,7 +6,7 @@ from .configs.lighting import (AC_DirectionList, AC_GlobalLighting, AC_Light,
                                AC_PositionList, AC_SunSettings)
 from .configs.surface import AC_Surface
 from .configs.track import AC_Track
-from .gizmos.pitbox import ( AC_GizmoPitbox, AC_GizmoStartPos, AC_GizmoGroup)
+from .gizmos.pitbox import AC_GizmoGroup, AC_GizmoPitbox, AC_GizmoStartPos
 from .menus.context import (WM_MT_AssignSurface, pit_menu, start_menu,
                             surface_menu, utility_menu)
 from .menus.ops.audio import AC_AddAudioSource, AC_ToggleAudio
@@ -26,8 +26,8 @@ from .menus.ops.surface import (AC_AddSurface, AC_AddSurfaceExt,
                                 AC_InitSurfaces, AC_RemoveSurface,
                                 AC_SelectAllSurfaces, AC_ToggleSurface)
 from .menus.ops.track import (AC_AddGeoTag, AC_AddTag, AC_RemoveGeoTag,
-                              AC_RemoveTag, AC_ToggleGeoTag, AC_ToggleTag,
-                              AC_SelectByName)
+                              AC_RemoveTag, AC_SelectByName, AC_ToggleGeoTag,
+                              AC_ToggleTag)
 from .menus.sidebar import (AC_UL_Extenstions, AC_UL_SurfaceExtenstions,
                             AC_UL_Tags, VIEW3D_PT_AC_Sidebar_Audio,
                             VIEW3D_PT_AC_Sidebar_Extensions,
