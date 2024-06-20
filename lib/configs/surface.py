@@ -42,9 +42,9 @@ class AC_Surface(PropertyGroup):
     wav_pitch: FloatProperty(
         name="Wav Pitch",
         description="Pitch shift of the wav file",
-        default=1,
-        min=0.5,
-        max=2
+        default=0,
+        min=0.0,
+        max=2.0,
     )
     ff_effect: StringProperty(
         name="FF Effect",
@@ -123,7 +123,7 @@ class AC_Surface(PropertyGroup):
             "FRICTION": round(self.friction, self.SAVE_PRECISION),
             "DAMPING": round(self.damping, self.SAVE_PRECISION),
             "WAV": self.wav,
-            "WAV_PITCH": round(self.wav_pitch, self.SAVE_PRECISION),
+            "WAV_PITCH": round(self.wav_pitch, self.SAVE_PRECISION) if self.wav != '' else 0,
             "FF_EFFECT": 'NULL' if self.ff_effect == '' else self.ff_effect,
             "DIRT_ADDITIVE": round(self.dirt_additive, self.SAVE_PRECISION),
             # boolean should be converted to int for saving
