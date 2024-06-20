@@ -4,9 +4,9 @@ from os import path
 from bpy import ops
 from bpy.types import Context, Operator
 
-from ....utils.files import (get_data_directory, get_extension_directory, get_texture_directory,
-                             get_ui_directory, load_ini, load_json, save_ini,
-                             save_json)
+from ....utils.files import (get_data_directory, get_extension_directory,
+                             get_texture_directory, get_ui_directory, load_ini,
+                             load_json, save_ini, save_json)
 from ...settings import AC_Settings
 
 
