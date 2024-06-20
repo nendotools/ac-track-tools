@@ -358,8 +358,23 @@ class AC_Settings(PropertyGroup):
     def get_hotlap_starts(self, context) -> list[Object]:
         return [obj for obj in context.scene.objects if obj.name.startswith("AC_HOTLAP_START")]
 
-    def get_time_gates(self, context) -> list[Object]:
-        return [obj for obj in context.scene.objects if obj.name.startswith("AC_TIME")]
+    def get_time_gates(self, context, pairs = False) -> list[Object] | list[list[Object]]:
+        gates = [obj for obj in context.scene.objects if obj.name.startswith("AC_TIME")]
+        if not pairs:
+            return gates
+        l_gates = [gate for gate in gates if gate.name.endswith("_L")]
+        r_gates = [gate for gate in gates if gate.name.endswith("_R")]
+
+        grouped_gates = []
+        for gate in l_gates:
+            match = re.match(rf"^AC_TIME_(\d+)_L$", gate.name)
+            if match:
+                pair = [gate]
+                pair.append([g for g in r_gates if g.name == f"AC_TIME_{match.group(1)}_R"][0])
+                if pair[1]:
+                    grouped_gates.append(pair)
+        return grouped_gates
+
 
     def get_ab_start_gates(self, context) -> list[Object]:
         return [obj for obj in context.scene.objects if obj.name.startswith("AC_AB_START")]

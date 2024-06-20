@@ -1,5 +1,7 @@
-from bpy.types import Gizmo, GizmoGroup
-from mathutils import Matrix
+from bpy.types import Gizmo, GizmoGroup, Object
+from mathutils import Matrix, Vector
+
+from ...lib.settings import AC_Settings
 
 
 class AC_GizmoPitbox(Gizmo):
@@ -102,6 +104,58 @@ class AC_GizmoStartPos(Gizmo):
     def invoke(self, context, event):
         return {'FINISHED'}
 
+class AC_GizmoGate(Gizmo):
+    bl_idname = "AC_GizmoGate"
+    # this gizmo is used to show the start/finish line between two objects
+    # It should draw a line between the two objects
+    # the color should be green
+    # the alpha should be 0.5
+
+    pos_start: tuple[float, float, float]
+    pos_end: tuple[float, float, float]
+    def setup(self):
+        if not hasattr(self, "shape"):
+            self.shape = self.new_custom_shape('LINES',
+            [
+                # line from -1 to 1
+                (-1, 0, 0), (1, 0, 0),
+            ])
+            self.color = (0, 1, 0)
+            self.color_highlight = (0, 1, 0)
+            self.alpha = 0.5
+            self.alpha_highlight = 0.5
+            self.scale = 1, 1, 1
+            self.use_draw_scale = False
+            self.use_draw_modal = True
+            self.hide_select = True
+            self.hide_keymap = True
+
+    def update_shape(self):
+        up_vector = Vector((0, 0, 0.5))
+        down_vector = Vector((0, 0, -0.5))
+
+        self.shape = self.new_custom_shape('LINES',
+            #line from pos_start to pos_end
+            [
+                self.pos_start, self.pos_end,
+                # line 0.5m below and above the line
+                self.pos_start + down_vector, self.pos_end + down_vector,
+                self.pos_start + up_vector, self.pos_end + up_vector,
+            ])
+
+    def draw(self, context):
+        self.draw_custom_shape(self.shape)
+
+    def draw_select(self, context, select_id): # type: ignore
+        self.draw_custom_shape(self.shape, select_id=select_id)
+
+    def update(self, loc_start, loc_end):
+        self.pos_start = loc_start
+        self.pos_end = loc_end
+        self.update_shape()
+
+    def invoke(self, context, event):
+        return {'FINISHED'}
 
 class AC_GizmoGroup(GizmoGroup):
     bl_idname = "AC_GizmoGroup"
@@ -151,3 +205,24 @@ class AC_GizmoGroup(GizmoGroup):
             if not ob:
                 continue
             g.update(ob.location, ob.rotation_euler)
+
+        settings: AC_Settings = context.scene.AC_Settings # type: ignore
+        time_gates: list[list[Object]] = settings.get_time_gates(context, True) # type: ignore
+        for gate in time_gates:
+            if len(gate) != 2:
+                continue
+            g = self.gizmos.new("AC_GizmoGate")
+            g.color = (1, 1, 0.5)
+            g.update(gate[0].location, gate[1].location)
+
+        ab_start_gates = settings.get_ab_start_gates(context)
+        if len(ab_start_gates) % 2 == 0:
+            g = self.gizmos.new("AC_GizmoGate")
+            g.color = (1, 0.2, 0.2)
+            g.update(ab_start_gates[0].location, ab_start_gates[1].location)
+
+        ab_finish_gates = settings.get_ab_finish_gates(context)
+        if len(ab_finish_gates) % 2 == 0:
+            g = self.gizmos.new("AC_GizmoGate")
+            g.color = (0, 1, 0)
+            g.update(ab_finish_gates[0].location, ab_finish_gates[1].location)
