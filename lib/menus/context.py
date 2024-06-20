@@ -27,15 +27,13 @@ def start_menu(self, context):
     settings = context.scene.AC_Settings
     layout: UILayout = self.layout
     layout.separator()
-    if settings.track.run in ['A2B','B2A']:
-        if not settings.get_ab_start_gates(context):
-            layout.operator("ac.add_ab_start_gate")
-        if not settings.get_ab_finish_gates(context):
-            layout.operator("ac.add_ab_finish_gate")
-    else: # default should be standard circuit setup
-        layout.operator("ac.add_start")
-        layout.operator("ac.add_hotlap_start")
-        layout.operator('ac.add_time_gate')
+    if not settings.get_ab_start_gates(context):
+        layout.operator("ac.add_ab_start_gate")
+    if not settings.get_ab_finish_gates(context):
+        layout.operator("ac.add_ab_finish_gate")
+    layout.operator("ac.add_start")
+    layout.operator("ac.add_hotlap_start")
+    layout.operator('ac.add_time_gate')
 
 def pit_menu(self, context):
     layout: UILayout = self.layout

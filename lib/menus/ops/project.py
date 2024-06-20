@@ -1,8 +1,8 @@
 import math
 from os import path
 
-import bpy
-from bpy.types import Operator
+from bpy import ops
+from bpy.types import Context, Operator
 
 from ....utils.files import (get_data_directory, get_extension_directory, get_texture_directory,
                              get_ui_directory, load_ini, load_json, save_ini,
@@ -86,9 +86,10 @@ class AC_ExportTrack(Operator):
     bl_label = "Export Track"
     bl_options = {'REGISTER'}
     def execute(self, context):
+        ops.ac.save_settings()
         settings: AC_Settings = context.scene.AC_Settings # type: ignore
         target = settings.working_dir.rstrip(path.sep).split(path.sep)[-1]
-        bpy.ops.export_scene.fbx(
+        ops.export_scene.fbx(
             filepath=settings.working_dir + target + '.fbx',
             object_types={'EMPTY','MESH'},
             global_scale=1.0,
@@ -120,11 +121,11 @@ class AC_AddStart(Operator):
     bl_idname = "ac.add_start"
     bl_label = "Add Start"
     bl_options = {'REGISTER'}
-    def execute(self, context):
-        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
+    def execute(self, context: Context):
+        ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
-        start_pos = bpy.context.object
+        start_pos = context.object
         # get next start position
         start_pos.name = f"AC_START_{len(settings.get_starts(context))}"
         return {'FINISHED'}
@@ -134,11 +135,11 @@ class AC_AddHotlapStart(Operator):
     bl_idname = "ac.add_hotlap_start"
     bl_label = "Add Hotlap Start"
     bl_options = {'REGISTER'}
-    def execute(self, context):
-        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
+    def execute(self, context: Context):
+        ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
-        start_pos = bpy.context.object
+        start_pos = context.object
         start_pos.name = f"AC_HOTLAP_START_{len(settings.get_hotlap_starts(context))}"
         return {'FINISHED'}
 
@@ -147,11 +148,11 @@ class AC_AddPitbox(Operator):
     bl_idname = "ac.add_pitbox"
     bl_label = "Add Pitbox"
     bl_options = {'REGISTER'}
-    def execute(self, context):
-        bpy.ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
+    def execute(self, context: Context):
+        ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
-        pitbox = bpy.context.object
+        pitbox = context.object
         pitbox.name = f"AC_PIT_{len(settings.get_pitboxes(context))}"
         return {'FINISHED'}
 
@@ -160,15 +161,15 @@ class AC_AddTimeGate(Operator):
     bl_idname = "ac.add_time_gate"
     bl_label = "Add Time Gate"
     bl_options = {'REGISTER'}
-    def execute(self, context):
+    def execute(self, context: Context):
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         count = len(settings.get_time_gates(context)) // 2
-        bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
-        time_gate_L = bpy.context.object
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
+        time_gate_L = context.object
         time_gate_L.name = f"AC_TIME_{count}_L"
-        bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
-        time_gate_R = bpy.context.object
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
+        time_gate_R = context.object
         time_gate_R.name = f"AC_TIME_{count}_R"
         return {'FINISHED'}
 
@@ -177,12 +178,12 @@ class AC_AddABStartGate(Operator):
     bl_idname = "ac.add_ab_start_gate"
     bl_label = "Add AB Start Gate"
     bl_options = {'REGISTER'}
-    def execute(self, context):
-        bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
-        ab_start_L = bpy.context.object
+    def execute(self, context: Context):
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
+        ab_start_L = context.object
         ab_start_L.name = "AC_AB_START_L"
-        bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
-        ab_start_R = bpy.context.object
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
+        ab_start_R = context.object
         ab_start_R.name = "AC_AB_START_R"
         return {'FINISHED'}
 
@@ -191,12 +192,12 @@ class AC_AddABFinishGate(Operator):
     bl_idname = "ac.add_ab_finish_gate"
     bl_label = "Add AB Finish Gate"
     bl_options = {'REGISTER'}
-    def execute(self, context):
-        bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
-        ab_finish_L = bpy.context.object
+    def execute(self, context: Context):
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
+        ab_finish_L = context.object
         ab_finish_L.name = "AC_AB_FINISH_L"
-        bpy.ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
-        ab_finish_R = bpy.context.object
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
+        ab_finish_R = context.object
         ab_finish_R.name = "AC_AB_FINISH_R"
         return {'FINISHED'}
 
@@ -205,10 +206,10 @@ class AC_AddAudioEmitter(Operator):
     bl_idname = "ac.add_audio_emitter"
     bl_label = "Add Audio Emitter"
     bl_options = {'REGISTER'}
-    def execute(self, context):
+    def execute(self, context: Context):
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
-        bpy.ops.object.empty_add(type='SPHERE', scale=(2, 2, 2))
-        audio_emitter = bpy.context.object
+        ops.object.empty_add(type='SPHERE', scale=(2, 2, 2))
+        audio_emitter = context.object
         audio_emitter.name = f"AC_AUDIO_{len(settings.get_audio_emitters(context)) + 1}"
         return {'FINISHED'}
