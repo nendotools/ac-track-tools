@@ -1,5 +1,4 @@
 # type: ignore
-from re import sub
 from bpy.props import BoolProperty, FloatVectorProperty
 from bpy.types import AddonPreferences
 
