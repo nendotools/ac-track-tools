@@ -22,10 +22,6 @@ class AC_GizmoPitbox(Gizmo):
                 (1, -0.7, -1), (1, -0.7, 1), (1, -0.5, 1),
                 (1, -0.7, -1), (1, -0.5, 1), (1, -0.5, -1),
             ])
-            self.color = (0, 0, 1)
-            self.color_highlight = (0, 0, 1)
-            self.alpha = 0.3
-            self.alpha_highlight = 0.5
             self.scale = 4.3, 1.4, 2.3
             self.use_draw_scale = False
             self.use_draw_modal = True
@@ -78,10 +74,6 @@ class AC_GizmoStartPos(Gizmo):
                 (-0.7, -1, 0.5), (-1, -1, 0.5), (-1, -1, 0.7),
                 (-0.7, -1, 0.5), (-1, -1, 0.7), (-0.7, -1, 0.7),
             ])
-            self.color = (0, 1, 1)
-            self.color_highlight = (0, 1, 1)
-            self.alpha = 0.3
-            self.alpha_highlight = 0.5
             self.scale = 4.3, 1.4, 2.3
             self.use_draw_scale = False
             self.use_draw_modal = True
@@ -120,10 +112,6 @@ class AC_GizmoGate(Gizmo):
                 # line from -1 to 1
                 (-1, 0, 0), (1, 0, 0),
             ])
-            self.color = (0, 1, 0)
-            self.color_highlight = (0, 1, 0)
-            self.alpha = 0.5
-            self.alpha_highlight = 0.5
             self.scale = 1, 1, 1
             self.use_draw_scale = False
             self.use_draw_modal = True
@@ -169,6 +157,7 @@ class AC_GizmoGroup(GizmoGroup):
         return (context.scene.objects)
 
     def setup(self, context):
+        prefs = context.preferences.addons[__package__.split('.')[0]].preferences # type: ignore
         self.gizmos.clear()
         # add pitbox gizmo to all empty objects
         obs = context.scene.objects
@@ -180,22 +169,36 @@ class AC_GizmoGroup(GizmoGroup):
                     # set the gizmo location to the object location
                     gb.matrix_basis = ob.matrix_basis.normalized()
                     gb.ob_name = ob.name
+                    gb.hide = not prefs.show_pitboxes
+                    gb.color = prefs.pitbox_color[:3]
+                    gb.alpha = prefs.pitbox_color[3]
+                    gb.color_highlight = prefs.pitbox_color[:3]
+                    gb.alpha_highlight = prefs.pitbox_color[3]
                 if ob.name.startswith('AC_START_'):
                     # the box should be 4.3m x 1.4m x 2.3m
                     gb = self.gizmos.new("AC_GizmoStartPos")
                     # set the gizmo location to the object location
                     gb.matrix_basis = ob.matrix_basis.normalized()
                     gb.ob_name = ob.name
+                    gb.hide = not prefs.show_start
+                    gb.color = prefs.start_color[:3]
+                    gb.alpha = prefs.start_color[3]
+                    gb.color_highlight = prefs.start_color[:3]
+                    gb.alpha_highlight = prefs.start_color[3]
                 if ob.name.startswith('AC_HOTLAP_START_'):
                     # the box should be 4.3m x 1.4m x 2.3m
                     gb = self.gizmos.new("AC_GizmoStartPos")
-                    gb.color = (1, 0, 0)
-                    gb.color_highlight = (1, 0, 0)
+                    gb.hide = not prefs.show_hotlap_start
+                    gb.color = prefs.hotlap_start_color[:3]
+                    gb.alpha = prefs.hotlap_start_color[3]
+                    gb.color_highlight = prefs.hotlap_start_color[:3]
+                    gb.alpha_highlight = prefs.hotlap_start_color[3]
                     # set the gizmo location to the object location
                     gb.matrix_basis = ob.matrix_basis.normalized()
                     gb.ob_name = ob.name
 
     def refresh(self, context):
+        prefs = context.preferences.addons[__package__.split('.')[0]].preferences # type: ignore
         obs = [ ob for ob in context.scene.objects if ob.type == 'EMPTY' and (ob.name.startswith('AC_PIT_') or ob.name.startswith('AC_START_') or ob.name.startswith('AC_HOTLAP_START_')) ]
         if len(obs) != len(self.gizmos):
             self.setup(context)
@@ -203,7 +206,12 @@ class AC_GizmoGroup(GizmoGroup):
         for g in self.gizmos:
             ob = context.scene.objects.get(g.ob_name)
             if not ob:
+                g.hide = True
                 continue
+            if ob.name.startswith('AC_PIT_'):
+                g.hide = not prefs.show_pitboxes
+            if ob.name.startswith('AC_START_'):
+                g.hide = not prefs.show_start
             g.update(ob.location, ob.rotation_euler)
 
         settings: AC_Settings = context.scene.AC_Settings # type: ignore
@@ -212,17 +220,29 @@ class AC_GizmoGroup(GizmoGroup):
             if len(gate) != 2:
                 continue
             g = self.gizmos.new("AC_GizmoGate")
-            g.color = (1, 1, 0.5)
+            g.hide = not prefs.show_time_gates
+            g.color = prefs.time_gate_color[:3]
+            g.alpha = prefs.time_gate_color[3]
+            g.color_highlight = prefs.time_gate_color[:3]
+            g.alpha_highlight = prefs.time_gate_color[3]
             g.update(gate[0].location, gate[1].location)
 
         ab_start_gates = settings.get_ab_start_gates(context)
         if len(ab_start_gates) % 2 == 0:
             g = self.gizmos.new("AC_GizmoGate")
-            g.color = (1, 0.2, 0.2)
+            g.hide = not prefs.show_ab_start
+            g.color = prefs.ab_start_color[:3]
+            g.alpha = prefs.ab_start_color[3]
+            g.color_highlight = prefs.ab_start_color[:3]
+            g.alpha_highlight = prefs.ab_start_color[3]
             g.update(ab_start_gates[0].location, ab_start_gates[1].location)
 
         ab_finish_gates = settings.get_ab_finish_gates(context)
         if len(ab_finish_gates) % 2 == 0:
             g = self.gizmos.new("AC_GizmoGate")
-            g.color = (0, 1, 0)
+            g.hide = not prefs.show_ab_finish
+            g.color = prefs.ab_finish_color[:3]
+            g.alpha = prefs.ab_finish_color[3]
+            g.color_highlight = prefs.ab_finish_color[:3]
+            g.alpha_highlight = prefs.ab_finish_color[3]
             g.update(ab_finish_gates[0].location, ab_finish_gates[1].location)

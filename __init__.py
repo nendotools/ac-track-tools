@@ -18,6 +18,7 @@
 from bpy.utils import register_class, unregister_class
 
 from . import lib
+from .lib.preferences import AC_Preferences
 from .utils.properties import ExtensionCollection, KeyValuePair
 
 bl_info = {
@@ -37,6 +38,7 @@ bl_info = {
 
 
 def register():
+    register_class(AC_Preferences)
     register_class(KeyValuePair)
     register_class(ExtensionCollection)
     lib.register()
@@ -45,3 +47,4 @@ def unregister():
     lib.unregister()
     unregister_class(ExtensionCollection)
     unregister_class(KeyValuePair)
+    unregister_class(AC_Preferences)

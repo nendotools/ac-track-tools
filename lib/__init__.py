@@ -6,8 +6,7 @@ from .configs.lighting import (AC_DirectionList, AC_GlobalLighting, AC_Light,
                                AC_PositionList, AC_SunSettings)
 from .configs.surface import AC_Surface
 from .configs.track import AC_Track
-from .gizmos.pitbox import (AC_GizmoGate, AC_GizmoGroup, AC_GizmoPitbox,
-                            AC_GizmoStartPos)
+from .gizmos.pitbox import AC_GizmoGroup, AC_GizmoPitbox, AC_GizmoStartPos, AC_GizmoGate
 from .menus.context import (WM_MT_AssignSurface, pit_menu, start_menu,
                             surface_menu, utility_menu)
 from .menus.ops.audio import AC_AddAudioSource, AC_ToggleAudio
