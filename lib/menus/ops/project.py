@@ -88,17 +88,18 @@ class AC_ExportTrack(Operator):
     def execute(self, context):
         ops.ac.save_settings()
         settings: AC_Settings = context.scene.AC_Settings # type: ignore
+        exp_opts = settings.export_settings
         target = settings.working_dir.rstrip(path.sep).split(path.sep)[-1]
         ops.export_scene.fbx(
             filepath=settings.working_dir + target + '.fbx',
             object_types={'EMPTY','MESH'},
-            global_scale=1.0,
-            apply_unit_scale=True,
-            apply_scale_options='FBX_SCALE_UNITS',
-            use_space_transform=True,
-            use_mesh_modifiers=True,
-            axis_up='Y',
-            axis_forward='-Z',
+            global_scale=exp_opts.scale,
+            apply_unit_scale=exp_opts.scale_units,
+            apply_scale_options=exp_opts.scale_mode,
+            use_space_transform=exp_opts.apply_transform,
+            use_mesh_modifiers=exp_opts.apply_modifiers,
+            axis_up=exp_opts.axis_up,
+            axis_forward=exp_opts.axis_forward,
         )
         return {'FINISHED'}
 
