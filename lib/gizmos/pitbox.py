@@ -230,7 +230,7 @@ class AC_GizmoGroup(GizmoGroup):
             g.update(gate[0].location, gate[1].location)
 
         ab_start_gates = settings.get_ab_start_gates(context)
-        if len(ab_start_gates) % 2 == 0:
+        if len(ab_start_gates) % 2 == 0 and len(ab_start_gates) > 0:
             g = self.gizmos.new("AC_GizmoGate")
             g.hide = not ab_start_gates[0].visible_get() or not ab_start_gates[1].visible_get() or not prefs.show_ab_start
             g.color = prefs.ab_start_color[:3]
@@ -240,7 +240,7 @@ class AC_GizmoGroup(GizmoGroup):
             g.update(ab_start_gates[0].location, ab_start_gates[1].location)
 
         ab_finish_gates = settings.get_ab_finish_gates(context)
-        if len(ab_finish_gates) % 2 == 0:
+        if len(ab_finish_gates) % 2 == 0 and len(ab_finish_gates) > 0:
             g = self.gizmos.new("AC_GizmoGate")
             g.hide = not ab_finish_gates[0].visible_get() or not ab_finish_gates[1].visible_get() or not prefs.show_ab_finish
             g.color = prefs.ab_finish_color[:3]
