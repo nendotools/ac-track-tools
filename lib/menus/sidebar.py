@@ -88,15 +88,34 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
         if len(errors) == 0:
             box.label(text="Ready for Export!", icon='CHECKMARK')
             col.separator(factor=1.5)
-            col.operator("ac.export_track", text="Export Track")
+            row = col.row()
+            row.prop(settings, "show_export", icon_only=True, toggle=True, icon='TRIA_DOWN' if settings.show_export else 'TRIA_RIGHT')
+            row.operator("ac.export_track", text="Export Track")
         else:
             for error in errors:
                 icon = 'CANCEL' if error['severity'] == 2 else 'ERROR' if error['severity'] == 1 else 'OUTLINER_OB_LIGHT'
                 box.label(text=error['message'], icon=icon)
             col.separator(factor=1.5)
             row = col.row()
+            row.prop(settings, "show_export", icon_only=True, toggle=True, icon='TRIA_DOWN' if settings.show_export else 'TRIA_RIGHT')
+            row = row.row()
             row.enabled = False
             row.operator("ac.export_track", text="Export Track")
+        if settings.show_export:
+            col.separator(factor=1.5)
+            opts = settings.export_settings
+            box = col.box()
+            box.label(text="Export Options")
+            box.separator(factor=0.3)
+            box.use_property_split = True
+            box.use_property_decorate = False 
+            box.prop(opts, "up")
+            box.prop(opts, "forward")
+            box.prop(opts, "scale", slider=True, text="Scale", expand=True)
+            box.prop(opts, "unit_scale")
+            box.prop(opts, "space_transform")
+            box.prop(opts, "mesh_modifiers")
+            box.prop(opts, "scale_options")
 
 class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
     bl_label = "Track"

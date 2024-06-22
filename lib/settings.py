@@ -15,9 +15,12 @@ from .configs.track import AC_Track
 
 class ExportSettings(PropertyGroup):
     scale: FloatProperty(
-        name="Scale",
+        name="Global Scale",
         description="Scale to apply to exported track",
         default=1.0,
+        min=0.0,
+        soft_max=1.0,
+        max=5.0
     )
     forward: EnumProperty(
         name="Forward Vector",
@@ -97,6 +100,11 @@ class AC_Settings(PropertyGroup):
         default="",
         subtype='DIR_PATH',
         update=lambda s, _: s.update_directory(s.working_dir),
+    )
+
+    show_export: BoolProperty(
+        name="Show Export Settings",
+        default=False,
     )
     export_settings: PointerProperty(
         type=ExportSettings,
