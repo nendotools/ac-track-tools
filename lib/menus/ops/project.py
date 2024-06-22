@@ -94,12 +94,12 @@ class AC_ExportTrack(Operator):
             filepath=settings.working_dir + target + '.fbx',
             object_types={'EMPTY','MESH'},
             global_scale=exp_opts.scale,
-            apply_unit_scale=exp_opts.scale_units,
-            apply_scale_options=exp_opts.scale_mode,
-            use_space_transform=exp_opts.apply_transform,
-            use_mesh_modifiers=exp_opts.apply_modifiers,
-            axis_up=exp_opts.axis_up,
-            axis_forward=exp_opts.axis_forward,
+            apply_unit_scale=exp_opts.unit_scale,
+            apply_scale_options=exp_opts.scale_options,
+            use_space_transform=exp_opts.space_transform,
+            use_mesh_modifiers=exp_opts.mesh_modifiers,
+            axis_up=exp_opts.up,
+            axis_forward=exp_opts.forward,
         )
         return {'FINISHED'}
 
