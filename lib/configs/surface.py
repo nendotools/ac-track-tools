@@ -23,7 +23,7 @@ class AC_Surface(PropertyGroup):
         description="dry surface grip (slip <--------> grip)",
         default=0.96,
         min=0,
-        max=1,
+        soft_max=1,
         precision=3
     )
     damping: FloatProperty(
@@ -31,7 +31,7 @@ class AC_Surface(PropertyGroup):
         description="speed reduction on the surface (road <-------> sand)",
         default=0,
         min=0,
-        max=1,
+        soft_max=1,
         precision=3
     )
     wav: StringProperty(
@@ -44,7 +44,7 @@ class AC_Surface(PropertyGroup):
         description="Pitch shift of the wav file",
         default=0,
         min=0.0,
-        max=2.0,
+        soft_max=2.0,
     )
     ff_effect: StringProperty(
         name="FF Effect",
@@ -61,7 +61,7 @@ class AC_Surface(PropertyGroup):
         description="Amount of dirt added from the surface",
         default=0,
         min=0,
-        max=1,
+        soft_max=1,
         precision=3
     )
     is_pit_lane: BoolProperty(
@@ -79,7 +79,7 @@ class AC_Surface(PropertyGroup):
         description="Seconds on surface before black flag is issued",
         default=0,
         min=0,
-        max=60,
+        soft_max=60,
         step=5
     )
     sin_height: FloatProperty(
@@ -87,7 +87,7 @@ class AC_Surface(PropertyGroup):
         description="Height of the sin wave",
         default=0,
         min=0,
-        max=3,
+        soft_max=3,
         precision=3
     )
     sin_length: FloatProperty(
@@ -95,7 +95,7 @@ class AC_Surface(PropertyGroup):
         description="Length of the sin wave",
         default=0,
         min=0,
-        max=3,
+        soft_max=3,
         precision=3
     )
     vibration_gain: FloatProperty(
@@ -103,7 +103,7 @@ class AC_Surface(PropertyGroup):
         description="Gain of the vibration",
         default=0,
         min=0,
-        max=3,
+        soft_max=3,
         precision=3
     )
     vibration_length: FloatProperty(
@@ -111,7 +111,7 @@ class AC_Surface(PropertyGroup):
         description="Length of the vibration",
         default=0,
         min=0,
-        max=3,
+        soft_max=3,
         precision=3
     )
 
