@@ -1,7 +1,8 @@
 import re
 
 import bpy
-from bpy.props import CollectionProperty, PointerProperty, StringProperty
+from bpy.props import (BoolProperty, CollectionProperty, EnumProperty,
+                       FloatProperty, PointerProperty, StringProperty)
 from bpy.types import Object, PropertyGroup
 
 from ..utils.files import find_maps, get_active_directory, set_path_reference
@@ -12,6 +13,83 @@ from .configs.surface import AC_Surface
 from .configs.track import AC_Track
 
 
+class ExportSettings(PropertyGroup):
+    scale: FloatProperty(
+        name="Scale",
+        description="Scale to apply to exported track",
+        default=1.0,
+    )
+    forward: EnumProperty(
+        name="Forward Vector",
+        description="Forward vector for exported track",
+        items=(('X', "X Axis", ""),
+            ('Y', "Y Axis", ""),
+            ('Z', "Z Axis", ""),
+            ('-X', "-X Axis", ""),
+            ('-Y', "-Y Axis", ""),
+            ('-Z', "-Z Axis", ""),
+        ),
+        default="-Z",
+    )
+    up: EnumProperty(
+        name="Up Vector",
+        description="Up vector for exported track",
+        items=(('X', "X Axis", ""),
+            ('Y', "Y Axis", ""),
+            ('Z', "Z Axis", ""),
+            ('-X', "-X Axis", ""),
+            ('-Y', "-Y Axis", ""),
+            ('-Z', "-Z Axis", ""),
+        ),
+        default="Y",
+    )
+    unit_scale: BoolProperty(
+        name="Apply Unit Scale",
+        description="Apply the scene's unit scale to the exported track",
+        default=True,
+    )
+    space_transform: BoolProperty(
+        name="Use Space Transform",
+        description="Apply the scene's space transform to the exported track",
+        default=True,
+    )
+    mesh_modifiers: BoolProperty(
+        name="Use Mesh Modifiers",
+        description="Apply mesh modifiers to the exported track",
+        default=True,
+    )
+    scale_options: EnumProperty(
+        name="Apply Scalings",
+        description="How to apply custom and units scalings in generated FBX file "
+                    "(Blender uses FBX scale to detect units on import, "
+                    "but many other applications do not handle the same way)",
+        default='FBX_SCALE_UNITS',
+        items=(('FBX_SCALE_NONE', "All Local",
+                "Apply custom scaling and units scaling to each object transformation, FBX scale remains at 1.0"),
+                ('FBX_SCALE_UNITS', "FBX Units Scale",
+                "Apply custom scaling to each object transformation, and units scaling to FBX scale"),
+                ('FBX_SCALE_CUSTOM', "FBX Custom Scale",
+                "Apply custom scaling to FBX scale, and units scaling to each object transformation"),
+                ('FBX_SCALE_ALL', "FBX All",
+                "Apply custom scaling and units scaling to FBX scale"),
+                ),
+    )
+    batch_mode: EnumProperty(
+        name="Batch Mode",
+        default='OFF',
+        items=(('OFF', "Off", "Active scene to file"),
+                ('SCENE', "Scene", "Each scene as a file"),
+                ('COLLECTION', "Collection",
+                "Each collection (data-block ones) as a file, does not include content of children collections"),
+                ('SCENE_COLLECTION', "Scene Collections",
+                "Each collection (including master, non-data-block ones) of each scene as a file, "
+                "including content from children collections"),
+                ('ACTIVE_SCENE_COLLECTION', "Active Scene Collections",
+                "Each collection (including master, non-data-block one) of the active scene as a file, "
+                "including content from children collections"),
+                ),
+        )
+
 class AC_Settings(PropertyGroup):
     working_dir: StringProperty(
         name="Working Directory",
@@ -19,6 +97,10 @@ class AC_Settings(PropertyGroup):
         default="",
         subtype='DIR_PATH',
         update=lambda s, _: s.update_directory(s.working_dir),
+    )
+    export_settings: PointerProperty(
+        type=ExportSettings,
+        name="Export Settings",
     )
     track: PointerProperty(
         type=AC_Track,

@@ -169,7 +169,7 @@ class AC_GizmoGroup(GizmoGroup):
                     # set the gizmo location to the object location
                     gb.matrix_basis = ob.matrix_basis.normalized()
                     gb.ob_name = ob.name
-                    gb.hide = not prefs.show_pitboxes
+                    gb.hide = not ob.visible_get() or not prefs.show_pitboxes
                     gb.color = prefs.pitbox_color[:3]
                     gb.alpha = prefs.pitbox_color[3]
                     gb.color_highlight = prefs.pitbox_color[:3]
@@ -180,7 +180,7 @@ class AC_GizmoGroup(GizmoGroup):
                     # set the gizmo location to the object location
                     gb.matrix_basis = ob.matrix_basis.normalized()
                     gb.ob_name = ob.name
-                    gb.hide = not prefs.show_start
+                    gb.hide = not ob.visible_get() or not prefs.show_start
                     gb.color = prefs.start_color[:3]
                     gb.alpha = prefs.start_color[3]
                     gb.color_highlight = prefs.start_color[:3]
@@ -188,7 +188,7 @@ class AC_GizmoGroup(GizmoGroup):
                 if ob.name.startswith('AC_HOTLAP_START_'):
                     # the box should be 4.3m x 1.4m x 2.3m
                     gb = self.gizmos.new("AC_GizmoStartPos")
-                    gb.hide = not prefs.show_hotlap_start
+                    gb.hide = not ob.visible_get() or not prefs.show_hotlap_start
                     gb.color = prefs.hotlap_start_color[:3]
                     gb.alpha = prefs.hotlap_start_color[3]
                     gb.color_highlight = prefs.hotlap_start_color[:3]
@@ -209,9 +209,11 @@ class AC_GizmoGroup(GizmoGroup):
                 g.hide = True
                 continue
             if ob.name.startswith('AC_PIT_'):
-                g.hide = not prefs.show_pitboxes
+                g.hide = not ob.visible_get() or not prefs.show_pitboxes
             if ob.name.startswith('AC_START_'):
-                g.hide = not prefs.show_start
+                g.hide = not ob.visible_get() or not prefs.show_start
+            if ob.name.startswith('AC_HOTLAP_START_'):
+                g.hide = not ob.visible_get() or not prefs.show_hotlap_start
             g.update(ob.location, ob.rotation_euler)
 
         settings: AC_Settings = context.scene.AC_Settings # type: ignore
@@ -220,7 +222,7 @@ class AC_GizmoGroup(GizmoGroup):
             if len(gate) != 2:
                 continue
             g = self.gizmos.new("AC_GizmoGate")
-            g.hide = not prefs.show_time_gates
+            g.hide = not gate[0].visible_get() or not gate[1].visible_get() or not prefs.show_time_gates
             g.color = prefs.time_gate_color[:3]
             g.alpha = prefs.time_gate_color[3]
             g.color_highlight = prefs.time_gate_color[:3]
@@ -230,7 +232,7 @@ class AC_GizmoGroup(GizmoGroup):
         ab_start_gates = settings.get_ab_start_gates(context)
         if len(ab_start_gates) % 2 == 0:
             g = self.gizmos.new("AC_GizmoGate")
-            g.hide = not prefs.show_ab_start
+            g.hide = not ab_start_gates[0].visible_get() or not ab_start_gates[1].visible_get() or not prefs.show_ab_start
             g.color = prefs.ab_start_color[:3]
             g.alpha = prefs.ab_start_color[3]
             g.color_highlight = prefs.ab_start_color[:3]
@@ -240,7 +242,7 @@ class AC_GizmoGroup(GizmoGroup):
         ab_finish_gates = settings.get_ab_finish_gates(context)
         if len(ab_finish_gates) % 2 == 0:
             g = self.gizmos.new("AC_GizmoGate")
-            g.hide = not prefs.show_ab_finish
+            g.hide = not ab_finish_gates[0].visible_get() or not ab_finish_gates[1].visible_get() or not prefs.show_ab_finish
             g.color = prefs.ab_finish_color[:3]
             g.alpha = prefs.ab_finish_color[3]
             g.color_highlight = prefs.ab_finish_color[:3]

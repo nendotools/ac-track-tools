@@ -36,7 +36,7 @@ from .menus.sidebar import (AC_UL_Extenstions, AC_UL_SurfaceExtenstions,
                             VIEW3D_PT_AC_Sidebar_Project,
                             VIEW3D_PT_AC_Sidebar_Surfaces,
                             VIEW3D_PT_AC_Sidebar_Track)
-from .settings import AC_Settings
+from .settings import AC_Settings, ExportSettings
 
 __classes__ = (
     AC_InitSurfaces, AC_AddSurface, AC_RemoveSurface, AC_ToggleSurface, AC_AssignSurface, AC_SelectAllSurfaces, AC_AssignWall, AC_AssignPhysProp,
@@ -52,7 +52,7 @@ __classes__ = (
     AC_Track, AC_Surface, AC_AudioSource,
     AC_MeshList, AC_MaterialList, AC_PositionList, AC_DirectionList,
     AC_SunSettings, AC_GlobalLighting, AC_Light, AC_Lighting,
-    AC_Settings,
+    ExportSettings, AC_Settings,
     AC_UL_Tags, AC_UL_Extenstions, AC_UL_SurfaceExtenstions,
     VIEW3D_PT_AC_Sidebar_Project, VIEW3D_PT_AC_Sidebar_Track, VIEW3D_PT_AC_Sidebar_Surfaces, VIEW3D_PT_AC_Sidebar_Audio, VIEW3D_PT_AC_Sidebar_Lighting, VIEW3D_PT_AC_Sidebar_Extensions,
     WM_MT_AssignSurface,
