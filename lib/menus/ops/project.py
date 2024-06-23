@@ -123,10 +123,11 @@ class AC_AddStart(Operator):
     bl_label = "Add Start"
     bl_options = {'REGISTER'}
     def execute(self, context: Context):
-        ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
+        ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0), align='CURSOR')
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         start_pos = context.object
+        if not start_pos: return {'CANCELLED'}
         # get next start position
         start_pos.name = f"AC_START_{len(settings.get_starts(context))}"
         return {'FINISHED'}
@@ -137,10 +138,11 @@ class AC_AddHotlapStart(Operator):
     bl_label = "Add Hotlap Start"
     bl_options = {'REGISTER'}
     def execute(self, context: Context):
-        ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
+        ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0), align='CURSOR')
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         start_pos = context.object
+        if not start_pos: return {'CANCELLED'}
         start_pos.name = f"AC_HOTLAP_START_{len(settings.get_hotlap_starts(context))}"
         return {'FINISHED'}
 
@@ -150,10 +152,11 @@ class AC_AddPitbox(Operator):
     bl_label = "Add Pitbox"
     bl_options = {'REGISTER'}
     def execute(self, context: Context):
-        ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0))
+        ops.object.empty_add(type='SINGLE_ARROW', scale=(2, 2, 2), rotation=(math.pi * -0.5, math.pi, 0), align='CURSOR')
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         pitbox = context.object
+        if not pitbox: return {'CANCELLED'}
         pitbox.name = f"AC_PIT_{len(settings.get_pitboxes(context))}"
         return {'FINISHED'}
 
@@ -166,11 +169,18 @@ class AC_AddTimeGate(Operator):
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         count = len(settings.get_time_gates(context)) // 2
-        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0), align='CURSOR')
         time_gate_L = context.object
+        if not time_gate_L: return {'CANCELLED'}
         time_gate_L.name = f"AC_TIME_{count}_L"
-        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0), align='CURSOR')
         time_gate_R = context.object
+        if not time_gate_R:
+            # delete the left gate if the right one fails
+            ops.object.select_all(action='DESELECT')
+            time_gate_L.select_set(True)
+            ops.object.delete()
+            return {'CANCELLED'}
         time_gate_R.name = f"AC_TIME_{count}_R"
         return {'FINISHED'}
 
@@ -180,11 +190,18 @@ class AC_AddABStartGate(Operator):
     bl_label = "Add AB Start Gate"
     bl_options = {'REGISTER'}
     def execute(self, context: Context):
-        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0), align='CURSOR')
         ab_start_L = context.object
+        if not ab_start_L: return {'CANCELLED'}
         ab_start_L.name = "AC_AB_START_L"
-        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0), align='CURSOR')
         ab_start_R = context.object
+        if not ab_start_R:
+            # delete the left gate if the right one fails
+            ops.object.select_all(action='DESELECT')
+            ab_start_L.select_set(True)
+            ops.object.delete()
+            return {'CANCELLED'}
         ab_start_R.name = "AC_AB_START_R"
         return {'FINISHED'}
 
@@ -194,11 +211,18 @@ class AC_AddABFinishGate(Operator):
     bl_label = "Add AB Finish Gate"
     bl_options = {'REGISTER'}
     def execute(self, context: Context):
-        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0))
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0), align='CURSOR')
         ab_finish_L = context.object
+        if not ab_finish_L: return {'CANCELLED'}
         ab_finish_L.name = "AC_AB_FINISH_L"
-        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0))
+        ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0), align='CURSOR')
         ab_finish_R = context.object
+        if not ab_finish_R:
+            # delete the left gate if the right one fails
+            ops.object.select_all(action='DESELECT')
+            ab_finish_L.select_set(True)
+            ops.object.delete()
+            return {'CANCELLED'}
         ab_finish_R.name = "AC_AB_FINISH_R"
         return {'FINISHED'}
 
@@ -210,7 +234,8 @@ class AC_AddAudioEmitter(Operator):
     def execute(self, context: Context):
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
-        ops.object.empty_add(type='SPHERE', scale=(2, 2, 2))
+        ops.object.empty_add(type='SPHERE', scale=(2, 2, 2), rotation=(0, 0, 0), align='CURSOR')
         audio_emitter = context.object
+        if not audio_emitter: return {'CANCELLED'}
         audio_emitter.name = f"AC_AUDIO_{len(settings.get_audio_emitters(context)) + 1}"
         return {'FINISHED'}

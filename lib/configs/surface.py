@@ -52,7 +52,7 @@ class AC_Surface(PropertyGroup):
         default="",
         update=lambda s, c: s.update_ff_effect(c)
     )
-    def update_ff_effect(self, context):
+    def update_ff_effect(self, _):
         if self.ff_effect == 'NULL':
             self.ff_effect = ''
 
