@@ -90,7 +90,7 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
             col.separator(factor=1.5)
             row = col.row()
             row.prop(settings, "show_export", icon_only=True, toggle=True, icon='TRIA_DOWN' if settings.show_export else 'TRIA_RIGHT')
-            row.operator("ac.export_track", text="Export Track")
+            row.operator("ac.export_track", text="Export Track to FBX")
         else:
             for error in errors:
                 icon = 'CANCEL' if error['severity'] == 2 else 'ERROR' if error['severity'] == 1 else 'OUTLINER_OB_LIGHT'
@@ -100,7 +100,7 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
             row.prop(settings, "show_export", icon_only=True, toggle=True, icon='TRIA_DOWN' if settings.show_export else 'TRIA_RIGHT')
             row = row.row()
             row.enabled = False
-            row.operator("ac.export_track", text="Export Track")
+            row.operator("ac.export_track", text="Export Track to FBX")
         if settings.show_export:
             col.separator(factor=1.5)
             opts = settings.export_settings
