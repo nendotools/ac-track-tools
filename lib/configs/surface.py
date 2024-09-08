@@ -148,8 +148,8 @@ class AC_Surface(PropertyGroup):
         self.wav_pitch = float(data["WAV_PITCH"]) if "WAV_PITCH" in data else 1
         self.ff_effect = f'{data["FF_EFFECT"]}' if "FF_EFFECT" in data else ""
         self.dirt_additive = float(data["DIRT_ADDITIVE"]) if "DIRT_ADDITIVE" in data else 0
-        self.is_pit_lane = bool(data["IS_PITLANE"]) if "IS_PITLANE" in data else False
-        self.is_valid_track = bool(data["IS_VALID_TRACK"]) if "IS_VALID_TRACK" in data else True
+        self.is_pit_lane = bool(int(data["IS_PITLANE"])) if "IS_PITLANE" in data else False
+        self.is_valid_track = bool(int(data["IS_VALID_TRACK"])) if "IS_VALID_TRACK" in data else True
         self.black_flag_time = int(data["BLACK_FLAG_TIME"]) if "BLACK_FLAG_TIME" in data else 0
         self.sin_height = float(data["SIN_HEIGHT"]) if "SIN_HEIGHT" in data else 0
         self.sin_length = float(data["SIN_LENGTH"]) if "SIN_LENGTH" in data else 0
