@@ -1,8 +1,15 @@
+import os
 import re
 
 import bpy
-from bpy.props import (BoolProperty, CollectionProperty, EnumProperty,
-                       FloatProperty, PointerProperty, StringProperty)
+from bpy.props import (
+    BoolProperty,
+    CollectionProperty,
+    EnumProperty,
+    FloatProperty,
+    PointerProperty,
+    StringProperty,
+)
 from bpy.types import Object, PropertyGroup
 
 from ..utils.files import find_maps, get_active_directory, set_path_reference
@@ -20,29 +27,31 @@ class ExportSettings(PropertyGroup):
         default=1.0,
         min=0.0,
         soft_max=1.0,
-        max=5.0
+        max=5.0,
     )
     forward: EnumProperty(
         name="Forward Vector",
         description="Forward vector for exported track",
-        items=(('X', "X Axis", ""),
-            ('Y', "Y Axis", ""),
-            ('Z', "Z Axis", ""),
-            ('-X', "-X Axis", ""),
-            ('-Y', "-Y Axis", ""),
-            ('-Z', "-Z Axis", ""),
+        items=(
+            ("X", "X Axis", ""),
+            ("Y", "Y Axis", ""),
+            ("Z", "Z Axis", ""),
+            ("-X", "-X Axis", ""),
+            ("-Y", "-Y Axis", ""),
+            ("-Z", "-Z Axis", ""),
         ),
         default="-Z",
     )
     up: EnumProperty(
         name="Up Vector",
         description="Up vector for exported track",
-        items=(('X', "X Axis", ""),
-            ('Y', "Y Axis", ""),
-            ('Z', "Z Axis", ""),
-            ('-X', "-X Axis", ""),
-            ('-Y', "-Y Axis", ""),
-            ('-Z', "-Z Axis", ""),
+        items=(
+            ("X", "X Axis", ""),
+            ("Y", "Y Axis", ""),
+            ("Z", "Z Axis", ""),
+            ("-X", "-X Axis", ""),
+            ("-Y", "-Y Axis", ""),
+            ("-Z", "-Z Axis", ""),
         ),
         default="Y",
     )
@@ -64,41 +73,65 @@ class ExportSettings(PropertyGroup):
     scale_options: EnumProperty(
         name="Apply Scalings",
         description="How to apply custom and units scalings in generated FBX file "
-                    "(Blender uses FBX scale to detect units on import, "
-                    "but many other applications do not handle the same way)",
-        default='FBX_SCALE_UNITS',
-        items=(('FBX_SCALE_NONE', "All Local",
-                "Apply custom scaling and units scaling to each object transformation, FBX scale remains at 1.0"),
-                ('FBX_SCALE_UNITS', "FBX Units Scale",
-                "Apply custom scaling to each object transformation, and units scaling to FBX scale"),
-                ('FBX_SCALE_CUSTOM', "FBX Custom Scale",
-                "Apply custom scaling to FBX scale, and units scaling to each object transformation"),
-                ('FBX_SCALE_ALL', "FBX All",
-                "Apply custom scaling and units scaling to FBX scale"),
-                ),
+        "(Blender uses FBX scale to detect units on import, "
+        "but many other applications do not handle the same way)",
+        default="FBX_SCALE_UNITS",
+        items=(
+            (
+                "FBX_SCALE_NONE",
+                "All Local",
+                "Apply custom scaling and units scaling to each object transformation, FBX scale remains at 1.0",
+            ),
+            (
+                "FBX_SCALE_UNITS",
+                "FBX Units Scale",
+                "Apply custom scaling to each object transformation, and units scaling to FBX scale",
+            ),
+            (
+                "FBX_SCALE_CUSTOM",
+                "FBX Custom Scale",
+                "Apply custom scaling to FBX scale, and units scaling to each object transformation",
+            ),
+            (
+                "FBX_SCALE_ALL",
+                "FBX All",
+                "Apply custom scaling and units scaling to FBX scale",
+            ),
+        ),
     )
     batch_mode: EnumProperty(
         name="Batch Mode",
-        default='OFF',
-        items=(('OFF', "Off", "Active scene to file"),
-                ('SCENE', "Scene", "Each scene as a file"),
-                ('COLLECTION', "Collection",
-                "Each collection (data-block ones) as a file, does not include content of children collections"),
-                ('SCENE_COLLECTION', "Scene Collections",
+        default="OFF",
+        items=(
+            ("OFF", "Off", "Active scene to file"),
+            ("SCENE", "Scene", "Each scene as a file"),
+            (
+                "COLLECTION",
+                "Collection",
+                "Each collection (data-block ones) as a file, does not include content of children collections",
+            ),
+            (
+                "SCENE_COLLECTION",
+                "Scene Collections",
                 "Each collection (including master, non-data-block ones) of each scene as a file, "
-                "including content from children collections"),
-                ('ACTIVE_SCENE_COLLECTION', "Active Scene Collections",
+                "including content from children collections",
+            ),
+            (
+                "ACTIVE_SCENE_COLLECTION",
+                "Active Scene Collections",
                 "Each collection (including master, non-data-block one) of the active scene as a file, "
-                "including content from children collections"),
-                ),
-        )
+                "including content from children collections",
+            ),
+        ),
+    )
+
 
 class AC_Settings(PropertyGroup):
     working_dir: StringProperty(
         name="Working Directory",
         description="Directory to save and load files",
         default="",
-        subtype='DIR_PATH',
+        subtype="DIR_PATH",
         update=lambda s, _: s.update_directory(s.working_dir),
     )
 
@@ -126,7 +159,7 @@ class AC_Settings(PropertyGroup):
     global_extensions: CollectionProperty(
         type=ExtensionCollection,
         name="Global Extensions",
-        description="Unsupported extension to save/load"
+        description="Unsupported extension to save/load",
     )
     audio_sources: CollectionProperty(
         type=AC_AudioSource,
@@ -140,12 +173,7 @@ class AC_Settings(PropertyGroup):
     surface_errors: dict = {}
     active_surfaces: list[str] = []
     default_surfaces: dict = {
-        "SURFACE_ROAD": {
-            "KEY": "ROAD",
-            "NAME": "Road",
-            "FRICTION": 1,
-            "CUSTOM": False
-        },
+        "SURFACE_ROAD": {"KEY": "ROAD", "NAME": "Road", "FRICTION": 1, "CUSTOM": False},
         "SURFACE_KERB": {
             "KEY": "KERB",
             "NAME": "Kerb",
@@ -155,7 +183,7 @@ class AC_Settings(PropertyGroup):
             "FF_EFFECT": 1,
             "VIBRATION_GAIN": 1.0,
             "VIBRATION_LENGTH": 1.5,
-            "CUSTOM": False
+            "CUSTOM": False,
         },
         "SURFACE_GRASS": {
             "KEY": "GRASS",
@@ -169,7 +197,7 @@ class AC_Settings(PropertyGroup):
             "SIN_LENGTH": 0.5,
             "VIBRATION_GAIN": 0.2,
             "VIBRATION_LENGTH": 0.6,
-            "CUSTOM": False
+            "CUSTOM": False,
         },
         "SURFACE_SAND": {
             "KEY": "SAND",
@@ -185,24 +213,26 @@ class AC_Settings(PropertyGroup):
             "SIN_LENGTH": 0.5,
             "VIBRATION_GAIN": 0.2,
             "VIBRATION_LENGTH": 0.3,
-            "CUSTOM": False
+            "CUSTOM": False,
         },
     }
 
     def reset_errors(self):
         self.error.clear()
 
-    def get_surface_groups(self, context, key: str | None = None, ex_key: str | None = None) -> list[Object] | dict[str, Object]:
+    def get_surface_groups(
+        self, context, key: str | None = None, ex_key: str | None = None
+    ) -> list[Object] | dict[str, Object]:
         # dict of lists surface keys
         groups = {}
         for surface in self.surfaces:
             if surface.key not in groups:
                 groups[surface.key] = []
-        groups['WALL'] = []
+        groups["WALL"] = []
 
         # if key is provided, only return objects from the scene matching the key
         for surfaceKey in groups:
-            objects = [obj for obj in context.scene.objects if obj.type == 'MESH']
+            objects = [obj for obj in context.scene.objects if obj.type == "MESH"]
             for obj in objects:
                 match = re.match(rf"^\d*{surfaceKey}.*$", obj.name)
                 if match:
@@ -216,10 +246,10 @@ class AC_Settings(PropertyGroup):
         return groups
 
     def get_walls(self, context) -> list[Object]:
-        return self.get_surface_groups(context, "WALL") # type: ignore
+        return self.get_surface_groups(context, "WALL")  # type: ignore
 
     def get_nonwalls(self, context) -> list[Object]:
-        return self.get_surface_groups(context, ex_key="WALL") # type: ignore
+        return self.get_surface_groups(context, ex_key="WALL")  # type: ignore
 
     def check_copy_names(self, context) -> bool:
         # detect any AC objects with names ending in .001, .002, etc.
@@ -233,60 +263,70 @@ class AC_Settings(PropertyGroup):
     # severity: 0 = info, 1 = warning (fixable), 2 = error (unfixable)
     def run_preflight(self, context) -> list:
         self.error.clear()
-        if not context.preferences.addons['io_scene_fbx']:
-            self.error.append({
-                "severity": 2,
-                "message": "FBX Exporter not enabled",
-                "code": "NO_FBX"
-            })
+        if not context.preferences.addons["io_scene_fbx"]:
+            self.error.append(
+                {"severity": 2, "message": "FBX Exporter not enabled", "code": "NO_FBX"}
+            )
         if len(self.get_pitboxes(context)) != len(self.get_starts(context)):
-            self.error.append({
-                "severity": 2,
-                "message": "Pitbox <-> Race Start mismatch",
-                "code": "PITBOX_START_MISMATCH"
-            })
+            self.error.append(
+                {
+                    "severity": 2,
+                    "message": "Pitbox <-> Race Start mismatch",
+                    "code": "PITBOX_START_MISMATCH",
+                }
+            )
         if len(self.get_pitboxes(context)) != self.track.pitboxes:
-            self.error.append({
-                "severity": 1,
-                "message": "Pitbox count mismatch",
-                "code": "PITBOX_COUNT_MISMATCH"
-            })
+            self.error.append(
+                {
+                    "severity": 1,
+                    "message": "Pitbox count mismatch",
+                    "code": "PITBOX_COUNT_MISMATCH",
+                }
+            )
         if not self.get_nonwalls(context):
-            self.error.append({
-            "severity": 2,
-            "message": "No track surfaces assigned",
-            "code": "NO_SURFACES"
-            })
+            self.error.append(
+                {
+                    "severity": 2,
+                    "message": "No track surfaces assigned",
+                    "code": "NO_SURFACES",
+                }
+            )
         if not self.get_walls(context):
-            self.error.append({
-                "severity": 0,
-                "message": "No walls assigned",
-                "code": "NO_WALLS"
-            })
+            self.error.append(
+                {"severity": 0, "message": "No walls assigned", "code": "NO_WALLS"}
+            )
         if self.check_copy_names(context):
-            self.error.append({
-                "severity": 1,
-                "message": "Track object index errors detected",
-                "code": "DUPLICATE_NAMES"
-            })
-        if context.scene.unit_settings.system != 'METRIC':
-            self.error.append({
-            "severity": 1,
-            "message": "Scene units are not set to Metric",
-            "code": "IMPERIAL_UNITS"
-            })
-        if context.scene.unit_settings.length_unit != 'METERS':
-            self.error.append({
-            "severity": 1,
-            "message": "Scene units are not set to Meters",
-            "code": "INVALID_UNITS"
-            })
+            self.error.append(
+                {
+                    "severity": 1,
+                    "message": "Track object index errors detected",
+                    "code": "DUPLICATE_NAMES",
+                }
+            )
+        if context.scene.unit_settings.system != "METRIC":
+            self.error.append(
+                {
+                    "severity": 1,
+                    "message": "Scene units are not set to Metric",
+                    "code": "IMPERIAL_UNITS",
+                }
+            )
+        if context.scene.unit_settings.length_unit != "METERS":
+            self.error.append(
+                {
+                    "severity": 1,
+                    "message": "Scene units are not set to Meters",
+                    "code": "INVALID_UNITS",
+                }
+            )
         if context.scene.unit_settings.scale_length != 1:
-            self.error.append({
-            "severity": 1,
-            "message": "Scene scale is not set to 1",
-            "code": "INVALID_UNIT_SCALE"
-            })
+            self.error.append(
+                {
+                    "severity": 1,
+                    "message": "Scene scale is not set to 1",
+                    "code": "INVALID_UNIT_SCALE",
+                }
+            )
         # - fbx export settings wrong
         # - objects are not assigned materials
         # - check for missing material textures not in texture folder
@@ -296,31 +336,40 @@ class AC_Settings(PropertyGroup):
         if self.working_dir != get_active_directory():
             set_path_reference(self.working_dir)
         map_files = find_maps()
-        if not map_files['map']:
-            self.error.append({
-            "severity": 2,
-            "message": 'No map file found "./map.png"',
-            "code": "NO_MAP"
-            })
-        if not map_files['outline']:
-            self.error.append({
-            "severity": 2,
-            "message": 'No outline file found "./ui/outline.png"',
-            "code": "NO_OUTLINE"
-            })
-        if not map_files['preview']:
-            self.error.append({
-            "severity": 2,
-            "message": 'No preview file found "./ui/preview.png"',
-            "code": "NO_PREVIEW"
-            })
-        
-        return self.error
+        if not map_files["map"]:
+            self.error.append(
+                {
+                    "severity": 2,
+                    "message": 'No map file found "./map.png"',
+                    "code": "NO_MAP",
+                }
+            )
+        if not map_files["outline"]:
+            self.error.append(
+                {
+                    "severity": 2,
+                    "message": 'No outline file found "./ui/outline.png"',
+                    "code": "NO_OUTLINE",
+                }
+            )
+        if not map_files["preview"]:
+            self.error.append(
+                {
+                    "severity": 2,
+                    "message": 'No preview file found "./ui/preview.png"',
+                    "code": "NO_PREVIEW",
+                }
+            )
 
+        return self.error
 
     def update_directory(self, path: str):
         if path == "":
             return
+        if path == "//":
+            self.working_dir = bpy.path.abspath(path)
+            return
+        print(f"Updating working directory to {path}")
         set_path_reference(path)
         bpy.ops.ac.load_settings()
 
@@ -338,7 +387,9 @@ class AC_Settings(PropertyGroup):
         for i, surface in enumerate(custom_surfaces):
             # validity check
             if not re.match(r"^[A-Z]*$", surface.key):
-                self.surface_errors["surface"] = f"Surface {surface.name} assigned invalid key: {surface.key}"
+                self.surface_errors["surface"] = (
+                    f"Surface {surface.name} assigned invalid key: {surface.key}"
+                )
 
             surface_map[f"SURFACE_{i}"] = surface.to_dict()
 
@@ -363,13 +414,17 @@ class AC_Settings(PropertyGroup):
                     pair.value = f"{value}"
                 continue
             new_surface = self.surfaces.add()
-            new_surface.from_dict(surface[1], surface[1]["CUSTOM"] if "CUSTOM" in surface[1] else True)
+            new_surface.from_dict(
+                surface[1], surface[1]["CUSTOM"] if "CUSTOM" in surface[1] else True
+            )
 
     def map_track(self, context) -> dict:
         track_info = self.track.to_dict()
-        track_info.update({
-            "pitboxes": len(self.get_pitboxes(context)),
-        })
+        track_info.update(
+            {
+                "pitboxes": len(self.get_pitboxes(context)),
+            }
+        )
         return track_info
 
     def load_track(self, track: dict):
@@ -388,8 +443,8 @@ class AC_Settings(PropertyGroup):
         audio_map = {}
         for audio in self.audio_sources:
             mapped = audio.to_dict()
-            audio_map[mapped['NAME']] = mapped
-            audio_map[mapped['NAME']].pop('NAME')
+            audio_map[mapped["NAME"]] = mapped
+            audio_map[mapped["NAME"]].pop("NAME")
         return audio_map
 
     def load_audio(self, audio_map: dict):
@@ -400,7 +455,7 @@ class AC_Settings(PropertyGroup):
             if not audio[0]:
                 continue
             new_audio = self.audio_sources.add()
-            audio[1]['NAME'] = audio[0]
+            audio[1]["NAME"] = audio[0]
             new_audio.from_dict(audio[1])
             pointer_name = audio[1]["NODE"] if "NODE" in audio[1] else audio[1]["NAME"]
             # find the object in the scene by name and assign it to the audio source
@@ -423,11 +478,13 @@ class AC_Settings(PropertyGroup):
             if extension[0].startswith("DEFAULT") or not extension[0]:
                 continue
 
-            if extension[0] == "LIGHTING": #global light settings
+            if extension[0] == "LIGHTING":  # global light settings
                 self.lighting.global_lighting.from_dict(extension[1])
                 continue
 
-            elif extension[0].startswith("LIGHT_"): # individual lighting: using elif to avoid double assignment
+            elif extension[0].startswith(
+                "LIGHT_"
+            ):  # individual lighting: using elif to avoid double assignment
                 # self.lighting.light_from_dict(extension[1], True if extension[0].startswith("LIGHT_SERIES_") else False)
                 # continue
                 pass
@@ -446,9 +503,13 @@ class AC_Settings(PropertyGroup):
         return [obj for obj in context.scene.objects if obj.name.startswith("AC_PIT")]
 
     def get_hotlap_starts(self, context) -> list[Object]:
-        return [obj for obj in context.scene.objects if obj.name.startswith("AC_HOTLAP_START")]
+        return [
+            obj
+            for obj in context.scene.objects
+            if obj.name.startswith("AC_HOTLAP_START")
+        ]
 
-    def get_time_gates(self, context, pairs = False) -> list[Object] | list[list[Object]]:
+    def get_time_gates(self, context, pairs=False) -> list[Object] | list[list[Object]]:
         gates = [obj for obj in context.scene.objects if obj.name.startswith("AC_TIME")]
         if not pairs:
             return gates
@@ -460,17 +521,22 @@ class AC_Settings(PropertyGroup):
             match = re.match(rf"^AC_TIME_(\d+)_L$", gate.name)
             if match:
                 pair = [gate]
-                pair.append([g for g in r_gates if g.name == f"AC_TIME_{match.group(1)}_R"][0])
+                pair.append(
+                    [g for g in r_gates if g.name == f"AC_TIME_{match.group(1)}_R"][0]
+                )
                 if pair[1]:
                     grouped_gates.append(pair)
         return grouped_gates
 
-
     def get_ab_start_gates(self, context) -> list[Object]:
-        return [obj for obj in context.scene.objects if obj.name.startswith("AC_AB_START")]
+        return [
+            obj for obj in context.scene.objects if obj.name.startswith("AC_AB_START")
+        ]
 
     def get_ab_finish_gates(self, context) -> list[Object]:
-        return [obj for obj in context.scene.objects if obj.name.startswith("AC_AB_FINISH")]
+        return [
+            obj for obj in context.scene.objects if obj.name.startswith("AC_AB_FINISH")
+        ]
 
     def get_audio_emitters(self, context) -> list[Object]:
         return [obj for obj in context.scene.objects if obj.name.startswith("AC_AUDIO")]
@@ -496,4 +562,4 @@ class AC_Settings(PropertyGroup):
 
 
 def get_settings() -> AC_Settings:
-    return bpy.context.scene.AC_Settings # type: ignore
+    return bpy.context.scene.AC_Settings  # type: ignore
