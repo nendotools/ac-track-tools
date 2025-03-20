@@ -2,14 +2,8 @@ import os
 import re
 
 import bpy
-from bpy.props import (
-    BoolProperty,
-    CollectionProperty,
-    EnumProperty,
-    FloatProperty,
-    PointerProperty,
-    StringProperty,
-)
+from bpy.props import (BoolProperty, CollectionProperty, EnumProperty,
+                       FloatProperty, PointerProperty, StringProperty)
 from bpy.types import Object, PropertyGroup
 
 from ..utils.files import find_maps, get_active_directory, set_path_reference
