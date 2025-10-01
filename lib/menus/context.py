@@ -40,6 +40,16 @@ def pit_menu(self, context):
     layout.separator()
     layout.operator("ac.add_pitbox")
 
+class WM_MT_ObjectSetup(Menu):
+    bl_label = "Object Setup"
+    bl_idname = "WM_MT_ObjectSetup"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("ac.setup_as_tree", icon='OUTLINER_OB_FORCE_FIELD')
+        layout.operator("ac.setup_as_grass", icon='OUTLINER_OB_GREASEPENCIL')
+        layout.operator("ac.setup_as_standard", icon='OBJECT_DATA')
+
 def surface_menu(self, context):
     layout: UILayout = self.layout
     if len(context.selected_objects) == 0: # only show the menu if an object is selected
@@ -50,10 +60,13 @@ def surface_menu(self, context):
     layout.separator()
     layout.menu("WM_MT_AssignSurface")
     layout.operator("ac.assign_wall")
+    layout.operator("ac.assign_phys_prop")
+    layout.separator()
+    layout.menu("WM_MT_ObjectSetup")
 
 def utility_menu(self, context):
     layout: UILayout = self.layout
     layout.separator()
-    if len(context.selected_objects) > 0:
-        layout.operator("ac.assign_phys_prop")
     layout.operator("ac.add_audio_emitter")
+    layout.separator()
+    layout.operator("ac.auto_setup_objects")

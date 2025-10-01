@@ -114,7 +114,6 @@ class AC_AssignSurface(Operator):
         default="ROAD",
     )
     def execute(self, context):
-        settings: AC_Settings = context.scene.AC_Settings # type: ignore
         objects = [obj for obj in context.selected_objects if obj.type == 'MESH']
         for obj in objects:
             cleaned_name = remove_existing_prefix(obj.name)
@@ -131,7 +130,7 @@ class AC_SelectAllSurfaces(Operator):
         default="",
     )
     def execute(self, context):
-        settings: AC_Settings = context.scene.AC_Settings # type: ignore
+        settings: AC_Settings = context.scene.AC_Settings
         bpy.ops.object.select_all(action='DESELECT')
         for obj in settings.get_surface_groups(context, self.surface):
             if isinstance(obj, Object):
@@ -144,7 +143,6 @@ class AC_AssignWall(Operator):
     bl_idname = "ac.assign_wall"
     bl_options = {'REGISTER', 'UNDO'}
     def execute(self, context):
-        settings: AC_Settings = context.scene.AC_Settings
         objects = [obj for obj in context.selected_objects if obj.type == 'MESH']
         for obj in objects:
             verts = len(obj.data.vertices) # type: ignore
@@ -160,7 +158,6 @@ class AC_AssignPhysProp(Operator):
     bl_idname = "ac.assign_phys_prop"
     bl_options = {'REGISTER', 'UNDO'}
     def execute(self, context):
-        settings: AC_Settings = context.scene.AC_Settings
         objects = [obj for obj in context.selected_objects if obj.type == 'MESH']
         for obj in objects:
             cleaned_name = remove_existing_prefix(obj.name)

@@ -1,4 +1,3 @@
-from bpy import context
 from bpy.props import (BoolProperty, CollectionProperty, EnumProperty,
                        FloatProperty, FloatVectorProperty, IntProperty,
                        PointerProperty, StringProperty)
@@ -564,7 +563,7 @@ class AC_Light(PropertyGroup):
         self.disable_with_bounced_light = True if "DISABLE_WITH_BOUNCED_LIGHT" in data and data["DISABLE_WITH_BOUNCED_LIGHT"] == 1 else False
  
         # shadow settings
-        self.shadows = True if "SHADOWS" in data and data["SHADOWS"] == 1 else False
+        self.cast_shadows = True if "SHADOWS" in data and data["SHADOWS"] == 1 else False
         self.shadows_static = True if "SHADOWS_STATIC" in data and data["SHADOWS_STATIC"] == 1 else False
         self.shadows_half_res = True if "SHADOWS_HALF_RES" in data and data["SHADOWS_HALF_RES"] == 1 else False
         self.shadows_spot_angle = int(data.get("SHADOWS_SPOT_ANGLE", 0))
@@ -676,8 +675,8 @@ class AC_Lighting(PropertyGroup):
         self.sun.sun_heading_angle = int(data.get("SUN_HEADING_ANGLE", 0))
 
     def light_from_dict(self, data: dict, is_series: bool = False):
-        l = self.lights.add()
-        l.from_dict(data, is_series)
+        light = self.lights.add()
+        light.from_dict(data, is_series)
 
     def to_dict(self) -> dict:
         return {

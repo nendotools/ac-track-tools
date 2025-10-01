@@ -1,5 +1,4 @@
 import bpy
-from bpy.types import Context, Header, Menu, Panel
 
 menu_state = {
     "active_menu": "SURFACES"

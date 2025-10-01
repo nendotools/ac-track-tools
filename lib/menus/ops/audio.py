@@ -1,4 +1,4 @@
-from bpy.props import IntProperty, StringProperty
+from bpy.props import StringProperty
 from bpy.types import Operator
 
 

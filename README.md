@@ -96,14 +96,26 @@ usable in Assetto Corsa, but the add-on provides the necessary settings to hook 
     - [ ] Mesh Lights
     - [ ] Line Lights
     - [ ] Light Series
-- [ ] Map
-  - [ ] Generate Map
-    - over head view of track
+- [x] Map
+  - [x] Generate Map
+    - overhead view of track
     - disable all non-track objects
     - black and white
     - resolution config
     - save mini version as ui/outline.png (for track selection)
     - save full version as map.png (for mini-map and loading screen)
+  - [x] Generate Preview (ui/preview.png)
+- [x] Track Layouts/Variants
+  - [x] Multiple layout support (club, national, etc.)
+  - [x] Collection-to-KN5 mapping
+  - [x] Per-layout models.ini generation
+  - [x] Preview mode for layout visualization
+  - [x] Default layout protection
+- [ ] Object Setup
+  - [x] Auto-setup for trees
+  - [x] Auto-setup for grass
+  - [x] Auto-setup for standard objects
+  - [x] Batch object configuration
 - [ ] Overlays: Time-Attack
 - [ ] Sections: Track Regions
 - [ ] Groove
@@ -119,9 +131,11 @@ usable in Assetto Corsa, but the add-on provides the necessary settings to hook 
   - Investigate Implementation
   - useful to reuse track without reconfiguring everything
 - [ ] Export
-  - [x] Track
+  - [x] Track (FBX)
   - [x] Surface
-  - [ ] Models
+  - [x] Models (models.ini per layout)
+  - [x] KN5 (experimental)
+    - [ ] Testing and verification
   - [ ] Cameras
   - [ ] Lighting
   - [x] Sounds

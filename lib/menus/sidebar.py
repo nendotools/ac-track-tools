@@ -1,3 +1,4 @@
+import bpy
 from bpy.types import Context, Panel, UILayout, UIList
 
 from ..configs.audio_source import AC_AudioSource
@@ -23,7 +24,7 @@ class AC_UL_Tags(UIList):
         pass
 
 
-class AC_UL_Extenstions(UIList):
+class AC_UL_Extensions(UIList):
     layout_type = "COMPACT"
 
     def draw_item(
@@ -42,7 +43,7 @@ class AC_UL_Extenstions(UIList):
         pass
 
 
-class AC_UL_SurfaceExtenstions(UIList):
+class AC_UL_SurfaceExtensions(UIList):
     layout_type = "COMPACT"
 
     def draw_item(
@@ -92,6 +93,8 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
         col.separator(factor=1.5)
         errors = settings.run_preflight(context)
         can_fix = len([error for error in errors if error["severity"] == 1]) > 0
+
+        # Preflight checks header
         row = col.row()
         row.label(text="Track Preflight Checks")
         row.separator()
@@ -102,20 +105,11 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
             text="Fix Errors",
             icon="FAKE_USER_OFF" if can_fix else "FAKE_USER_ON",
         )
+
+        # Status box
         box = col.box()
-        box.enabled = len(errors) > 0
         if len(errors) == 0:
             box.label(text="Ready for Export!", icon="CHECKMARK")
-            col.separator(factor=1.5)
-            row = col.row()
-            row.prop(
-                settings,
-                "show_export",
-                icon_only=True,
-                toggle=True,
-                icon="TRIA_DOWN" if settings.show_export else "TRIA_RIGHT",
-            )
-            row.operator("ac.export_track", text="Export Track to FBX")
         else:
             for error in errors:
                 icon = (
@@ -126,33 +120,63 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
                     else "OUTLINER_OB_LIGHT"
                 )
                 box.label(text=error["message"], icon=icon)
-            col.separator(factor=1.5)
-            row = col.row()
-            row.prop(
-                settings,
-                "show_export",
-                icon_only=True,
-                toggle=True,
-                icon="TRIA_DOWN" if settings.show_export else "TRIA_RIGHT",
-            )
-            row = row.row()
-            row.enabled = False
-            row.operator("ac.export_track", text="Export Track to FBX")
+
+        # Export section
+        col.separator(factor=1.5)
+        export_box = col.box()
+        opts = settings.export_settings
+
+        # Export header with collapse toggle
+        row = export_box.row()
+        row.prop(
+            settings,
+            "show_export",
+            icon_only=True,
+            toggle=True,
+            emboss=False,
+            icon="TRIA_DOWN" if settings.show_export else "TRIA_RIGHT",
+        )
+        row.label(text="Export Settings")
+
+        # Expanded settings
         if settings.show_export:
-            col.separator(factor=1.5)
-            opts = settings.export_settings
-            box = col.box()
-            box.label(text="Export Options")
-            box.separator(factor=0.3)
-            box.use_property_split = True
-            box.use_property_decorate = False
-            box.prop(opts, "up")
-            box.prop(opts, "forward")
-            box.prop(opts, "scale", slider=True, text="Scale", expand=True)
-            box.prop(opts, "unit_scale")
-            box.prop(opts, "space_transform")
-            box.prop(opts, "mesh_modifiers")
-            box.prop(opts, "scale_options")
+            # Format selector - labeled radio buttons
+            format_row = export_box.row(align=True)
+            format_row.label(text="Format:")
+            format_buttons = format_row.row(align=True)
+            fbx_btn = format_buttons.row(align=True)
+            fbx_btn.prop(opts, "use_kn5", text="FBX", toggle=True, invert_checkbox=True)
+            kn5_btn = format_buttons.row(align=True)
+            kn5_btn.prop(opts, "use_kn5", text="KN5", toggle=True)
+            export_box.separator(factor=0.5)
+            settings_box = export_box.box()
+            settings_box.use_property_split = True
+            settings_box.use_property_decorate = False
+
+            # FBX-specific options
+            if not opts.use_kn5:
+                settings_box.label(text="FBX Settings:", icon="EXPORT")
+                settings_box.prop(opts, "up")
+                settings_box.prop(opts, "forward")
+                settings_box.prop(opts, "scale", slider=True)
+                settings_box.prop(opts, "unit_scale")
+                settings_box.prop(opts, "space_transform")
+                settings_box.prop(opts, "mesh_modifiers")
+                settings_box.prop(opts, "scale_options")
+
+            # KN5-specific options
+            else:
+                settings_box.label(text="KN5 Settings:", icon="EXPORT")
+                settings_box.prop(opts, "bake_procedural_textures")
+                if opts.bake_procedural_textures:
+                    settings_box.prop(opts, "texture_bake_resolution")
+
+        # Export button outside box
+        col.separator(factor=0.5)
+        export_row = col.row()
+        export_row.enabled = len(errors) == 0
+        export_text = f"Export Track to {'KN5' if opts.use_kn5 else 'FBX'}"
+        export_row.operator("ac.export_track", text=export_text, icon="EXPORT")
 
 
 class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
@@ -179,6 +203,43 @@ class VIEW3D_PT_AC_Sidebar_Track(VIEW3D_PT_AC_Sidebar, Panel):
         col.prop(track, "length", text="Length")
         col.prop(track, "width", text="Width")
         col.prop(track, "run", text="Run Type")
+
+        # Track Images section
+        if settings.working_dir:
+            layout.separator(factor=1.5)
+            box = layout.box()
+            row = box.row()
+            row.label(text="Track Images", icon="IMAGE_DATA")
+            box.separator(factor=0.3)
+
+            # Check which files exist
+            import os
+            map_exists = os.path.exists(os.path.join(settings.working_dir, "map.png"))
+            outline_exists = os.path.exists(os.path.join(settings.working_dir, "ui", "outline.png"))
+            preview_exists = os.path.exists(os.path.join(settings.working_dir, "ui", "preview.png"))
+
+            # Status indicators in compact row
+            status_row = box.row(align=True)
+            status_row.label(text="map.png", icon="CHECKMARK" if map_exists else "CANCEL")
+            status_row.label(text="outline.png", icon="CHECKMARK" if outline_exists else "CANCEL")
+            status_row.label(text="preview.png", icon="CHECKMARK" if preview_exists else "CANCEL")
+
+            box.separator(factor=0.5)
+
+            # Generation buttons
+            row = box.row(align=True)
+            row.operator("ac.generate_map", text="Generate Map & Outline", icon="IMAGE_DATA")
+
+            # Preview camera management
+            preview_cam_exists = "AC_PREVIEW_CAMERA" in context.scene.objects
+            row = box.row(align=True)
+            if not preview_cam_exists:
+                row.operator("ac.create_preview_camera", text="Create Preview Camera", icon="OUTLINER_OB_CAMERA")
+            else:
+                row.label(text="Preview Camera Ready", icon="CAMERA_DATA")
+
+            row = box.row(align=True)
+            row.operator("ac.generate_preview", text="Generate Preview", icon="RENDER_STILL")
 
         # tag display
         col = layout.column(align=True)
@@ -692,7 +753,7 @@ class VIEW3D_PT_AC_Sidebar_Extensions(VIEW3D_PT_AC_Sidebar, Panel):
             )
             if extension.expand:
                 box.template_list(
-                    "AC_UL_Extenstions",
+                    "AC_UL_Extensions",
                     f"{extension.name}-{i}",
                     extension,
                     "items",
@@ -706,3 +767,126 @@ class VIEW3D_PT_AC_Sidebar_Extensions(VIEW3D_PT_AC_Sidebar, Panel):
                 delete.name = extension.name
         layout.separator(factor=1.2)
         layout.operator("ac.global_add_extension", text="Add Extension", icon="ADD")
+
+
+class AC_UL_LayoutCollections(UIList):
+    """UIList for layout collections - displays scene collections dynamically"""
+    layout_type = "COMPACT"
+
+    def draw_item(
+        self, context, layout, data, item, icon, active_data, active_property, index
+    ):
+        # item is a bpy.data.collections entry
+        settings = context.scene.AC_Settings
+        layout_settings = settings.layout_settings
+
+        if not layout_settings.layouts:
+            return
+
+        active_layout = layout_settings.layouts[layout_settings.active_layout_index]
+        is_enabled = active_layout.get_collection_enabled(item.name)
+
+        # Make entire row clickable for toggling (except first/primary collection)
+        if index == 0:
+            # Primary collection - show as locked, disabled operator for consistent styling
+            row = layout.row()
+            row.enabled = False
+            row.operator(
+                "ac.toggle_layout_collection",
+                text=item.name,
+                icon="CHECKBOX_HLT",
+                emboss=False
+            ).collection_name = item.name
+        else:
+            # Other collections - entire row is an operator
+            op = layout.operator(
+                "ac.toggle_layout_collection",
+                text=item.name,
+                icon="CHECKBOX_HLT" if is_enabled else "CHECKBOX_DEHLT",
+                emboss=False
+            )
+            op.collection_name = item.name
+
+
+class VIEW3D_PT_AC_Sidebar_Layouts(VIEW3D_PT_AC_Sidebar, Panel):
+    bl_label = "Layouts"
+    bl_idname = "VIEW3D_PT_AC_Sidebar_Layouts"
+    bl_context = "objectmode"
+
+    def draw(self, context):
+        layout = self.layout
+        settings = context.scene.AC_Settings  # type: ignore
+        layout_settings = settings.layout_settings
+
+        # Layouts list with inline actions
+        if layout_settings.layouts:
+            box = layout.box()
+
+            # Header row with Add button
+            header = box.row()
+            header.label(text="Track Layouts", icon='PACKAGE')
+            header.operator("ac.add_layout", text="", icon="ADD")
+
+            # Layout list
+            for i, layout_item in enumerate(layout_settings.layouts):
+                row = box.row(align=True)
+
+                # Layout selector button (full width if default, partial if deletable)
+                if i == 0:
+                    # Default layout - no delete button, full width
+                    op = row.operator(
+                        "ac.set_active_layout",
+                        text=layout_item.name,
+                        depress=(i == layout_settings.active_layout_index),
+                        icon='LOCKED' if i == 0 else 'NONE'
+                    )
+                    op.layout_index = str(i)
+                else:
+                    # Non-default layouts - split with delete button
+                    split = row.split(factor=0.85, align=True)
+                    op = split.operator(
+                        "ac.set_active_layout",
+                        text=layout_item.name,
+                        depress=(i == layout_settings.active_layout_index)
+                    )
+                    op.layout_index = str(i)
+
+                    # Delete button (only for non-default layouts)
+                    delete_btn = split.operator(
+                        "ac.remove_layout_by_index",
+                        text="",
+                        icon="TRASH"
+                    )
+                    delete_btn.layout_index = str(i)
+
+            # Active layout collections section
+            active_layout = layout_settings.layouts[layout_settings.active_layout_index]
+            layout.separator(factor=0.5)
+
+            col_box = layout.box()
+            col_header = col_box.row()
+            col_header.label(text=f"Collections", icon='OUTLINER_COLLECTION')
+            col_header.label(text=f"({active_layout.name})")
+
+            # Preview mode toggle as icon button
+            col_header.prop(
+                layout_settings,
+                "preview_mode",
+                text="",
+                icon="HIDE_OFF" if layout_settings.preview_mode else "HIDE_ON",
+                toggle=True
+            )
+
+            # Collections UIList
+            col_box.template_list(
+                "AC_UL_LayoutCollections",
+                "",
+                bpy.data,
+                "collections",
+                layout_settings,
+                "collection_list_index",
+                rows=4,
+            )
+        else:
+            # No layouts - show add button
+            layout.operator("ac.add_layout", text="Add Layout", icon="ADD")

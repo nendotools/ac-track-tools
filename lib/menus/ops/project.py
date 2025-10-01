@@ -43,6 +43,22 @@ class AC_SaveSettings(Operator):
         if 'extension' not in list(settings.surface_errors.keys()) and len(extension_map.keys()) > 0:
             extension_dir = get_extension_directory()
             save_ini(extension_dir + '/ext_config.ini', extension_map)
+
+        # Ensure default layout and base_track collection exist before saving
+        settings.layout_settings.ensure_default_layout()
+
+        layouts_data = settings.map_layouts()
+        if layouts_data and layouts_data.get("layouts"):
+            save_json(ui_dir + '/layouts.json', layouts_data)
+
+            # Generate models.ini (or models_[layout].ini) files for each layout
+            from ....utils.files import get_active_directory
+            working_dir = get_active_directory()
+            if working_dir:
+                generated_files = settings.layout_settings.export_models_ini(working_dir)
+                if generated_files:
+                    print(f"Generated {len(generated_files)} models INI file(s)")
+
         print("Settings saved")
         return {'FINISHED'}
 
@@ -78,10 +94,18 @@ class AC_LoadSettings(Operator):
         extension_map = load_ini(extension_dir + '/ext_config.ini')
         if extension_map:
             settings.load_extensions(extension_map)
+
+        layouts_data = load_json(ui_dir + '/layouts.json')
+        if layouts_data:
+            settings.load_layouts(layouts_data)
+
+        # Ensure default layout and base_track collection exist after loading
+        settings.layout_settings.ensure_default_layout()
+
         return {'FINISHED'}
 
 class AC_ExportTrack(Operator):
-    """Export track as FBX"""
+    """Export track in selected format(s)"""
     bl_idname = "ac.export_track"
     bl_label = "Export Track"
     bl_options = {'REGISTER'}
@@ -89,19 +113,126 @@ class AC_ExportTrack(Operator):
         ops.ac.save_settings()
         settings: AC_Settings = context.scene.AC_Settings # type: ignore
         exp_opts = settings.export_settings
-        target = settings.working_dir.rstrip(path.sep).split(path.sep)[-1]
-        ops.export_scene.fbx(
-            filepath=settings.working_dir + target + '.fbx',
-            object_types={'EMPTY','MESH'},
-            global_scale=exp_opts.scale,
-            apply_unit_scale=exp_opts.unit_scale,
-            apply_scale_options=exp_opts.scale_options,
-            use_space_transform=exp_opts.space_transform,
-            use_mesh_modifiers=exp_opts.mesh_modifiers,
-            axis_up=exp_opts.up,
-            axis_forward=exp_opts.forward,
-        )
+        track_name = settings.working_dir.rstrip(path.sep).split(path.sep)[-1]
+
+        # Get exportable collections
+        collections = self._get_exportable_collections(context)
+
+        if not collections:
+            self.report({'ERROR'}, "No exportable collections found")
+            return {'CANCELLED'}
+
+        export_count = 0
+        failed_exports = []
+
+        for collection in collections:
+            # Determine filename
+            if len(collections) == 1:
+                filename = track_name
+            else:
+                filename = collection.name
+
+            # Temporarily hide other collections
+            original_visibility = self._hide_other_collections(context, collection)
+
+            try:
+                if exp_opts.use_kn5:
+                    success = self._export_kn5(context, settings, filename, collection)
+                else:
+                    success = self._export_fbx(context, settings, exp_opts, filename)
+
+                if success:
+                    export_count += 1
+                else:
+                    failed_exports.append(filename)
+
+            finally:
+                # Restore collection visibility
+                self._restore_collection_visibility(original_visibility)
+
+        # Report results
+        if failed_exports:
+            msg = f"Exported {export_count}/{len(collections)}. Failed: {', '.join(failed_exports)}"
+            self.report({'WARNING'}, msg)
+        else:
+            self.report({'INFO'}, f"Successfully exported {export_count} file(s)")
+
         return {'FINISHED'}
+
+    def _get_exportable_collections(self, context) -> list:
+        """Get non-hidden, non-excluded collections with objects."""
+        collections = []
+        for collection in context.blend_data.collections:
+            # Skip if collection is hidden or excluded
+            if collection.hide_viewport or collection.hide_render:
+                continue
+            # Skip if collection name starts with __
+            if collection.name.startswith("__"):
+                continue
+            # Skip if collection has no objects
+            if not collection.objects:
+                continue
+            collections.append(collection)
+        return collections
+
+    def _hide_other_collections(self, context, active_collection) -> dict:
+        """Hide all collections except the active one. Returns original visibility state."""
+        original_visibility = {}
+        for collection in context.blend_data.collections:
+            original_visibility[collection.name] = collection.hide_viewport
+            if collection != active_collection:
+                collection.hide_viewport = True
+        return original_visibility
+
+    def _restore_collection_visibility(self, original_visibility: dict):
+        """Restore collection visibility to original state."""
+        import bpy
+        for collection_name, was_hidden in original_visibility.items():
+            if collection_name in bpy.data.collections:
+                bpy.data.collections[collection_name].hide_viewport = was_hidden
+
+    def _export_kn5(self, context, settings, filename: str, collection) -> bool:
+        """Export single collection to KN5."""
+        try:
+            from ...kn5 import export_kn5
+        except ImportError as e:
+            self.report({'ERROR'}, f"KN5 export module not available: {e}")
+            return False
+
+        filepath = settings.working_dir + filename + '.kn5'
+        result = export_kn5(filepath, context)
+
+        if result["status"] == "success":
+            if result["warnings"]:
+                warning_msg = f"Exported {filename}.kn5 with warnings:\n" + "\n".join(
+                    result["warnings"][:3]
+                )
+                self.report({'WARNING'}, warning_msg)
+            return True
+        else:
+            error_msg = f"KN5 export failed for {filename}:\n" + "\n".join(result["warnings"][:3])
+            self.report({'ERROR'}, error_msg)
+            return False
+
+    def _export_fbx(self, context, settings, exp_opts, filename: str) -> bool:
+        """Export single collection to FBX."""
+        try:
+            filepath = settings.working_dir + filename + '.fbx'
+            ops.export_scene.fbx(
+                filepath=filepath,
+                object_types={'EMPTY','MESH'},
+                global_scale=exp_opts.scale,
+                apply_unit_scale=exp_opts.unit_scale,
+                apply_scale_options=exp_opts.scale_options,
+                use_space_transform=exp_opts.space_transform,
+                use_mesh_modifiers=exp_opts.mesh_modifiers,
+                axis_up=exp_opts.up,
+                axis_forward=exp_opts.forward,
+            )
+            return True
+        except Exception as e:
+            self.report({'ERROR'}, f"FBX export failed for {filename}: {e}")
+            return False
 
 class AC_AutofixPreflight(Operator):
     """Attempt to fix common issues"""
@@ -115,6 +246,17 @@ class AC_AutofixPreflight(Operator):
         context.scene.unit_settings.system = 'METRIC'
         context.scene.unit_settings.length_unit = 'METERS'
         context.scene.unit_settings.scale_length = 1
+
+        # KN5-specific autofixes
+        if settings.export_settings.use_kn5:
+            from ...kn5.texture_baking import bake_all_procedural_materials
+
+            # Bake procedural textures if found
+            resolution = settings.export_settings.texture_bake_resolution
+            warnings = bake_all_procedural_materials(context, resolution)
+            for warning in warnings:
+                self.report({'INFO'}, warning)
+
         return {'FINISHED'}
 
 class AC_AddStart(Operator):
@@ -127,7 +269,8 @@ class AC_AddStart(Operator):
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         start_pos = context.object
-        if not start_pos: return {'CANCELLED'}
+        if not start_pos:
+            return {'CANCELLED'}
         # get next start position
         start_pos.name = f"AC_START_{len(settings.get_starts(context))}"
         return {'FINISHED'}
@@ -142,7 +285,8 @@ class AC_AddHotlapStart(Operator):
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         start_pos = context.object
-        if not start_pos: return {'CANCELLED'}
+        if not start_pos:
+            return {'CANCELLED'}
         start_pos.name = f"AC_HOTLAP_START_{len(settings.get_hotlap_starts(context))}"
         return {'FINISHED'}
 
@@ -156,7 +300,8 @@ class AC_AddPitbox(Operator):
         settings = context.scene.AC_Settings # type: ignore
         settings.consolidate_logic_gates(context)
         pitbox = context.object
-        if not pitbox: return {'CANCELLED'}
+        if not pitbox:
+            return {'CANCELLED'}
         pitbox.name = f"AC_PIT_{len(settings.get_pitboxes(context))}"
         return {'FINISHED'}
 
@@ -171,7 +316,8 @@ class AC_AddTimeGate(Operator):
         count = len(settings.get_time_gates(context)) // 2
         ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0), align='CURSOR')
         time_gate_L = context.object
-        if not time_gate_L: return {'CANCELLED'}
+        if not time_gate_L:
+            return {'CANCELLED'}
         time_gate_L.name = f"AC_TIME_{count}_L"
         ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0), align='CURSOR')
         time_gate_R = context.object
@@ -192,7 +338,8 @@ class AC_AddABStartGate(Operator):
     def execute(self, context: Context):
         ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0), align='CURSOR')
         ab_start_L = context.object
-        if not ab_start_L: return {'CANCELLED'}
+        if not ab_start_L:
+            return {'CANCELLED'}
         ab_start_L.name = "AC_AB_START_L"
         ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0), align='CURSOR')
         ab_start_R = context.object
@@ -213,7 +360,8 @@ class AC_AddABFinishGate(Operator):
     def execute(self, context: Context):
         ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(-10, 0, 0), align='CURSOR')
         ab_finish_L = context.object
-        if not ab_finish_L: return {'CANCELLED'}
+        if not ab_finish_L:
+            return {'CANCELLED'}
         ab_finish_L.name = "AC_AB_FINISH_L"
         ops.object.empty_add(type='CUBE', scale=(2, 2, 2), rotation=(0, 0, 0), location=(10, 0, 0), align='CURSOR')
         ab_finish_R = context.object
@@ -236,6 +384,7 @@ class AC_AddAudioEmitter(Operator):
         settings.consolidate_logic_gates(context)
         ops.object.empty_add(type='SPHERE', scale=(2, 2, 2), rotation=(0, 0, 0), align='CURSOR')
         audio_emitter = context.object
-        if not audio_emitter: return {'CANCELLED'}
+        if not audio_emitter:
+            return {'CANCELLED'}
         audio_emitter.name = f"AC_AUDIO_{len(settings.get_audio_emitters(context)) + 1}"
         return {'FINISHED'}

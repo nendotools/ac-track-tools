@@ -70,7 +70,7 @@ def load_json(filename: str):
     try:
         with open(normalized_file, 'r') as file:
             return json.load(file)
-    except:
+    except (FileNotFoundError, json.JSONDecodeError):
         return None
 
 def save_json(filename: str, data):
@@ -86,7 +86,7 @@ def load_ini(filename: str):
     try:
         config.read(filename)
         return config
-    except:
+    except (FileNotFoundError, configparser.Error):
         return None
 
 def save_ini(filename: str, config: dict):

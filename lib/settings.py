@@ -1,4 +1,3 @@
-import os
 import re
 
 import bpy
@@ -9,12 +8,18 @@ from bpy.types import Object, PropertyGroup
 from ..utils.files import find_maps, get_active_directory, set_path_reference
 from ..utils.properties import ExtensionCollection
 from .configs.audio_source import AC_AudioSource
+from .configs.layout import AC_LayoutSettings
 from .configs.lighting import AC_Lighting
 from .configs.surface import AC_Surface
 from .configs.track import AC_Track
 
 
 class ExportSettings(PropertyGroup):
+    use_kn5: BoolProperty(
+        name="Export KN5",
+        description="Export directly to KN5 format instead of FBX",
+        default=False,
+    )
     scale: FloatProperty(
         name="Global Scale",
         description="Scale to apply to exported track",
@@ -118,6 +123,61 @@ class ExportSettings(PropertyGroup):
             ),
         ),
     )
+    # KN5-specific settings
+    bake_procedural_textures: BoolProperty(
+        name="Bake Procedural Textures",
+        description="Automatically bake procedural textures to images for KN5 export",
+        default=True,
+    )
+    texture_bake_resolution: EnumProperty(
+        name="Bake Resolution",
+        description="Resolution for baked procedural textures",
+        items=(
+            ("512", "512x512", ""),
+            ("1024", "1024x1024", ""),
+            ("2048", "2048x2048", ""),
+            ("4096", "4096x4096", ""),
+        ),
+        default="1024",
+    )
+
+
+class KN5_MeshSettings(PropertyGroup):
+    """KN5-specific settings for mesh objects"""
+    lod_in: FloatProperty(
+        name="LOD In",
+        description="Distance where mesh becomes visible (meters)",
+        default=0.0,
+        min=0.0,
+        max=10000.0,
+    )
+    lod_out: FloatProperty(
+        name="LOD Out",
+        description="Distance where mesh becomes invisible (meters)",
+        default=10000.0,
+        min=0.0,
+        max=10000.0,
+    )
+    cast_shadows: BoolProperty(
+        name="Cast Shadows",
+        description="Whether this mesh casts shadows in AC",
+        default=True,
+    )
+    visible: BoolProperty(
+        name="Visible",
+        description="Whether this mesh is visible in AC",
+        default=True,
+    )
+    renderable: BoolProperty(
+        name="Renderable",
+        description="Whether this mesh is rendered in AC",
+        default=True,
+    )
+    transparent: BoolProperty(
+        name="Transparent",
+        description="Whether this mesh uses transparency",
+        default=False,
+    )
 
 
 class AC_Settings(PropertyGroup):
@@ -162,6 +222,10 @@ class AC_Settings(PropertyGroup):
     lighting: PointerProperty(
         type=AC_Lighting,
         name="Lighting",
+    )
+    layout_settings: PointerProperty(
+        type=AC_LayoutSettings,
+        name="Layout Settings",
     )
     error: list[dict] = []
     surface_errors: dict = {}
@@ -249,7 +313,7 @@ class AC_Settings(PropertyGroup):
         # detect any AC objects with names ending in .001, .002, etc.
         obs = [obj for obj in context.scene.objects if obj.name.startswith("AC_")]
         for ob in obs:
-            if re.match(rf".*\.\d+$", ob.name):
+            if re.match(r".*\.\d+$", ob.name):
                 return True
         return False
 
@@ -321,6 +385,10 @@ class AC_Settings(PropertyGroup):
                     "code": "INVALID_UNIT_SCALE",
                 }
             )
+
+        # KN5-specific checks
+        if self.export_settings.use_kn5:
+            self._run_kn5_preflight_checks(context)
         # - fbx export settings wrong
         # - objects are not assigned materials
         # - check for missing material textures not in texture folder
@@ -356,6 +424,77 @@ class AC_Settings(PropertyGroup):
             )
 
         return self.error
+
+    def _run_kn5_preflight_checks(self, context):
+        """KN5-specific validation checks."""
+        # Check vertex counts
+        for obj in context.blend_data.objects:
+            if obj.type != "MESH" or obj.name.startswith("__"):
+                continue
+
+            mesh_data = obj.to_mesh()
+            try:
+                vert_count = len(mesh_data.vertices)
+                if vert_count > 65536:
+                    self.error.append({
+                        "severity": 2,
+                        "message": f"Mesh '{obj.name}' has {vert_count:,} vertices (max 65,536)",
+                        "code": "KN5_VERTEX_LIMIT",
+                    })
+            finally:
+                obj.to_mesh_clear()
+
+        # Check for procedural textures
+        procedural_types = {
+            'TEX_NOISE', 'TEX_GRADIENT', 'TEX_VORONOI', 'TEX_MAGIC',
+            'TEX_WAVE', 'TEX_MUSGRAVE', 'TEX_CHECKER', 'TEX_BRICK'
+        }
+        procedural_nodes = []
+        for mat in context.blend_data.materials:
+            if mat.users == 0 or not mat.node_tree:
+                continue
+            for node in mat.node_tree.nodes:
+                if node.type in procedural_types:
+                    procedural_nodes.append((mat.name, node.name))
+
+        if procedural_nodes:
+            self.error.append({
+                "severity": 1,
+                "message": f"Found {len(procedural_nodes)} procedural texture(s) - click 'Fix Errors' to bake them",
+                "code": "KN5_PROCEDURAL_TEXTURES",
+            })
+
+        # Check for materials without node trees
+        for mat in context.blend_data.materials:
+            if mat.users > 0 and not mat.node_tree and not mat.name.startswith("__"):
+                self.error.append({
+                    "severity": 1,
+                    "message": f"Material '{mat.name}' has no node tree - will use default shader",
+                    "code": "KN5_NO_NODES",
+                })
+
+        # Check for mesh objects with no materials
+        for obj in context.blend_data.objects:
+            if obj.type != "MESH" or obj.name.startswith("__"):
+                continue
+            if not obj.material_slots:
+                self.error.append({
+                    "severity": 2,
+                    "message": f"Mesh '{obj.name}' has no material assigned",
+                    "code": "KN5_NO_MATERIAL",
+                })
+
+        # Check for mesh objects with children (KN5 limitation)
+        for obj in context.blend_data.objects:
+            if obj.type != "MESH" or obj.name.startswith("__"):
+                continue
+            children = [child for child in obj.children if not child.name.startswith("__")]
+            if children:
+                self.error.append({
+                    "severity": 2,
+                    "message": f"Mesh '{obj.name}' has {len(children)} child(ren) - KN5 meshes cannot have children",
+                    "code": "KN5_MESH_CHILDREN",
+                })
 
     def update_directory(self, path: str):
         if path == "":
@@ -467,6 +606,13 @@ class AC_Settings(PropertyGroup):
         extension_map["LIGHTING"] = self.lighting.global_lighting.to_dict()
         return extension_map
 
+    def map_layouts(self) -> dict:
+        return self.layout_settings.to_dict()
+
+    def load_layouts(self, layouts_data: dict):
+        if layouts_data:
+            self.layout_settings.from_dict(layouts_data)
+
     def load_extensions(self, extension_map: dict):
         for extension in extension_map.items():
             if extension[0].startswith("DEFAULT") or not extension[0]:
@@ -512,7 +658,7 @@ class AC_Settings(PropertyGroup):
 
         grouped_gates = []
         for gate in l_gates:
-            match = re.match(rf"^AC_TIME_(\d+)_L$", gate.name)
+            match = re.match(r"^AC_TIME_(\d+)_L$", gate.name)
             if match:
                 pair = [gate]
                 pair.append(

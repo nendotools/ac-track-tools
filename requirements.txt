@@ -1,1 +1,5 @@
+# Runtime dependency for type stubs (development only)
 fake-bpy-module-latest
+
+# Development tools
+ruff
