@@ -290,7 +290,7 @@ class AC_Settings(PropertyGroup):
 
         # if key is provided, only return objects from the scene matching the key
         for surfaceKey in groups:
-            objects = [obj for obj in context.scene.objects if obj.type == "MESH"]
+            objects = [obj for obj in context.scene.objects if obj.type in ("MESH", "CURVE", "SURFACE")]
             for obj in objects:
                 match = re.match(rf"^\d*{surfaceKey}.*$", obj.name)
                 if match:
@@ -468,21 +468,48 @@ class AC_Settings(PropertyGroup):
         for mat in context.blend_data.materials:
             if mat.users > 0 and not mat.node_tree and not mat.name.startswith("__"):
                 self.error.append({
-                    "severity": 1,
+                    "severity": 0,
                     "message": f"Material '{mat.name}' has no node tree - will use default shader",
                     "code": "KN5_NO_NODES",
                 })
 
-        # Check for mesh objects with no materials
+        # Check for objects with no materials
         for obj in context.blend_data.objects:
-            if obj.type != "MESH" or obj.name.startswith("__"):
+            if obj.type not in ("MESH", "CURVE", "SURFACE") or obj.name.startswith("__"):
                 continue
+            # Skip instancer objects (tree/grass scatter systems)
+            if obj.name.startswith("KSTREE_GROUP_") or obj.name.startswith("GRASS_"):
+                continue
+            # Skip template/example objects
+            name_lower = obj.name.lower()
+            if "_profile" in name_lower or "_example" in name_lower or "collider" in name_lower:
+                continue
+
+            # For curves/surfaces, check if they have modifiers that generate geometry
+            # (Array, Geometry Nodes, etc.) - these will inherit materials from instances
+            if obj.type in ("CURVE", "SURFACE"):
+                has_geometry_modifiers = any(
+                    mod.type in ("ARRAY", "NODES", "MIRROR", "SOLIDIFY")
+                    for mod in obj.modifiers
+                )
+                if has_geometry_modifiers:
+                    continue  # Skip - materials will come from generated geometry
+
             if not obj.material_slots:
                 self.error.append({
                     "severity": 2,
-                    "message": f"Mesh '{obj.name}' has no material assigned",
+                    "message": f"Object '{obj.name}' has no material assigned",
                     "code": "KN5_NO_MATERIAL",
                 })
+            else:
+                # Check for empty material slots
+                for i, slot in enumerate(obj.material_slots):
+                    if not slot.material:
+                        self.error.append({
+                            "severity": 2,
+                            "message": f"Object '{obj.name}' has empty material slot {i}",
+                            "code": "KN5_EMPTY_SLOT",
+                        })
 
         # Check for mesh objects with children (KN5 limitation)
         for obj in context.blend_data.objects:

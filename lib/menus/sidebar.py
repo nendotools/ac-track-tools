@@ -174,7 +174,9 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
         # Export button outside box
         col.separator(factor=0.5)
         export_row = col.row()
-        export_row.enabled = len(errors) == 0
+        # Only block export on severity 1 (fixable) and 2 (critical) errors, not severity 0 (warnings)
+        blocking_errors = [e for e in errors if e["severity"] >= 1]
+        export_row.enabled = len(blocking_errors) == 0
         export_text = f"Export Track to {'KN5' if opts.use_kn5 else 'FBX'}"
         export_row.operator("ac.export_track", text=export_text, icon="EXPORT")
 
@@ -786,9 +788,9 @@ class AC_UL_LayoutCollections(UIList):
         active_layout = layout_settings.layouts[layout_settings.active_layout_index]
         is_enabled = active_layout.get_collection_enabled(item.name)
 
-        # Make entire row clickable for toggling (except first/primary collection)
-        if index == 0:
-            # Primary collection - show as locked, disabled operator for consistent styling
+        # Make entire row clickable for toggling (except "default" collection)
+        if item.name == "default":
+            # Default collection - show as locked, always checked
             row = layout.row()
             row.enabled = False
             row.operator(

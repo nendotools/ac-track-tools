@@ -201,12 +201,10 @@ class AC_ToggleLayoutCollection(Operator):
 
         active_layout = layout_settings.layouts[layout_settings.active_layout_index]
 
-        # Prevent disabling the first/primary collection (first in scene)
-        if len(bpy.data.collections) > 0 and bpy.data.collections[0].name == self.collection_name:
-            current_enabled = active_layout.get_collection_enabled(self.collection_name)
-            if current_enabled:
-                self.report({'WARNING'}, "Cannot disable primary collection")
-                return {'CANCELLED'}
+        # Prevent toggling the "default" collection
+        if self.collection_name == "default":
+            self.report({'WARNING'}, "Cannot toggle default collection")
+            return {'CANCELLED'}
 
         # Toggle the collection state
         current_enabled = active_layout.get_collection_enabled(self.collection_name)

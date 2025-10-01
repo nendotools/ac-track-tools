@@ -109,6 +109,13 @@ class NodeWriter(KN5Writer):
             # Skip if object name starts with __
             if obj.name.startswith("__"):
                 continue
+            # Skip instancer objects (tree/grass scatter systems)
+            if obj.name.startswith("KSTREE_GROUP_") or obj.name.startswith("GRASS_"):
+                continue
+            # Skip template/example objects (profiles, colliders, etc.)
+            name_lower = obj.name.lower()
+            if "_profile" in name_lower or "_example" in name_lower or "collider" in name_lower:
+                continue
             # Skip if object is in a hidden collection
             if self._is_object_hidden(obj):
                 continue
@@ -133,7 +140,7 @@ class NodeWriter(KN5Writer):
 
     def _write_object(self, obj: Object) -> None:
         """Recursively write object hierarchy."""
-        if obj.type == "MESH":
+        if obj.type in ("MESH", "CURVE", "SURFACE"):
             if obj.children:
                 msg = f"Mesh object '{obj.name}' cannot have children in KN5 format"
                 raise ValueError(msg)
@@ -256,7 +263,11 @@ class NodeWriter(KN5Writer):
         Triangulates mesh, calculates tangents, and converts to AC coordinates.
         """
         mesh_parts = []
-        mesh_copy = obj.to_mesh()
+
+        # Use depsgraph to get evaluated mesh with modifiers applied and materials preserved
+        depsgraph = self.context.evaluated_depsgraph_get()
+        object_eval = obj.evaluated_get(depsgraph)
+        mesh_copy = self.context.blend_data.meshes.new_from_object(object_eval)
 
         bm = bmesh.new()
         try:
@@ -268,7 +279,10 @@ class NodeWriter(KN5Writer):
 
         try:
             mesh_copy.calc_loop_triangles()
-            mesh_copy.calc_tangents()
+
+            # Only calculate tangents if mesh has UV layers
+            if mesh_copy.uv_layers:
+                mesh_copy.calc_tangents()
 
             mesh_vertices = mesh_copy.vertices[:]
             mesh_loops = mesh_copy.loops[:]
@@ -328,7 +342,8 @@ class NodeWriter(KN5Writer):
                 mesh_parts.append(MeshData(material_id, sorted_vertices, indices))
 
         finally:
-            obj.to_mesh_clear()
+            # Clean up temporary mesh data
+            self.context.blend_data.meshes.remove(mesh_copy)
 
         return mesh_parts
 

@@ -143,11 +143,12 @@ class AC_AssignWall(Operator):
     bl_idname = "ac.assign_wall"
     bl_options = {'REGISTER', 'UNDO'}
     def execute(self, context):
-        objects = [obj for obj in context.selected_objects if obj.type == 'MESH']
+        objects = [obj for obj in context.selected_objects if obj.type in ('MESH', 'CURVE', 'SURFACE')]
         for obj in objects:
-            verts = len(obj.data.vertices) # type: ignore
-            if verts > 30:
-                self.report({'WARNING'}, f"Object {obj.name} may be too complex to use as a wall. Consider using a more simple mesh.")
+            if obj.type == 'MESH':
+                verts = len(obj.data.vertices) # type: ignore
+                if verts > 30:
+                    self.report({'WARNING'}, f"Object {obj.name} may be too complex to use as a wall. Consider using a more simple mesh.")
             cleaned_name = remove_existing_prefix(obj.name)
             obj.name = f"1WALL_{cleaned_name}"
         return {'FINISHED'}

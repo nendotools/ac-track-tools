@@ -127,7 +127,8 @@ class AC_ExportTrack(Operator):
 
         for collection in collections:
             # Determine filename
-            if len(collections) == 1:
+            # Use track name for single collection or for "default" collection
+            if len(collections) == 1 or collection.name == "default":
                 filename = track_name
             else:
                 filename = collection.name

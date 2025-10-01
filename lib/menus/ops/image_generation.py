@@ -29,7 +29,7 @@ def calculate_track_bounds(context, use_selection=False):
         from ....utils.constants import SURFACE_REGEX
 
         for obj in context.scene.objects:
-            if obj.type != 'MESH':
+            if obj.type not in ('MESH', 'CURVE', 'SURFACE'):
                 continue
 
             match = re.match(SURFACE_REGEX, obj.name)
@@ -286,7 +286,7 @@ class AC_GenerateMap(Operator):
                 from ....utils.constants import SURFACE_REGEX
                 track_objects = [
                     obj for obj in context.scene.objects
-                    if obj.type == 'MESH' and re.match(SURFACE_REGEX, obj.name) and
+                    if obj.type in ('MESH', 'CURVE', 'SURFACE') and re.match(SURFACE_REGEX, obj.name) and
                     re.match(SURFACE_REGEX, obj.name).group(2) == 'ROAD'
                 ]
 
@@ -369,8 +369,9 @@ class AC_GenerateMap(Operator):
 
             # Delete temporary objects
             if temp_camera:
+                camera_data = temp_camera.data
                 bpy.data.objects.remove(temp_camera, do_unlink=True)
-                bpy.data.cameras.remove(temp_camera.data, do_unlink=True)
+                bpy.data.cameras.remove(camera_data, do_unlink=True)
 
             if temp_material:
                 bpy.data.materials.remove(temp_material, do_unlink=True)

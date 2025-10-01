@@ -102,11 +102,9 @@ class AC_GizmoPitbox(Gizmo):
             self.use_select_background = True
 
     def draw(self, context):
-        from gpu.state import blend_set, depth_test_set
+        from gpu.state import blend_set
         blend_set('ALPHA')
-        depth_test_set('ALWAYS')
         self.draw_custom_shape(self.shape)
-        depth_test_set('LESS_EQUAL')
         blend_set('NONE')
 
     def draw_select(self, context, select_id): # type: ignore
@@ -167,11 +165,9 @@ class AC_GizmoStartPos(Gizmo):
             self.use_select_background = True
 
     def draw(self, context):
-        from gpu.state import blend_set, depth_test_set
+        from gpu.state import blend_set
         blend_set('ALPHA')
-        depth_test_set('ALWAYS')
         self.draw_custom_shape(self.shape)
-        depth_test_set('LESS_EQUAL')
         blend_set('NONE')
 
     def draw_select(self, context, select_id): # type: ignore

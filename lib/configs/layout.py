@@ -58,14 +58,22 @@ class AC_TrackLayout(PropertyGroup):
 
     def get_collection_enabled(self, collection_name: str) -> bool:
         """Check if a collection is enabled in this layout"""
+        # "default" collection is always enabled implicitly
+        if collection_name == "default":
+            return True
+
         for col in self.collections:
             if col.collection_name == collection_name:
                 return col.enabled
-        # Default to True if not explicitly disabled
+        # Default to True if not explicitly tracked
         return True
 
     def set_collection_enabled(self, collection_name: str, enabled: bool):
         """Set whether a collection is enabled in this layout"""
+        # Cannot disable "default" collection
+        if collection_name == "default":
+            return
+
         # Find existing entry
         for col in self.collections:
             if col.collection_name == collection_name:
@@ -185,16 +193,16 @@ class AC_LayoutSettings(PropertyGroup):
         return None
 
     def ensure_base_track_collection(self):
-        """Ensure first collection is named 'base_track'"""
+        """Ensure first collection is named 'default'"""
         if len(bpy.data.collections) == 0:
-            # Create base_track collection if none exist
-            col = bpy.data.collections.new("base_track")
+            # Create default collection if none exist
+            col = bpy.data.collections.new("default")
             bpy.context.scene.collection.children.link(col)
         elif len(bpy.data.collections) > 0:
-            # Rename first collection to base_track
+            # Rename first collection to default
             first_col = bpy.data.collections[0]
-            if first_col.name != "base_track":
-                first_col.name = "base_track"
+            if first_col.name != "default":
+                first_col.name = "default"
 
     def ensure_default_layout(self):
         """Ensure there is always a default layout that cannot be deleted"""
