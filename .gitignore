@@ -3,3 +3,4 @@ deploy.sh
 __pycache__/
 venv
 *.md
+.DS_Store
