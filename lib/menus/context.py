@@ -41,7 +41,7 @@ def pit_menu(self, context):
     layout.operator("ac.add_pitbox")
 
 class WM_MT_ObjectSetup(Menu):
-    bl_label = "Object Setup"
+    bl_label = "Assign Render Mode"
     bl_idname = "WM_MT_ObjectSetup"
 
     def draw(self, context):
@@ -54,8 +54,8 @@ def surface_menu(self, context):
     layout: UILayout = self.layout
     if len(context.selected_objects) == 0: # only show the menu if an object is selected
         return
-    objects = [obj for obj in context.selected_objects if obj.type == 'MESH']
-    if len(objects) == 0: # only show the menu if a mesh object is selected
+    objects = [obj for obj in context.selected_objects if obj.type in ('MESH', 'CURVE', 'SURFACE')]
+    if len(objects) == 0: # only show the menu if a mesh/curve/surface object is selected
         return
     layout.separator()
     layout.menu("WM_MT_AssignSurface")

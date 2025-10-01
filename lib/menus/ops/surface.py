@@ -114,7 +114,7 @@ class AC_AssignSurface(Operator):
         default="ROAD",
     )
     def execute(self, context):
-        objects = [obj for obj in context.selected_objects if obj.type == 'MESH']
+        objects = [obj for obj in context.selected_objects if obj.type in ('MESH', 'CURVE', 'SURFACE')]
         for obj in objects:
             cleaned_name = remove_existing_prefix(obj.name)
             obj.name = f"1{self.key}_{cleaned_name}"
