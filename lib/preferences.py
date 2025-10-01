@@ -17,7 +17,7 @@ class AC_Preferences(AddonPreferences):
         size=4,
         min=0.0,
         max=1.0,
-        default=(1.0, 1.0, 1.0, 1.0),
+        default=(0.2, 1.0, 0.2, 1.0),
         update=lambda s, c: s.refresh_gizmos(c),
     )
 
@@ -32,7 +32,7 @@ class AC_Preferences(AddonPreferences):
         size=4,
         min=0.0,
         max=1.0,
-        default=(1.0, 0.0, 0.0, 1.0),
+        default=(0.0, 1.0, 1.0, 1.0),
         update=lambda s, c: s.refresh_gizmos(c),
     )
 
@@ -47,7 +47,7 @@ class AC_Preferences(AddonPreferences):
         size=4,
         min=0.0,
         max=1.0,
-        default=(1.0, 1.0, 1.0, 1.0),
+        default=(1.0, 1.0, 0.0, 1.0),
         update=lambda s, c: s.refresh_gizmos(c),
     )
 
@@ -62,7 +62,7 @@ class AC_Preferences(AddonPreferences):
         size=4,
         min=0.0,
         max=1.0,
-        default=(1.0, 1.0, 1.0, 1.0),
+        default=(0.0, 0.5, 1.0, 1.0),
         update=lambda s, c: s.refresh_gizmos(c),
     )
 
@@ -77,7 +77,7 @@ class AC_Preferences(AddonPreferences):
         size=4,
         min=0.0,
         max=1.0,
-        default=(1.0, 1.0, 1.0, 1.0),
+        default=(1.0, 0.0, 1.0, 1.0),
         update=lambda s, c: s.refresh_gizmos(c),
     )
 
@@ -92,7 +92,7 @@ class AC_Preferences(AddonPreferences):
         size=4,
         min=0.0,
         max=1.0,
-        default=(1.0, 1.0, 1.0, 1.0),
+        default=(1.0, 0.5, 0.0, 1.0),
         update=lambda s, c: s.refresh_gizmos(c),
     )
 

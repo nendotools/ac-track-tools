@@ -1,8 +1,29 @@
-from bpy.types import Gizmo, GizmoGroup, Object
+import bpy
+from bpy.types import Gizmo, GizmoGroup, Object, Operator
 from mathutils import Matrix, Vector
 import math
 
 from ...lib.settings import AC_Settings
+
+
+class AC_SelectGizmoObject(Operator):
+    """Select the object associated with this gizmo"""
+    bl_idname = "ac.select_gizmo_object"
+    bl_label = "Select Object"
+    bl_options = {'INTERNAL'}
+
+    object_name: bpy.props.StringProperty() # type: ignore
+
+    def execute(self, context):
+        ob = context.scene.objects.get(self.object_name)
+        if ob:
+            # Deselect all other objects first
+            for obj in context.selected_objects:
+                obj.select_set(False)
+            # Select and make active
+            ob.select_set(True)
+            context.view_layer.objects.active = ob
+        return {'FINISHED'}
 
 
 class AC_GizmoPitbox(Gizmo):
@@ -12,61 +33,73 @@ class AC_GizmoPitbox(Gizmo):
     )
 
     ob_name: str
+
     def setup(self):
         if not hasattr(self, "shape"):
-            # Pitbox: box with X on ground (Z=-1) + "PIT" text on front vertical face (Y=-1)
+            # Pitbox: box with X on ground + "PIT" text on front vertical wall
+            # Floor is at Y=-1, box is square from X=-1 to X=1, Z=-1 to Z=1
             self.shape = self.new_custom_shape('TRIS',
             [
-                # Box outline on ground (Z=-1 plane)
-                # Front edge
+                # Box outline on ground (Y=-1 plane)
+                # Front edge (Z=1)
+                (-1, -1, 1), (1, -1, 1), (1, -1, 1.05),
+                (-1, -1, 1), (1, -1, 1.05), (-1, -1, 1.05),
+                # Back edge (Z=-1)
                 (-1, -1, -1), (1, -1, -1), (1, -1, -0.95),
                 (-1, -1, -1), (1, -1, -0.95), (-1, -1, -0.95),
-                # Back edge
-                (-1, -0.5, -1), (1, -0.5, -1), (1, -0.5, -0.95),
-                (-1, -0.5, -1), (1, -0.5, -0.95), (-1, -0.5, -0.95),
-                # Left edge
-                (-1, -1, -1), (-1, -0.5, -1), (-1, -0.5, -0.95),
-                (-1, -1, -1), (-1, -0.5, -0.95), (-1, -1, -0.95),
-                # Right edge
-                (1, -1, -1), (1, -0.5, -1), (1, -0.5, -0.95),
-                (1, -1, -1), (1, -0.5, -0.95), (1, -1, -0.95),
+                # Left edge (X=-1)
+                (-1, -1, -1), (-1, -1, 1), (-1, -1, 1.05),
+                (-1, -1, -1), (-1, -1, 1.05), (-1, -1, -0.95),
+                # Right edge (X=1)
+                (1, -1, -1), (1, -1, 1), (1, -1, 1.05),
+                (1, -1, -1), (1, -1, 1.05), (1, -1, -0.95),
 
-                # X inside box on ground (Z=-1 plane)
-                # Diagonal 1: front-left to back-right
-                (-0.85, -0.95, -1), (-0.75, -0.95, -1), (0.75, -0.55, -1),
-                (-0.85, -0.95, -1), (0.75, -0.55, -1), (0.85, -0.55, -1),
-                # Diagonal 2: front-right to back-left
-                (0.85, -0.95, -1), (0.75, -0.95, -1), (-0.75, -0.55, -1),
-                (0.85, -0.95, -1), (-0.75, -0.55, -1), (-0.85, -0.55, -1),
+                # X inside box on ground (Y=-1 plane)
+                # Diagonal 1: top-left to bottom-right (this one was working)
+                (-0.85, -1, 0.85), (-0.75, -1, 0.85), (0.85, -1, -0.85),
+                (-0.75, -1, 0.85), (0.85, -1, -0.75), (0.85, -1, -0.85),
 
-                # "PIT" text on front vertical face (Y=-1 plane, using X and Z coordinates)
-                # P - vertical bar
-                (-0.7, -1, -0.8), (-0.6, -1, -0.8), (-0.6, -1, 0.2),
-                (-0.7, -1, -0.8), (-0.6, -1, 0.2), (-0.7, -1, 0.2),
-                # P - top horizontal
-                (-0.6, -1, 0.1), (-0.3, -1, 0.1), (-0.3, -1, 0.2),
-                (-0.6, -1, 0.1), (-0.3, -1, 0.2), (-0.6, -1, 0.2),
-                # P - middle horizontal
-                (-0.6, -1, -0.1), (-0.3, -1, -0.1), (-0.3, -1, 0.0),
-                (-0.6, -1, -0.1), (-0.3, -1, 0.0), (-0.6, -1, 0.0),
-                # P - right vertical segment
-                (-0.3, -1, -0.1), (-0.2, -1, -0.1), (-0.2, -1, 0.2),
-                (-0.3, -1, -0.1), (-0.2, -1, 0.2), (-0.3, -1, 0.2),
+                # Diagonal 2: top-right to bottom-left (mirror the pattern)
+                (0.85, -1, 0.85), (0.75, -1, 0.85), (-0.85, -1, -0.85),
+                (0.75, -1, 0.85), (-0.85, -1, -0.75), (-0.85, -1, -0.85),
+
+                # Short vertical walls on left and right sides (Y=-1 to Y=-0.7, extending front to back)
+                # Left wall (X=-1, Z=-1 to Z=1, short height Y=-1 to Y=-0.9)
+                (-1, -1, -1), (-1, -0.9, -1), (-1, -0.9, 1),
+                (-1, -1, -1), (-1, -0.9, 1), (-1, -1, 1),
+                # Right wall (X=1, Z=-1 to Z=1, short height Y=-1 to Y=-0.9)
+                (1, -1, -1), (1, -0.9, -1), (1, -0.9, 1),
+                (1, -1, -1), (1, -0.9, 1), (1, -1, 1),
+
+                # "PIT" text on front vertical wall (Z=1, Y=-1 to Y=-0.7, using X and Y)
+                # P - vertical bar (left side, full height)
+                (-0.7, -1, 1), (-0.6, -1, 1), (-0.6, -0.7, 1),
+                (-0.7, -1, 1), (-0.6, -0.7, 1), (-0.7, -0.7, 1),
+                # P - top horizontal (connecting to top of vertical bar)
+                (-0.6, -0.75, 1), (-0.3, -0.75, 1), (-0.3, -0.7, 1),
+                (-0.6, -0.75, 1), (-0.3, -0.7, 1), (-0.6, -0.7, 1),
+                # P - middle horizontal (closing the loop)
+                (-0.6, -0.85, 1), (-0.3, -0.85, 1), (-0.3, -0.8, 1),
+                (-0.6, -0.85, 1), (-0.3, -0.8, 1), (-0.6, -0.8, 1),
+                # P - right vertical segment (only from middle to top, forming the loop)
+                (-0.3, -0.85, 1), (-0.2, -0.85, 1), (-0.2, -0.7, 1),
+                (-0.3, -0.85, 1), (-0.2, -0.7, 1), (-0.3, -0.7, 1),
 
                 # I - vertical bar
-                (-0.05, -1, -0.8), (0.05, -1, -0.8), (0.05, -1, 0.2),
-                (-0.05, -1, -0.8), (0.05, -1, 0.2), (-0.05, -1, 0.2),
+                (-0.05, -1, 1), (0.05, -1, 1), (0.05, -0.7, 1),
+                (-0.05, -1, 1), (0.05, -0.7, 1), (-0.05, -0.7, 1),
 
                 # T - top horizontal
-                (0.2, -1, 0.1), (0.7, -1, 0.1), (0.7, -1, 0.2),
-                (0.2, -1, 0.1), (0.7, -1, 0.2), (0.2, -1, 0.2),
+                (0.2, -0.75, 1), (0.7, -0.75, 1), (0.7, -0.7, 1),
+                (0.2, -0.75, 1), (0.7, -0.7, 1), (0.2, -0.7, 1),
                 # T - vertical bar
-                (0.4, -1, -0.8), (0.5, -1, -0.8), (0.5, -1, 0.2),
-                (0.4, -1, -0.8), (0.5, -1, 0.2), (0.4, -1, 0.2),
+                (0.4, -1, 1), (0.5, -1, 1), (0.5, -0.7, 1),
+                (0.4, -1, 1), (0.5, -0.7, 1), (0.4, -0.7, 1),
             ])
             self.scale = 4.3, 1.4, 2.3
             self.use_draw_scale = False
             self.use_draw_modal = True
+            self.use_select_background = True
 
     def draw(self, context):
         from gpu.state import blend_set, depth_test_set
@@ -84,17 +117,6 @@ class AC_GizmoPitbox(Gizmo):
         mat_r = mat_rotation.to_matrix().to_4x4()
         self.matrix_basis = mat_t @ mat_r
 
-    def invoke(self, context, event):
-        # Select the parent Empty object when clicked
-        ob = context.scene.objects.get(self.ob_name)
-        if ob:
-            # Deselect all other objects first
-            for obj in context.selected_objects:
-                obj.select_set(False)
-            # Select and make active
-            ob.select_set(True)
-            context.view_layer.objects.active = ob
-        return {'FINISHED'}
 
 class AC_GizmoStartPos(Gizmo):
     bl_idname = "AC_GizmoStartPos"
@@ -103,43 +125,46 @@ class AC_GizmoStartPos(Gizmo):
     )
 
     ob_name: str
+
     def setup(self):
         if not hasattr(self, "shape"):
-            # Wide, short U-shape flat on the ground at the front
-            # Like a starting line marking on track surface
+            # Wide, short U-shape with floor marking and vertical walls
+            # Floor is at Y=-1, vertical walls from Y=-0.7 to Y=-0.5
+            # U-shape extends in Z direction, front at Z=1
             self.shape = self.new_custom_shape('TRIS',
             [
-                # All geometry is on Z=-1 (ground plane)
-                # Y=-1 is the front edge (starting line)
+                # Floor markings on Y=-1 plane
 
-                # Left vertical bar of U (front edge)
-                (-1, -1, -1), (-0.85, -1, -1), (-0.85, -0.7, -1),
-                (-1, -1, -1), (-0.85, -0.7, -1), (-1, -0.7, -1),
+                # Left floor bar (X=-1 side, Z=0.7 to Z=1)
+                (-1, -1, 0.7), (-0.85, -1, 0.7), (-0.85, -1, 1),
+                (-1, -1, 0.7), (-0.85, -1, 1), (-1, -1, 1),
 
-                # Right vertical bar of U (front edge)
-                (0.85, -1, -1), (1, -1, -1), (1, -0.7, -1),
-                (0.85, -1, -1), (1, -0.7, -1), (0.85, -0.7, -1),
+                # Right floor bar (X=1 side, Z=0.7 to Z=1)
+                (0.85, -1, 0.7), (1, -1, 0.7), (1, -1, 1),
+                (0.85, -1, 0.7), (1, -1, 1), (0.85, -1, 1),
 
-                # Bottom horizontal bar of U (connecting left and right)
-                (-0.85, -0.7, -1), (0.85, -0.7, -1), (0.85, -0.85, -1),
-                (-0.85, -0.7, -1), (0.85, -0.85, -1), (-0.85, -0.85, -1),
+                # Front floor bar (connecting left and right at Z=1)
+                (-0.85, -1, 1), (0.85, -1, 1), (0.85, -1, 0.85),
+                (-0.85, -1, 1), (0.85, -1, 0.85), (-0.85, -1, 0.85),
 
-                # Inner detail lines (for visual depth)
-                # Left inner line
-                (-0.9, -1, -1), (-0.85, -1, -1), (-0.85, -0.75, -1),
-                (-0.9, -1, -1), (-0.85, -0.75, -1), (-0.9, -0.75, -1),
+                # Short vertical walls (Y=-1 to Y=-0.9, same height as pitbox)
 
-                # Right inner line
-                (0.85, -1, -1), (0.9, -1, -1), (0.9, -0.75, -1),
-                (0.85, -1, -1), (0.9, -0.75, -1), (0.85, -0.75, -1),
+                # Left vertical wall (X=-1, Z=0.7 to Z=1)
+                (-1, -1, 0.7), (-1, -0.9, 0.7), (-1, -0.9, 1),
+                (-1, -1, 0.7), (-1, -0.9, 1), (-1, -1, 1),
 
-                # Bottom inner line
-                (-0.9, -0.75, -1), (0.9, -0.75, -1), (0.9, -0.8, -1),
-                (-0.9, -0.75, -1), (0.9, -0.8, -1), (-0.9, -0.8, -1),
+                # Right vertical wall (X=1, Z=0.7 to Z=1)
+                (1, -1, 0.7), (1, -0.9, 0.7), (1, -0.9, 1),
+                (1, -1, 0.7), (1, -0.9, 1), (1, -1, 1),
+
+                # Front vertical wall (Z=1, X=-1 to X=1, Y=-1 to Y=-0.9)
+                (-1, -1, 1), (1, -1, 1), (1, -0.9, 1),
+                (-1, -1, 1), (1, -0.9, 1), (-1, -0.9, 1),
             ])
             self.scale = 4.3, 1.4, 2.3
             self.use_draw_scale = False
             self.use_draw_modal = True
+            self.use_select_background = True
 
     def draw(self, context):
         from gpu.state import blend_set, depth_test_set
@@ -157,17 +182,6 @@ class AC_GizmoStartPos(Gizmo):
         mat_r = mat_rotation.to_matrix().to_4x4()
         self.matrix_basis = mat_t @ mat_r
 
-    def invoke(self, context, event):
-        # Select the parent Empty object when clicked
-        ob = context.scene.objects.get(self.ob_name)
-        if ob:
-            # Deselect all other objects first
-            for obj in context.selected_objects:
-                obj.select_set(False)
-            # Select and make active
-            ob.select_set(True)
-            context.view_layer.objects.active = ob
-        return {'FINISHED'}
 
 class AC_GizmoGate(Gizmo):
     bl_idname = "AC_GizmoGate"
@@ -203,9 +217,6 @@ class AC_GizmoGate(Gizmo):
         self.pos_end = loc_end
         self.update_shape()
 
-    def invoke(self, context, event):
-        return {'FINISHED'}
-
 
 class AC_GizmoGroup(GizmoGroup):
     bl_idname = "AC_GizmoGroup"
@@ -230,6 +241,9 @@ class AC_GizmoGroup(GizmoGroup):
                     gb = self.gizmos.new("AC_GizmoPitbox")
                     gb.matrix_basis = ob.matrix_basis.normalized()
                     gb.ob_name = ob.name
+                    # Set target operator for click selection
+                    op = gb.target_set_operator("ac.select_gizmo_object")
+                    op.object_name = ob.name
                     gb.hide = not ob.visible_get() or not prefs.show_pitboxes
                     gb.color = prefs.pitbox_color[:3]
                     gb.alpha = prefs.pitbox_color[3] * 0.3  # Low opacity by default
@@ -240,6 +254,9 @@ class AC_GizmoGroup(GizmoGroup):
                     gb = self.gizmos.new("AC_GizmoStartPos")
                     gb.matrix_basis = ob.matrix_basis.normalized()
                     gb.ob_name = ob.name
+                    # Set target operator for click selection
+                    op = gb.target_set_operator("ac.select_gizmo_object")
+                    op.object_name = ob.name
                     gb.hide = not ob.visible_get() or not prefs.show_start
                     gb.color = prefs.start_color[:3]
                     gb.alpha = prefs.start_color[3] * 0.3  # Low opacity by default
@@ -250,6 +267,9 @@ class AC_GizmoGroup(GizmoGroup):
                     gb = self.gizmos.new("AC_GizmoStartPos")
                     gb.matrix_basis = ob.matrix_basis.normalized()
                     gb.ob_name = ob.name
+                    # Set target operator for click selection
+                    op = gb.target_set_operator("ac.select_gizmo_object")
+                    op.object_name = ob.name
                     gb.hide = not ob.visible_get() or not prefs.show_hotlap_start
                     gb.color = prefs.hotlap_start_color[:3]
                     gb.alpha = prefs.hotlap_start_color[3] * 0.3  # Low opacity by default
