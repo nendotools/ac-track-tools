@@ -14,44 +14,59 @@ class AC_GizmoPitbox(Gizmo):
     ob_name: str
     def setup(self):
         if not hasattr(self, "shape"):
-            # 3D pitbox representation: floor + walls + posts
+            # Pitbox: box with X on ground (Z=-1) + "PIT" text on front vertical face (Y=-1)
             self.shape = self.new_custom_shape('TRIS',
             [
-                # floor outline (thicker representation)
+                # Box outline on ground (Z=-1 plane)
+                # Front edge
                 (-1, -1, -1), (1, -1, -1), (1, -1, -0.95),
                 (-1, -1, -1), (1, -1, -0.95), (-1, -1, -0.95),
-
-                # left wall (front to back)
-                (-1, -1, -1), (-1, -0.5, -1), (-1, -0.5, 1),
-                (-1, -1, -1), (-1, -0.5, 1), (-1, -1, 1),
-                (-1, -0.5, -1), (-0.95, -0.5, -1), (-0.95, -0.5, 1),
-                (-1, -0.5, -1), (-0.95, -0.5, 1), (-1, -0.5, 1),
-
-                # right wall (front to back)
-                (1, -1, -1), (1, -0.5, -1), (1, -0.5, 1),
-                (1, -1, -1), (1, -0.5, 1), (1, -1, 1),
-                (0.95, -0.5, -1), (1, -0.5, -1), (1, -0.5, 1),
-                (0.95, -0.5, -1), (1, -0.5, 1), (0.95, -0.5, 1),
-
-                # back wall (left to right)
+                # Back edge
                 (-1, -0.5, -1), (1, -0.5, -1), (1, -0.5, -0.95),
                 (-1, -0.5, -1), (1, -0.5, -0.95), (-1, -0.5, -0.95),
+                # Left edge
+                (-1, -1, -1), (-1, -0.5, -1), (-1, -0.5, -0.95),
+                (-1, -1, -1), (-1, -0.5, -0.95), (-1, -1, -0.95),
+                # Right edge
+                (1, -1, -1), (1, -0.5, -1), (1, -0.5, -0.95),
+                (1, -1, -1), (1, -0.5, -0.95), (1, -1, -0.95),
 
-                # corner posts (thicker vertical indicators)
-                (-1, -1, -1), (-0.9, -1, -1), (-0.9, -1, 1),
-                (-1, -1, -1), (-0.9, -1, 1), (-1, -1, 1),
-                (0.9, -1, -1), (1, -1, -1), (1, -1, 1),
-                (0.9, -1, -1), (1, -1, 1), (0.9, -1, 1),
+                # X inside box on ground (Z=-1 plane)
+                # Diagonal 1: front-left to back-right
+                (-0.85, -0.95, -1), (-0.75, -0.95, -1), (0.75, -0.55, -1),
+                (-0.85, -0.95, -1), (0.75, -0.55, -1), (0.85, -0.55, -1),
+                # Diagonal 2: front-right to back-left
+                (0.85, -0.95, -1), (0.75, -0.95, -1), (-0.75, -0.55, -1),
+                (0.85, -0.95, -1), (-0.75, -0.55, -1), (-0.85, -0.55, -1),
 
-                (-1, -0.6, -1), (-0.9, -0.6, -1), (-0.9, -0.6, 1),
-                (-1, -0.6, -1), (-0.9, -0.6, 1), (-1, -0.6, 1),
-                (0.9, -0.6, -1), (1, -0.6, -1), (1, -0.6, 1),
-                (0.9, -0.6, -1), (1, -0.6, 1), (0.9, -0.6, 1),
+                # "PIT" text on front vertical face (Y=-1 plane, using X and Z coordinates)
+                # P - vertical bar
+                (-0.7, -1, -0.8), (-0.6, -1, -0.8), (-0.6, -1, 0.2),
+                (-0.7, -1, -0.8), (-0.6, -1, 0.2), (-0.7, -1, 0.2),
+                # P - top horizontal
+                (-0.6, -1, 0.1), (-0.3, -1, 0.1), (-0.3, -1, 0.2),
+                (-0.6, -1, 0.1), (-0.3, -1, 0.2), (-0.6, -1, 0.2),
+                # P - middle horizontal
+                (-0.6, -1, -0.1), (-0.3, -1, -0.1), (-0.3, -1, 0.0),
+                (-0.6, -1, -0.1), (-0.3, -1, 0.0), (-0.6, -1, 0.0),
+                # P - right vertical segment
+                (-0.3, -1, -0.1), (-0.2, -1, -0.1), (-0.2, -1, 0.2),
+                (-0.3, -1, -0.1), (-0.2, -1, 0.2), (-0.3, -1, 0.2),
+
+                # I - vertical bar
+                (-0.05, -1, -0.8), (0.05, -1, -0.8), (0.05, -1, 0.2),
+                (-0.05, -1, -0.8), (0.05, -1, 0.2), (-0.05, -1, 0.2),
+
+                # T - top horizontal
+                (0.2, -1, 0.1), (0.7, -1, 0.1), (0.7, -1, 0.2),
+                (0.2, -1, 0.1), (0.7, -1, 0.2), (0.2, -1, 0.2),
+                # T - vertical bar
+                (0.4, -1, -0.8), (0.5, -1, -0.8), (0.5, -1, 0.2),
+                (0.4, -1, -0.8), (0.5, -1, 0.2), (0.4, -1, 0.2),
             ])
             self.scale = 4.3, 1.4, 2.3
             self.use_draw_scale = False
             self.use_draw_modal = True
-            self.use_draw_hover = True
 
     def draw(self, context):
         from gpu.state import blend_set, depth_test_set
@@ -73,8 +88,12 @@ class AC_GizmoPitbox(Gizmo):
         # Select the parent Empty object when clicked
         ob = context.scene.objects.get(self.ob_name)
         if ob:
-            context.view_layer.objects.active = ob
+            # Deselect all other objects first
+            for obj in context.selected_objects:
+                obj.select_set(False)
+            # Select and make active
             ob.select_set(True)
+            context.view_layer.objects.active = ob
         return {'FINISHED'}
 
 class AC_GizmoStartPos(Gizmo):
@@ -86,55 +105,41 @@ class AC_GizmoStartPos(Gizmo):
     ob_name: str
     def setup(self):
         if not hasattr(self, "shape"):
-            # 3D pole position line representation
-            # Two parallel vertical bars with horizontal connecting strips
+            # Wide, short U-shape flat on the ground at the front
+            # Like a starting line marking on track surface
             self.shape = self.new_custom_shape('TRIS',
             [
-                # left pole (vertical bar)
-                (-0.9, -1, -1), (-0.7, -1, -1), (-0.7, -1, 1),
-                (-0.9, -1, -1), (-0.7, -1, 1), (-0.9, -1, 1),
-                (-0.9, -0.9, -1), (-0.7, -0.9, -1), (-0.7, -0.9, 1),
-                (-0.9, -0.9, -1), (-0.7, -0.9, 1), (-0.9, -0.9, 1),
+                # All geometry is on Z=-1 (ground plane)
+                # Y=-1 is the front edge (starting line)
 
-                # right pole (vertical bar)
-                (0.7, -1, -1), (0.9, -1, -1), (0.9, -1, 1),
-                (0.7, -1, -1), (0.9, -1, 1), (0.7, -1, 1),
-                (0.7, -0.9, -1), (0.9, -0.9, -1), (0.9, -0.9, 1),
-                (0.7, -0.9, -1), (0.9, -0.9, 1), (0.7, -0.9, 1),
+                # Left vertical bar of U (front edge)
+                (-1, -1, -1), (-0.85, -1, -1), (-0.85, -0.7, -1),
+                (-1, -1, -1), (-0.85, -0.7, -1), (-1, -0.7, -1),
 
-                # connecting strips (horizontal bars at different heights)
-                # bottom strip
-                (-0.9, -1, -1), (0.9, -1, -1), (0.9, -1, -0.9),
-                (-0.9, -1, -1), (0.9, -1, -0.9), (-0.9, -1, -0.9),
+                # Right vertical bar of U (front edge)
+                (0.85, -1, -1), (1, -1, -1), (1, -0.7, -1),
+                (0.85, -1, -1), (1, -0.7, -1), (0.85, -0.7, -1),
 
-                # mid-low strip
-                (-0.9, -1, -0.2), (0.9, -1, -0.2), (0.9, -1, -0.1),
-                (-0.9, -1, -0.2), (0.9, -1, -0.1), (-0.9, -1, -0.1),
+                # Bottom horizontal bar of U (connecting left and right)
+                (-0.85, -0.7, -1), (0.85, -0.7, -1), (0.85, -0.85, -1),
+                (-0.85, -0.7, -1), (0.85, -0.85, -1), (-0.85, -0.85, -1),
 
-                # mid-high strip
-                (-0.9, -1, 0.4), (0.9, -1, 0.4), (0.9, -1, 0.5),
-                (-0.9, -1, 0.4), (0.9, -1, 0.5), (-0.9, -1, 0.5),
+                # Inner detail lines (for visual depth)
+                # Left inner line
+                (-0.9, -1, -1), (-0.85, -1, -1), (-0.85, -0.75, -1),
+                (-0.9, -1, -1), (-0.85, -0.75, -1), (-0.9, -0.75, -1),
 
-                # top strip
-                (-0.9, -1, 0.9), (0.9, -1, 0.9), (0.9, -1, 1),
-                (-0.9, -1, 0.9), (0.9, -1, 1), (-0.9, -1, 1),
+                # Right inner line
+                (0.85, -1, -1), (0.9, -1, -1), (0.9, -0.75, -1),
+                (0.85, -1, -1), (0.9, -0.75, -1), (0.85, -0.75, -1),
 
-                # front face depth indicators (thin connecting walls)
-                (-0.9, -1, -1), (-0.9, -0.9, -1), (-0.7, -0.9, -1),
-                (-0.9, -1, -1), (-0.7, -0.9, -1), (-0.7, -1, -1),
-                (0.7, -1, -1), (0.7, -0.9, -1), (0.9, -0.9, -1),
-                (0.7, -1, -1), (0.9, -0.9, -1), (0.9, -1, -1),
-
-                # back face depth indicators
-                (-0.9, -1, 1), (-0.9, -0.9, 1), (-0.7, -0.9, 1),
-                (-0.9, -1, 1), (-0.7, -0.9, 1), (-0.7, -1, 1),
-                (0.7, -1, 1), (0.7, -0.9, 1), (0.9, -0.9, 1),
-                (0.7, -1, 1), (0.9, -0.9, 1), (0.9, -1, 1),
+                # Bottom inner line
+                (-0.9, -0.75, -1), (0.9, -0.75, -1), (0.9, -0.8, -1),
+                (-0.9, -0.75, -1), (0.9, -0.8, -1), (-0.9, -0.8, -1),
             ])
             self.scale = 4.3, 1.4, 2.3
             self.use_draw_scale = False
             self.use_draw_modal = True
-            self.use_draw_hover = True
 
     def draw(self, context):
         from gpu.state import blend_set, depth_test_set
@@ -156,8 +161,12 @@ class AC_GizmoStartPos(Gizmo):
         # Select the parent Empty object when clicked
         ob = context.scene.objects.get(self.ob_name)
         if ob:
-            context.view_layer.objects.active = ob
+            # Deselect all other objects first
+            for obj in context.selected_objects:
+                obj.select_set(False)
+            # Select and make active
             ob.select_set(True)
+            context.view_layer.objects.active = ob
         return {'FINISHED'}
 
 class AC_GizmoGate(Gizmo):
@@ -198,73 +207,6 @@ class AC_GizmoGate(Gizmo):
         return {'FINISHED'}
 
 
-class AC_GizmoAnchor(Gizmo):
-    """Clickable anchor point for manipulating empties"""
-    bl_idname = "AC_GizmoAnchor"
-
-    ob_name: str
-    anchor_type: str  # 'center', 'front', 'back', 'left', 'right'
-
-    def setup(self):
-        if not hasattr(self, "shape"):
-            # Create a small sphere anchor
-            segments = 8
-            verts = []
-
-            # Simple octahedron for performance
-            verts = [
-                (0, 0, 0.3), (0, 0, -0.3),
-                (0.3, 0, 0), (-0.3, 0, 0),
-                (0, 0.3, 0), (0, -0.3, 0),
-            ]
-
-            # Create triangles connecting the vertices
-            self.shape = self.new_custom_shape('TRIS', [
-                # top pyramid
-                verts[0], verts[2], verts[4],
-                verts[0], verts[4], verts[3],
-                verts[0], verts[3], verts[5],
-                verts[0], verts[5], verts[2],
-                # bottom pyramid
-                verts[1], verts[4], verts[2],
-                verts[1], verts[3], verts[4],
-                verts[1], verts[5], verts[3],
-                verts[1], verts[2], verts[5],
-            ])
-            self.use_draw_scale = False
-            self.use_draw_modal = True
-            self.use_draw_hover = True
-
-    def draw(self, context):
-        from gpu.state import blend_set, depth_test_set
-        blend_set('ALPHA')
-        depth_test_set('ALWAYS')
-        self.draw_custom_shape(self.shape)
-        depth_test_set('LESS_EQUAL')
-        blend_set('NONE')
-
-    def draw_select(self, context, select_id): # type: ignore
-        self.draw_custom_shape(self.shape, select_id=select_id)
-
-    def update(self, mat_location, mat_rotation, offset):
-        """Update anchor position with offset based on anchor type"""
-        mat_t = Matrix.Translation(mat_location)
-        mat_r = mat_rotation.to_matrix().to_4x4()
-
-        # Apply offset based on anchor type
-        local_offset = Vector(offset)
-        offset_matrix = Matrix.Translation(mat_r @ local_offset)
-
-        self.matrix_basis = mat_t @ offset_matrix
-
-    def invoke(self, context, event):
-        # Select the parent Empty object when clicked
-        ob = context.scene.objects.get(self.ob_name)
-        if ob:
-            context.view_layer.objects.active = ob
-            ob.select_set(True)
-        return {'FINISHED'}
-
 class AC_GizmoGroup(GizmoGroup):
     bl_idname = "AC_GizmoGroup"
     bl_label = "AC Track Gizmo Group"
@@ -276,33 +218,6 @@ class AC_GizmoGroup(GizmoGroup):
     def poll(cls, context): # type: ignore
         return (context.scene.objects)
 
-    def _add_anchors(self, ob, color, show):
-        """Add anchor points for an object"""
-        if not show:
-            return
-
-        # Define anchor positions relative to object
-        anchor_positions = {
-            'center': (0, 0, 0),
-            'front': (0, 2, 0),
-            'back': (0, -2, 0),
-            'top': (0, 0, 2),
-        }
-
-        for anchor_type, offset in anchor_positions.items():
-            anchor = self.gizmos.new("AC_GizmoAnchor")
-            anchor.ob_name = ob.name
-            anchor.anchor_type = anchor_type
-            anchor.hide = not ob.visible_get()
-
-            # Brighten anchor color for visibility
-            anchor_color = tuple(min(c * 1.5, 1.0) for c in color[:3])
-            anchor.color = anchor_color
-            anchor.alpha = color[3] * 0.8
-            anchor.color_highlight = (1.0, 1.0, 0.0)
-            anchor.alpha_highlight = 1.0
-
-            anchor.update(ob.location, ob.rotation_euler, offset)
 
     def setup(self, context):
         prefs = context.preferences.addons[__package__.split('.')[0]].preferences # type: ignore
@@ -317,11 +232,9 @@ class AC_GizmoGroup(GizmoGroup):
                     gb.ob_name = ob.name
                     gb.hide = not ob.visible_get() or not prefs.show_pitboxes
                     gb.color = prefs.pitbox_color[:3]
-                    gb.alpha = prefs.pitbox_color[3]
+                    gb.alpha = prefs.pitbox_color[3] * 0.3  # Low opacity by default
                     gb.color_highlight = tuple(min(c * 1.3, 1.0) for c in prefs.pitbox_color[:3])
-                    gb.alpha_highlight = min(prefs.pitbox_color[3] * 1.2, 1.0)
-
-                    self._add_anchors(ob, prefs.pitbox_color, prefs.show_pitboxes)
+                    gb.alpha_highlight = prefs.pitbox_color[3]  # Full opacity on hover
 
                 if ob.name.startswith('AC_START_'):
                     gb = self.gizmos.new("AC_GizmoStartPos")
@@ -329,11 +242,9 @@ class AC_GizmoGroup(GizmoGroup):
                     gb.ob_name = ob.name
                     gb.hide = not ob.visible_get() or not prefs.show_start
                     gb.color = prefs.start_color[:3]
-                    gb.alpha = prefs.start_color[3]
+                    gb.alpha = prefs.start_color[3] * 0.3  # Low opacity by default
                     gb.color_highlight = tuple(min(c * 1.3, 1.0) for c in prefs.start_color[:3])
-                    gb.alpha_highlight = min(prefs.start_color[3] * 1.2, 1.0)
-
-                    self._add_anchors(ob, prefs.start_color, prefs.show_start)
+                    gb.alpha_highlight = prefs.start_color[3]  # Full opacity on hover
 
                 if ob.name.startswith('AC_HOTLAP_START_'):
                     gb = self.gizmos.new("AC_GizmoStartPos")
@@ -341,11 +252,9 @@ class AC_GizmoGroup(GizmoGroup):
                     gb.ob_name = ob.name
                     gb.hide = not ob.visible_get() or not prefs.show_hotlap_start
                     gb.color = prefs.hotlap_start_color[:3]
-                    gb.alpha = prefs.hotlap_start_color[3]
+                    gb.alpha = prefs.hotlap_start_color[3] * 0.3  # Low opacity by default
                     gb.color_highlight = tuple(min(c * 1.3, 1.0) for c in prefs.hotlap_start_color[:3])
-                    gb.alpha_highlight = min(prefs.hotlap_start_color[3] * 1.2, 1.0)
-
-                    self._add_anchors(ob, prefs.hotlap_start_color, prefs.show_hotlap_start)
+                    gb.alpha_highlight = prefs.hotlap_start_color[3]  # Full opacity on hover
 
     def refresh(self, context):
         prefs = context.preferences.addons[__package__.split('.')[0]].preferences # type: ignore
@@ -356,6 +265,11 @@ class AC_GizmoGroup(GizmoGroup):
         if len(obs) != len(main_gizmos):
             self.setup(context)
             return
+
+        # Remove all gate gizmos before creating new ones
+        gate_gizmos = [g for g in self.gizmos if g.bl_idname == 'AC_GizmoGate']
+        for gate_gizmo in gate_gizmos:
+            self.gizmos.remove(gate_gizmo)
 
         for g in self.gizmos:
             if not hasattr(g, 'ob_name'):
@@ -375,18 +289,7 @@ class AC_GizmoGroup(GizmoGroup):
                 g.hide = not ob.visible_get() or not prefs.show_hotlap_start
 
             # Update gizmo position
-            if g.bl_idname == "AC_GizmoAnchor":
-                # Get anchor offset based on type
-                anchor_positions = {
-                    'center': (0, 0, 0),
-                    'front': (0, 2, 0),
-                    'back': (0, -2, 0),
-                    'top': (0, 0, 2),
-                }
-                offset = anchor_positions.get(g.anchor_type, (0, 0, 0))
-                g.update(ob.location, ob.rotation_euler, offset)
-            else:
-                g.update(ob.location, ob.rotation_euler)
+            g.update(ob.location, ob.rotation_euler)
 
         settings: AC_Settings = context.scene.AC_Settings # type: ignore
         time_gates: list[list[Object]] = settings.get_time_gates(context, True) # type: ignore
@@ -396,9 +299,9 @@ class AC_GizmoGroup(GizmoGroup):
             g = self.gizmos.new("AC_GizmoGate")
             g.hide = not gate[0].visible_get() or not gate[1].visible_get() or not prefs.show_time_gates
             g.color = prefs.time_gate_color[:3]
-            g.alpha = prefs.time_gate_color[3]
+            g.alpha = prefs.time_gate_color[3] * 0.3  # Low opacity by default
             g.color_highlight = prefs.time_gate_color[:3]
-            g.alpha_highlight = prefs.time_gate_color[3]
+            g.alpha_highlight = prefs.time_gate_color[3]  # Full opacity on hover
             g.update(gate[0].location, gate[1].location)
 
         ab_start_gates = settings.get_ab_start_gates(context)
@@ -406,9 +309,9 @@ class AC_GizmoGroup(GizmoGroup):
             g = self.gizmos.new("AC_GizmoGate")
             g.hide = not ab_start_gates[0].visible_get() or not ab_start_gates[1].visible_get() or not prefs.show_ab_start
             g.color = prefs.ab_start_color[:3]
-            g.alpha = prefs.ab_start_color[3]
+            g.alpha = prefs.ab_start_color[3] * 0.3  # Low opacity by default
             g.color_highlight = prefs.ab_start_color[:3]
-            g.alpha_highlight = prefs.ab_start_color[3]
+            g.alpha_highlight = prefs.ab_start_color[3]  # Full opacity on hover
             g.update(ab_start_gates[0].location, ab_start_gates[1].location)
 
         ab_finish_gates = settings.get_ab_finish_gates(context)
@@ -416,7 +319,7 @@ class AC_GizmoGroup(GizmoGroup):
             g = self.gizmos.new("AC_GizmoGate")
             g.hide = not ab_finish_gates[0].visible_get() or not ab_finish_gates[1].visible_get() or not prefs.show_ab_finish
             g.color = prefs.ab_finish_color[:3]
-            g.alpha = prefs.ab_finish_color[3]
+            g.alpha = prefs.ab_finish_color[3] * 0.3  # Low opacity by default
             g.color_highlight = prefs.ab_finish_color[:3]
-            g.alpha_highlight = prefs.ab_finish_color[3]
+            g.alpha_highlight = prefs.ab_finish_color[3]  # Full opacity on hover
             g.update(ab_finish_gates[0].location, ab_finish_gates[1].location)

@@ -10,7 +10,7 @@ from .configs.lighting import (AC_DirectionList, AC_GlobalLighting, AC_Light,
                                AC_PositionList, AC_SunSettings)
 from .configs.surface import AC_Surface
 from .configs.track import AC_Track
-from .gizmos.pitbox import (AC_GizmoAnchor, AC_GizmoGate, AC_GizmoGroup,
+from .gizmos.pitbox import (AC_GizmoGate, AC_GizmoGroup,
                             AC_GizmoPitbox, AC_GizmoStartPos)
 from .menus.context import (WM_MT_AssignSurface, WM_MT_ObjectSetup, pit_menu,
                             start_menu, surface_menu, utility_menu)
@@ -61,7 +61,7 @@ __classes__ = (
     AC_AutofixPreflight, AC_ExportTrack,
     AC_SaveSettings, AC_LoadSettings,
     AC_SelectByName,
-    AC_GizmoPitbox, AC_GizmoStartPos, AC_GizmoGate, AC_GizmoAnchor, AC_GizmoGroup,
+    AC_GizmoPitbox, AC_GizmoStartPos, AC_GizmoGate, AC_GizmoGroup,
     AC_AddAudioSource, AC_ToggleAudio,
     AC_AddGlobalExtension, AC_RemoveGlobalExtension, AC_ToggleGlobalExtension, AC_AddGlobalExtensionItem, AC_RemoveGlobalExtensionItem,
     AC_AddStart, AC_AddHotlapStart, AC_AddPitbox, AC_AddTimeGate, AC_AddABStartGate, AC_AddABFinishGate, AC_AddAudioEmitter,
