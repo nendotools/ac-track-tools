@@ -867,7 +867,7 @@ class VIEW3D_PT_AC_Sidebar_Layouts(VIEW3D_PT_AC_Sidebar, Panel):
 
             col_box = layout.box()
             col_header = col_box.row()
-            col_header.label(text=f"Collections", icon='OUTLINER_COLLECTION')
+            col_header.label(text="Collections", icon='OUTLINER_COLLECTION')
             col_header.label(text=f"({active_layout.name})")
 
             # Preview mode toggle as icon button

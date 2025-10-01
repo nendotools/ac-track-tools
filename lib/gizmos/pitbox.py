@@ -1,7 +1,6 @@
 import bpy
 from bpy.types import Gizmo, GizmoGroup, Object, Operator
 from mathutils import Matrix, Vector
-import math
 
 from ...lib.settings import AC_Settings
 
