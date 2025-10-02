@@ -27,7 +27,7 @@ bl_info = {
         "Track configuration tool for easier management of assets, nodes, and"
         "track settings intended to speed up track development",
     "author": "NENDO",
-    "version": (0, 5, 0),
+    "version": (0, 5, 1),
     "blender": (2, 93, 0),
     "location": "View3D > Tools > Assetto Corsa: Track",
     "warning": "",

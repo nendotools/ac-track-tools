@@ -133,6 +133,44 @@ class MaterialWriter(KN5Writer):
         self.material_positions: dict[str, int] = {}
         self._collect_materials()
 
+    def get_material_id(self, material) -> int:
+        """Get material ID, adding it if not already collected (for evaluated meshes)."""
+        if material.name in self.material_positions:
+            return self.material_positions[material.name]
+
+        # Material not found - this can happen with evaluated meshes from modifiers
+        # Add it now with validation
+        position = len(self.material_positions)
+        mat_props = MaterialProperties(material, self.warnings)
+        self.available_materials[material.name] = mat_props
+        self.material_positions[material.name] = position
+
+        # Validate texture paths for dynamically added materials
+        from ...utils.files import get_texture_directory
+        texture_dir = get_texture_directory()
+
+        texture_issues = []
+        if material.node_tree:
+            import bpy
+            for node in material.node_tree.nodes:
+                if isinstance(node, bpy.types.ShaderNodeTexImage) and node.image:
+                    if not node.image.filepath:
+                        texture_issues.append(f"texture '{node.image.name}' has no filepath")
+                    elif not node.image.filepath.startswith("//"):
+                        texture_issues.append(f"texture '{node.image.name}' uses absolute path (should be relative)")
+                    else:
+                        # Check if texture is in content/texture directory
+                        abs_path = bpy.path.abspath(node.image.filepath)
+                        if texture_dir not in abs_path:
+                            texture_issues.append(f"texture '{node.image.name}' not in content/texture directory")
+
+        warning_msg = f"Material '{material.name}' added from evaluated mesh (Geometry Nodes/modifiers)"
+        if texture_issues:
+            warning_msg += f" - Issues: {'; '.join(texture_issues)}"
+        self.warnings.append(warning_msg)
+
+        return position
+
     def write(self) -> None:
         """Write material count and all material definitions."""
         self.write_int(len(self.available_materials))
@@ -140,18 +178,57 @@ class MaterialWriter(KN5Writer):
             material = self.available_materials[material_name]
             self._write_material(material)
 
+    def _is_object_hidden(self, obj) -> bool:
+        """Check if object is in any hidden collection."""
+        for collection in obj.users_collection:
+            if collection.hide_viewport:
+                return True
+        return False
+
+    def _collect_object_materials(self, obj, materials: set) -> None:
+        """Recursively collect materials from object and its children."""
+        if obj.name.startswith("__"):
+            return
+        if self._is_object_hidden(obj):
+            return
+
+        # Collect materials from this object
+        if hasattr(obj, 'material_slots'):
+            for slot in obj.material_slots:
+                if slot.material and not slot.material.name.startswith("__"):
+                    materials.add(slot.material)
+
+        # Recursively collect from children
+        for child in obj.children:
+            self._collect_object_materials(child, materials)
+
     def _collect_materials(self) -> None:
         """Collect all materials used by mesh objects in scene."""
         position = 0
+        scene_materials = set()
 
-        for material in self.context.blend_data.materials:
-            if material.users == 0:
-                self.warnings.append(f"Ignoring unused material: '{material.name}'")
+        # Collect materials from all visible root objects and their children
+        for obj in self.context.scene.objects:
+            # Only process root objects (children will be handled recursively)
+            if obj.parent:
+                continue
+            # Skip if object name starts with __
+            if obj.name.startswith("__"):
+                continue
+            # Skip instancer objects (tree/grass scatter systems)
+            if obj.name.startswith("KSTREE_GROUP_") or obj.name.startswith("GRASS_"):
+                continue
+            # Skip template/example objects
+            name_lower = obj.name.lower()
+            if "_profile" in name_lower or "_example" in name_lower or "collider" in name_lower:
+                continue
+            # Skip if object is in a hidden collection
+            if self._is_object_hidden(obj):
                 continue
 
-            if material.name.startswith("__"):
-                continue
+            self._collect_object_materials(obj, scene_materials)
 
+        for material in scene_materials:
             mat_props = MaterialProperties(material, self.warnings)
             self.available_materials[material.name] = mat_props
             self.material_positions[material.name] = position

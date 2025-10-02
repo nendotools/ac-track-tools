@@ -188,7 +188,7 @@ class AC_AutoSetupObjects(Operator):
         tree_count = 0
         grass_count = 0
 
-        for obj in context.blend_data.objects:
+        for obj in context.scene.objects:
             if obj.type != 'MESH' or obj.name.startswith("__"):
                 continue
 

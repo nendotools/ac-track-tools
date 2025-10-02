@@ -74,17 +74,30 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
     bl_context = "objectmode"
 
     def draw(self, context):
+        import bpy
         layout = self.layout
         settings: AC_Settings = context.scene.AC_Settings  # type: ignore
         col = layout.column(align=True)
         # If the working directory is the same as the blend file, it will return //, which is not a valid path
         # So we should validate it and set it to the blend file directory if it is invalid
         col.prop(settings, "working_dir", text="Working Directory")
+
+        has_working_dir = bool(settings.working_dir)
+        is_blend_saved = bpy.data.is_saved
+        can_save_or_export = has_working_dir and is_blend_saved
+
         if settings.working_dir:
             row = col.row()
-            row.operator("ac.save_settings", text="Save Settings")
+            save_btn = row.row()
+            save_btn.enabled = can_save_or_export
+            save_btn.operator("ac.save_settings", text="Save Settings")
             row.separator()
             row.operator("ac.load_settings", text="Load Settings")
+
+            if not is_blend_saved:
+                info_row = col.row()
+                info_row.alignment = "CENTER"
+                info_row.label(text="Save blend file to enable saving/export", icon="ERROR")
         else:
             row = col.row()
             row.alignment = "CENTER"
@@ -176,7 +189,7 @@ class VIEW3D_PT_AC_Sidebar_Project(VIEW3D_PT_AC_Sidebar, Panel):
         export_row = col.row()
         # Only block export on severity 1 (fixable) and 2 (critical) errors, not severity 0 (warnings)
         blocking_errors = [e for e in errors if e["severity"] >= 1]
-        export_row.enabled = len(blocking_errors) == 0
+        export_row.enabled = len(blocking_errors) == 0 and can_save_or_export
         export_text = f"Export Track to {'KN5' if opts.use_kn5 else 'FBX'}"
         export_row.operator("ac.export_track", text=export_text, icon="EXPORT")
 

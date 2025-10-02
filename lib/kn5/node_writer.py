@@ -102,7 +102,7 @@ class NodeWriter(KN5Writer):
     def _get_visible_root_objects(self) -> list:
         """Get root objects that are visible (not in hidden collections)."""
         visible_objects = []
-        for obj in self.context.blend_data.objects:
+        for obj in self.context.scene.objects:
             # Skip if object has parent
             if obj.parent:
                 continue
@@ -338,7 +338,7 @@ class NodeWriter(KN5Writer):
                     indices.extend([face_indices[1], face_indices[2], face_indices[0]])
 
                 sorted_vertices = [v for v, _ in sorted(vertices.items(), key=lambda k: k[1])]
-                material_id = self.material_writer.material_positions[material.name]
+                material_id = self.material_writer.get_material_id(material)
                 mesh_parts.append(MeshData(material_id, sorted_vertices, indices))
 
         finally:

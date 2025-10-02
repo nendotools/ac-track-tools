@@ -321,11 +321,32 @@ class AC_Settings(PropertyGroup):
     # severity: 0 = info, 1 = warning (fixable), 2 = error (unfixable)
     def run_preflight(self, context) -> list:
         self.error.clear()
+
+        # Check working directory first
+        if not self.working_dir or self.working_dir == "":
+            self.error.append(
+                {"severity": 2, "message": "No working directory set", "code": "NO_WORKING_DIR"}
+            )
+
         if not context.preferences.addons["io_scene_fbx"]:
             self.error.append(
                 {"severity": 2, "message": "FBX Exporter not enabled", "code": "NO_FBX"}
             )
-        if len(self.get_pitboxes(context)) != len(self.get_starts(context)):
+
+        # Check for start positions and pitboxes
+        start_count = len(self.get_starts(context))
+        pitbox_count = len(self.get_pitboxes(context))
+
+        if start_count == 0:
+            self.error.append(
+                {"severity": 2, "message": "No start positions defined", "code": "NO_STARTS"}
+            )
+        if pitbox_count == 0:
+            self.error.append(
+                {"severity": 2, "message": "No pitboxes defined", "code": "NO_PITBOXES"}
+            )
+
+        if start_count > 0 and pitbox_count > 0 and start_count != pitbox_count:
             self.error.append(
                 {
                     "severity": 2,
@@ -333,7 +354,7 @@ class AC_Settings(PropertyGroup):
                     "code": "PITBOX_START_MISMATCH",
                 }
             )
-        if len(self.get_pitboxes(context)) != self.track.pitboxes:
+        if pitbox_count != self.track.pitboxes:
             self.error.append(
                 {
                     "severity": 1,
@@ -389,47 +410,65 @@ class AC_Settings(PropertyGroup):
         # KN5-specific checks
         if self.export_settings.use_kn5:
             self._run_kn5_preflight_checks(context)
-        # - fbx export settings wrong
-        # - objects are not assigned materials
-        # - check for missing material textures not in texture folder
-        # - check for missing map files
-        if not self.working_dir or self.working_dir == "":
-            return self.error
-        if self.working_dir != get_active_directory():
-            set_path_reference(self.working_dir)
-        map_files = find_maps()
-        if not map_files["map"]:
-            self.error.append(
-                {
-                    "severity": 2,
-                    "message": 'No map file found "./map.png"',
-                    "code": "NO_MAP",
-                }
-            )
-        if not map_files["outline"]:
-            self.error.append(
-                {
-                    "severity": 2,
-                    "message": 'No outline file found "./ui/outline.png"',
-                    "code": "NO_OUTLINE",
-                }
-            )
-        if not map_files["preview"]:
-            self.error.append(
-                {
-                    "severity": 2,
-                    "message": 'No preview file found "./ui/preview.png"',
-                    "code": "NO_PREVIEW",
-                }
-            )
+
+        # Check for missing map files (only if working directory is set)
+        if self.working_dir and self.working_dir != "":
+            if self.working_dir != get_active_directory():
+                set_path_reference(self.working_dir)
+            map_files = find_maps()
+            if not map_files["map"]:
+                self.error.append(
+                    {
+                        "severity": 2,
+                        "message": 'No map file found "./map.png"',
+                        "code": "NO_MAP",
+                    }
+                )
+            if not map_files["outline"]:
+                self.error.append(
+                    {
+                        "severity": 2,
+                        "message": 'No outline file found "./ui/outline.png"',
+                        "code": "NO_OUTLINE",
+                    }
+                )
+            if not map_files["preview"]:
+                self.error.append(
+                    {
+                        "severity": 2,
+                        "message": 'No preview file found "./ui/preview.png"',
+                        "code": "NO_PREVIEW",
+                    }
+                )
 
         return self.error
+
+    def _is_object_in_hidden_collection(self, obj) -> bool:
+        """Check if object is in any hidden collection."""
+        for collection in obj.users_collection:
+            if collection.hide_viewport or collection.hide_render or collection.name.startswith("__"):
+                return True
+        return False
+
+    def _get_scene_materials(self, context):
+        """Get all materials used by objects in the active scene."""
+        materials = set()
+        for obj in context.scene.objects:
+            if obj.name.startswith("__"):
+                continue
+            if hasattr(obj, 'material_slots'):
+                for slot in obj.material_slots:
+                    if slot.material and not slot.material.name.startswith("__"):
+                        materials.add(slot.material)
+        return materials
 
     def _run_kn5_preflight_checks(self, context):
         """KN5-specific validation checks."""
         # Check vertex counts
-        for obj in context.blend_data.objects:
+        for obj in context.scene.objects:
             if obj.type != "MESH" or obj.name.startswith("__"):
+                continue
+            if self._is_object_in_hidden_collection(obj):
                 continue
 
             mesh_data = obj.to_mesh()
@@ -444,14 +483,15 @@ class AC_Settings(PropertyGroup):
             finally:
                 obj.to_mesh_clear()
 
-        # Check for procedural textures
+        # Check for procedural textures (only in materials used by scene objects)
         procedural_types = {
             'TEX_NOISE', 'TEX_GRADIENT', 'TEX_VORONOI', 'TEX_MAGIC',
             'TEX_WAVE', 'TEX_MUSGRAVE', 'TEX_CHECKER', 'TEX_BRICK'
         }
         procedural_nodes = []
-        for mat in context.blend_data.materials:
-            if mat.users == 0 or not mat.node_tree:
+        scene_materials = self._get_scene_materials(context)
+        for mat in scene_materials:
+            if not mat.node_tree:
                 continue
             for node in mat.node_tree.nodes:
                 if node.type in procedural_types:
@@ -464,9 +504,9 @@ class AC_Settings(PropertyGroup):
                 "code": "KN5_PROCEDURAL_TEXTURES",
             })
 
-        # Check for materials without node trees
-        for mat in context.blend_data.materials:
-            if mat.users > 0 and not mat.node_tree and not mat.name.startswith("__"):
+        # Check for materials without node trees (only in scene)
+        for mat in scene_materials:
+            if not mat.node_tree:
                 self.error.append({
                     "severity": 0,
                     "message": f"Material '{mat.name}' has no node tree - will use default shader",
@@ -474,8 +514,10 @@ class AC_Settings(PropertyGroup):
                 })
 
         # Check for objects with no materials
-        for obj in context.blend_data.objects:
+        for obj in context.scene.objects:
             if obj.type not in ("MESH", "CURVE", "SURFACE") or obj.name.startswith("__"):
+                continue
+            if self._is_object_in_hidden_collection(obj):
                 continue
             # Skip instancer objects (tree/grass scatter systems)
             if obj.name.startswith("KSTREE_GROUP_") or obj.name.startswith("GRASS_"):
@@ -493,7 +535,7 @@ class AC_Settings(PropertyGroup):
                     for mod in obj.modifiers
                 )
                 if has_geometry_modifiers:
-                    continue  # Skip - materials will come from generated geometry
+                    continue
 
             if not obj.material_slots:
                 self.error.append({
@@ -502,7 +544,6 @@ class AC_Settings(PropertyGroup):
                     "code": "KN5_NO_MATERIAL",
                 })
             else:
-                # Check for empty material slots
                 for i, slot in enumerate(obj.material_slots):
                     if not slot.material:
                         self.error.append({
@@ -512,8 +553,10 @@ class AC_Settings(PropertyGroup):
                         })
 
         # Check for mesh objects with children (KN5 limitation)
-        for obj in context.blend_data.objects:
+        for obj in context.scene.objects:
             if obj.type != "MESH" or obj.name.startswith("__"):
+                continue
+            if self._is_object_in_hidden_collection(obj):
                 continue
             children = [child for child in obj.children if not child.name.startswith("__")]
             if children:

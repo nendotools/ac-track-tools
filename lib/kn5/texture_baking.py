@@ -235,11 +235,20 @@ def bake_all_procedural_materials(context: Context, resolution: int = 1024) -> l
     warnings = []
     materials_to_bake = []
 
-    # Find all materials with procedural textures
-    for material in context.blend_data.materials:
-        if material.users > 0 and not material.name.startswith("__"):
-            if has_procedural_textures(material):
-                materials_to_bake.append(material)
+    # Collect materials from scene objects only
+    scene_materials = set()
+    for obj in context.scene.objects:
+        if obj.name.startswith("__"):
+            continue
+        if hasattr(obj, 'material_slots'):
+            for slot in obj.material_slots:
+                if slot.material and not slot.material.name.startswith("__"):
+                    scene_materials.add(slot.material)
+
+    # Find materials with procedural textures
+    for material in scene_materials:
+        if has_procedural_textures(material):
+            materials_to_bake.append(material)
 
     if not materials_to_bake:
         warnings.append("No materials with procedural textures found")
