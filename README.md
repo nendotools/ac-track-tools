@@ -11,6 +11,9 @@
   </div>
 </div>
 
+> ![WARNING]
+> I've taken a hiatus from maintaining this project to focus on some other things. FuzzysAltTabGarage has picked it up to continue development.
+
 ### Table of Contents
 
 - [Overview](#overview)
