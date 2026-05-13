@@ -32,7 +32,7 @@ bl_info = {
     "location": "View3D > Tools > Assetto Corsa: Track",
     "warning": "",
     "doc_url": "",
-    "tracker_url": "https://github.com/nendotools/touchview/issues",
+    "tracker_url": "https://github.com/nendotools/ac-track-tools/issues",
     "category": "3D View",
 }
 
